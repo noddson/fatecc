@@ -1,0 +1,82 @@
+/* The book uses Gotham and Adobe Garamond Pro. Use installed licensed originals
+   where available; the bundled OFL alternatives keep every screen usable offline. */
+@font-face {
+  font-family: 'Book Gotham';
+  src: local('Gotham-Book'), local('Gotham Book'), local('Gotham');
+  font-weight: 400 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Book Gotham';
+  src: local('Gotham-Bold'), local('Gotham Bold');
+  font-weight: 600 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Book Garamond';
+  src: local('AGaramondPro-Regular'), local('Adobe Garamond Pro');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Book Garamond';
+  src: local('AGaramondPro-Bold'), local('Adobe Garamond Pro Bold');
+  font-weight: 600 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Book Garamond';
+  src: local('AGaramondPro-Italic'), local('Adobe Garamond Pro Italic');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Montserrat';
+  src: url('/fonts/Montserrat-Variable.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Montserrat';
+  src: url('/fonts/Montserrat-VariableItalic.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'EB Garamond';
+  src: url('/fonts/EBGaramond-Variable.woff2') format('woff2');
+  font-weight: 400 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'EB Garamond';
+  src: url('/fonts/EBGaramond-VariableItalic.woff2') format('woff2');
+  font-weight: 400 800;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Fate Core Glyphs';
+  src: url('/fonts/Fate-Core-Font.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+:root {
+  --font-ui: 'Book Gotham', 'Montserrat', 'Avenir Next', Arial, sans-serif;
+  --font-prose: 'Book Garamond', 'EB Garamond', Garamond, Georgia, serif;
+}
+.fate-glyph {
+  font-family: 'Fate Core Glyphs';
+  font-weight: 400;
+  font-style: normal;
+  line-height: 1;
+}

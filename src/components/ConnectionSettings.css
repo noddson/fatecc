@@ -1,0 +1,111 @@
+.connection-settings-details {
+  margin-bottom: 20px;
+  min-width: 0;
+}
+.connection-settings-details > summary,
+.connection-turn-help > summary {
+  cursor: pointer;
+  color: #185d8e;
+  line-height: 1.6;
+}
+.connection-settings-details > summary {
+  padding: 8px 0;
+}
+.connection-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-width: 0;
+  margin-top: 14px;
+}
+.connection-settings-intro,
+.connection-service-help,
+.connection-settings-locked {
+  margin: 0;
+  color: #65717d;
+  font-size: 12px;
+  line-height: 1.7;
+}
+.connection-settings-locked {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-left: 3px solid #1d6da4;
+  background: #f1f6fa;
+  color: #185d8e;
+}
+.connection-settings-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.connection-settings-legend {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.connection-service {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-width: 0;
+  padding: 18px;
+  border: 1px solid #dbe1e7;
+  border-radius: 8px;
+  background: #f6f7f8;
+}
+.connection-settings .field {
+  margin-bottom: 0;
+}
+.connection-settings .connection-server-url {
+  font-family: ui-monospace, monospace;
+  font-size: 11px;
+  color: #38536a;
+  background: #edf3f7;
+}
+.connection-credential-fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 18px;
+}
+.connection-relay-option {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.connection-relay-option .checkbox-row {
+  margin: 0;
+}
+.connection-turn-help {
+  padding: 14px 18px;
+  border: 1px solid #bccedc;
+  border-radius: 8px;
+  background: #f1f6fa;
+}
+.connection-turn-help ol {
+  margin: 16px 0;
+  padding-left: 22px;
+  color: #536575;
+  font-size: 12px;
+  line-height: 1.7;
+}
+.connection-turn-help li + li {
+  margin-top: 12px;
+}
+.connection-settings a {
+  color: #185d8e;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+@media (max-width: 600px) {
+  .connection-credential-fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .connection-service,
+  .connection-turn-help {
+    padding: 14px;
+  }
+}

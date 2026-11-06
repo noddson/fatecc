@@ -1,0 +1,108 @@
+.connection-qr-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+  padding: 18px;
+  border: 1px solid #bccedc;
+  border-radius: 8px;
+  background: #f1f6fa;
+}
+.connection-qr-image {
+  display: block;
+  width: 360px;
+  max-width: 100%;
+  height: auto;
+  background: #fff;
+  image-rendering: pixelated;
+}
+.connection-qr-display p {
+  max-width: 480px;
+  margin: 0;
+  color: #536575;
+  font-size: 12px;
+  line-height: 1.6;
+  text-align: center;
+}
+.connection-qr-display .button {
+  max-width: 100%;
+}
+.connection-qr-reader {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+.connection-text-fallback {
+  min-width: 0;
+}
+.connection-text-fallback > summary {
+  cursor: pointer;
+  padding: 10px 0;
+  color: #185d8e;
+  font-size: 12px;
+}
+.connection-text-fallback[open] > summary {
+  margin-bottom: 10px;
+}
+.connection-qr-actions {
+  flex-wrap: wrap;
+}
+.connection-qr-upload {
+  position: relative;
+  overflow: hidden;
+}
+.connection-qr-upload input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+.connection-qr-upload:focus-within {
+  outline: 3px solid #588ab5;
+  outline-offset: 3px;
+}
+.connection-qr-upload.is-disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.connection-qr-camera {
+  display: block;
+  width: 100%;
+  max-width: 480px;
+  aspect-ratio: 4 / 3;
+  object-fit: contain;
+  border: 1px solid #bccedc;
+  border-radius: 8px;
+  background: #102e46;
+}
+.connection-qr-status,
+.connection-qr-help,
+.connection-qr-error {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.connection-qr-status {
+  color: #185d8e;
+}
+.connection-qr-help {
+  color: #65717d;
+}
+.connection-qr-error,
+.connection-qr-display .connection-qr-error {
+  color: #a64c43;
+}
+@media (max-width: 430px) {
+  .connection-qr-display {
+    padding: 12px;
+  }
+  .connection-qr-actions > button,
+  .connection-qr-actions > label {
+    width: 100%;
+  }
+}

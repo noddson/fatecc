@@ -1,0 +1,149 @@
+{
+  "repository": "fate-srd/fate-srd-content",
+  "repositoryUrl": "https://github.com/fate-srd/fate-srd-content",
+  "revision": "93ed848e723f31b4994b466b7241011ba24be885",
+  "reviewedOn": "2026-11-06",
+  "selectedSource": {
+    "path": "source/fate-core-SRD.html",
+    "blobSha": "5ef6f2d0e9ce8ebe235c3da453ce91c00353a528",
+    "sha256": "d345efb80ca2221df88157d4e553d247662661781cac04e610d4c3147cba07ec",
+    "bytes": 773242,
+    "license": "CC-BY-3.0",
+    "reason": "Repository Core Markdown identifies itself as abridged OGL. Generate Markdown from the repository's original CC-BY Core source instead."
+  },
+  "markdownCatalog": [
+    {
+      "path": "docs/markdown/Factions.md",
+      "blobSha": "e5a16104b82b68654060b9d1f956000c391018c2",
+      "bytes": 15999,
+      "status": "future-cc-by-3.0-review-required",
+      "sourceUrl": "https://github.com/fate-srd/fate-srd-content/blob/93ed848e723f31b4994b466b7241011ba24be885/docs/markdown/Factions.md"
+    },
+    {
+      "path": "docs/markdown/Fate-Condensed-SRD-CC-BY.md",
+      "blobSha": "cc313c53ee75939e1f5c53f0f2ee59181e78ee00",
+      "bytes": 135498,
+      "status": "future-cc-by-3.0-review-required",
+      "sourceUrl": "https://github.com/fate-srd/fate-srd-content/blob/93ed848e723f31b4994b466b7241011ba24be885/docs/markdown/Fate-Condensed-SRD-CC-BY.md"
+    },
+    {
+      "path": "docs/markdown/The-Book-of-Hanz-Fate-Core-Thought-of-the-Day.md",
+      "blobSha": "db36e8275160049fc8bea20269148b0abf9063b5",
+      "bytes": 191946,
+      "status": "requires-license-review",
+      "sourceUrl": "https://github.com/fate-srd/fate-srd-content/blob/93ed848e723f31b4994b466b7241011ba24be885/docs/markdown/The-Book-of-Hanz-Fate-Core-Thought-of-the-Day.md"
+    },
+    {
+      "path": "docs/markdown/atomic-robo-SRD.md",
+      "blobSha": "cd49420e3b42b6b5fc809f9963f88654b360e383",
+      "bytes": 80405,
+      "status": "future-cc-by-3.0-review-required",
+      "sourceUrl": "https://github.com/fate-srd/fate-srd-content/blob/93ed848e723f31b4994b466b7241011ba24be885/docs/markdown/atomic-robo-SRD.md"
+    },
+    {
+      "path": "docs/markdown/fate-accelerated-SRD.md",
+      "blobSha": "268031c9e63739241ce5f960681aba76c535dd85",
+      "bytes": 72302,
+      "status": "future-cc-by-3.0-review-required",
+      "sourceUrl": "https://github.com/fate-srd/fate-srd-content/blob/93ed848e723f31b4994b466b7241011ba24be885/docs/markdown/fate-accelerated-SRD.md"
+    },
+    {
+      "path": "docs/markdown/fate-accessibility.md",
+      "blobSha": "2c6f42a99f7331473b5b55c9f552468b34b46e8e",
+      "bytes": 249714,
+      "status": "future-cc-by-3.0-review-required",
+      "sourceUrl": "https://github.com/fate-srd/fate-srd-content/blob/93ed848e723f31b4994b466b7241011ba24be885/docs/markdown/fate-accessibility.md"
+    },
+    {
+      "path": "docs/markdown/fate-adversary-toolkit.md",
+      "blobSha": "ef967a70517553e3c6899437daf600a7e20e43de",
+      "bytes": 58160,
+      "status": "requires-license-review",
+      "sourceUrl": "https://github.com/fate-srd/fate-srd-content/blob/93ed848e723f31b4994b466b7241011ba24be885/docs/markdown/fate-adversary-toolkit.md"
+    },
+    {
+      "path": "docs/markdown/fate-core.md",
+      "blobSha": "dd85f4ecf1fe6a739f0bae6a78cc714bba1451bf",
+      "bytes": 494358,
+      "status": "not-selected-abridged-ogl",
+      "sourceUrl": "https://github.com/fate-srd/fate-srd-content/blob/93ed848e723f31b4994b466b7241011ba24be885/docs/markdown/fate-core.md"
+    },
+    {
+      "path": "docs/markdown/fate-horror-toolkit.md",
+      "blobSha": "b0b8091daca503e55f41fc176a1fa0ce6f6b2959",
+      "bytes": 293144,
+      "status": "future-cc-by-3.0-review-required",
+      "sourceUrl": "https://github.com/fate-srd/fate-srd-content/blob/93ed848e723f31b4994b466b7241011ba24be885/docs/markdown/fate-horror-toolkit.md"
+    },
+    {
+      "path": "docs/markdown/fate-space-srd.md",
+      "blobSha": "8d11d81a508eca0aee56feabce54ac4569b5609d",
+      "bytes": 237694,
+      "status": "future-cc-by-3.0-review-required",
+      "sourceUrl": "https://github.com/fate-srd/fate-srd-content/blob/93ed848e723f31b4994b466b7241011ba24be885/docs/markdown/fate-space-srd.md"
+    },
+    {
+      "path": "docs/markdown/fate-system-toolkit-SRD.md",
+      "blobSha": "4b0fe87fbe0a9ab1fb6333793e17c2d6ea3f08a5",
+      "bytes": 345527,
+      "status": "future-cc-by-3.0-review-required",
+      "sourceUrl": "https://github.com/fate-srd/fate-srd-content/blob/93ed848e723f31b4994b466b7241011ba24be885/docs/markdown/fate-system-toolkit-SRD.md"
+    },
+    {
+      "path": "docs/markdown/frontier-spirit.md",
+      "blobSha": "719a57186711a333515c8d89e250a508b80a5bcc",
+      "bytes": 32525,
+      "status": "future-cc-by-3.0-review-required",
+      "sourceUrl": "https://github.com/fate-srd/fate-srd-content/blob/93ed848e723f31b4994b466b7241011ba24be885/docs/markdown/frontier-spirit.md"
+    },
+    {
+      "path": "docs/markdown/gods-and-monsters-SRD.md",
+      "blobSha": "624f4280f5a0dea6bc69fd0f756173c1740b6f35",
+      "bytes": 61226,
+      "status": "future-cc-by-3.0-review-required",
+      "sourceUrl": "https://github.com/fate-srd/fate-srd-content/blob/93ed848e723f31b4994b466b7241011ba24be885/docs/markdown/gods-and-monsters-SRD.md"
+    },
+    {
+      "path": "docs/markdown/sails-full-of-stars-SRD.md",
+      "blobSha": "76d71aefdd33dd6c1c37b5daedeec932399d8657",
+      "bytes": 30724,
+      "status": "future-cc-by-3.0-review-required",
+      "sourceUrl": "https://github.com/fate-srd/fate-srd-content/blob/93ed848e723f31b4994b466b7241011ba24be885/docs/markdown/sails-full-of-stars-SRD.md"
+    },
+    {
+      "path": "docs/markdown/three-rocketeers-fate-conspiracies-SRD.md",
+      "blobSha": "f84827ff7d026ed8cc518a222465136de6945052",
+      "bytes": 5891,
+      "status": "future-cc-by-3.0-review-required",
+      "sourceUrl": "https://github.com/fate-srd/fate-srd-content/blob/93ed848e723f31b4994b466b7241011ba24be885/docs/markdown/three-rocketeers-fate-conspiracies-SRD.md"
+    },
+    {
+      "path": "docs/markdown/three-rocketeers-no-skill-swashbuckling-SRD.md",
+      "blobSha": "6f2366f2976a00b1469abe344860640483da8cbc",
+      "bytes": 13917,
+      "status": "future-cc-by-3.0-review-required",
+      "sourceUrl": "https://github.com/fate-srd/fate-srd-content/blob/93ed848e723f31b4994b466b7241011ba24be885/docs/markdown/three-rocketeers-no-skill-swashbuckling-SRD.md"
+    },
+    {
+      "path": "docs/markdown/venture-city.md",
+      "blobSha": "2c4c7f0bc0336ebd39926a018f0b338dfc917404",
+      "bytes": 127339,
+      "status": "future-cc-by-3.0-review-required",
+      "sourceUrl": "https://github.com/fate-srd/fate-srd-content/blob/93ed848e723f31b4994b466b7241011ba24be885/docs/markdown/venture-city.md"
+    },
+    {
+      "path": "docs/markdown/war-of-ashes.md",
+      "blobSha": "bc42a1e11f9bc64e65ab874f106be9754b8dbef7",
+      "bytes": 143642,
+      "status": "future-cc-by-3.0-review-required",
+      "sourceUrl": "https://github.com/fate-srd/fate-srd-content/blob/93ed848e723f31b4994b466b7241011ba24be885/docs/markdown/war-of-ashes.md"
+    },
+    {
+      "path": "docs/markdown/words-of-power.md",
+      "blobSha": "dae2049e3ee2e28cac60fc01b7abba6aab03894c",
+      "bytes": 10548,
+      "status": "requires-license-review",
+      "sourceUrl": "https://github.com/fate-srd/fate-srd-content/blob/93ed848e723f31b4994b466b7241011ba24be885/docs/markdown/words-of-power.md"
+    }
+  ]
+}

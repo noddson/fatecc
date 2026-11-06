@@ -1,0 +1,28 @@
+{
+  "generator": "scripts/generate-app-icons.mjs",
+  "renderer": "Chromium 151.0.7922.34",
+  "source": "public/branding/powered-by-fate-dark.svg",
+  "sourceSha256": "971ee72a4057ab1ffe2a0ad31c2f4ce20e29b411a324b1cadcdcec3ae06a3682",
+  "background": "#175c8b",
+  "logoWidthFraction": 0.75,
+  "outputs": [
+    {
+      "file": "public/branding/app-icon-192.png",
+      "width": 192,
+      "height": 192,
+      "sha256": "ce96c1796941aeb2e1f8d141b60469c90fc14bfd3acee23ea4cb64a20ec19cb4"
+    },
+    {
+      "file": "public/branding/app-icon-512.png",
+      "width": 512,
+      "height": 512,
+      "sha256": "85e54bf6a814f78d6212802a639387b1c1697555b69291f99ce7dc88f45b7d82"
+    },
+    {
+      "file": "public/branding/apple-touch-icon.png",
+      "width": 180,
+      "height": 180,
+      "sha256": "ef5226d50d00da430fdca2068bec169ac8b7bbea05386b37c104c7f7c3a822fb"
+    }
+  ]
+}

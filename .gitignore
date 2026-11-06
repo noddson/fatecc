@@ -1,0 +1,28 @@
+# Local reference and working files
+/Fate Core Electronic.pdf
+/output/
+/tmp/
+.DS_Store
+
+# Dependencies and builds
+node_modules/
+dist/
+*.tsbuildinfo
+
+# Test output
+test-results/
+playwright-report/
+coverage/
+
+# Python caches
+__pycache__/
+*.py[cod]
+
+# Local settings and logs
+.env
+.env.*
+!.env.example
+*.log
+
+# Local development handoffs
+/docs/checkpoint-*.md

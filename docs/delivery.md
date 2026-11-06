@@ -1,0 +1,69 @@
+# Delivery and verification register
+
+This register separates implemented capabilities from external release gates. This is an implemented development build; the Phase 7 release gate remains open. It is not a claim that every browser, network, or tabletop scenario has been tested.
+
+| Phase | Implemented | Verification |
+| --- | --- | --- |
+| 0 — Rules and foundation | Typed domain model, pure Core mechanics, pinned GitHub CC-BY source, generated Markdown/offline references, source register, automated test tooling | Repository-linked rules and original mechanical fixtures tested; direct WebRTC exercised in two isolated Chromium contexts. External forced TURN is pending. |
+| 1 — Local games | Campaign/one-shot create, duplicate, archive, delete, configurable rules, autosave, atomic IndexedDB, JSON/ZIP backup and restore | Persistence/format/migration/conflict tests; browser workflow checks recorded below. |
+| 2 — Characters and reference | Full/quick builder, NPC profiles, character import/export, derived values, validation, offline Core and campaign search | Original character fixtures and repository-defined thresholds tested; browser creation/reload/search/restore checked. |
+| 3 — Play | Dice/actions, invocations, compels, stress, consequences, concessions, boundaries, NPC pools, teamwork, contests/challenges, corrections | Deterministic command/rules tests. Narrative suitability and fictional time remain explicit human judgments. |
+| 4 — Continuity | Notes/locations/factions/summaries, private/shared visibility, portraits, inventory ownership and quantities, milestones and skill growth | Unit/backup/privacy fixtures; real-group multi-session playtest pending. |
+| 5 — Peers | GM approval, device grants, character ownership, QR/text pairing, Cloudflare/custom STUN and TURN, append-only accepted events, reconnect credentials, drafts, selective snapshots/assets | Two-context and eight-context direct peer scenarios on one machine, chunked image delivery, QR pairing/approval/rolling, settings validation/privacy, and mobile connection layout exercised. Eight physical clients across networks and forced TURN remain pending. |
+| 6 — Maps | Raster uploads, revisions, publish selected revision, normalized zones/connections/aspects, tokens, annotations, zoom/pan, portable assets | Geometry/revision/backup tests plus browser upload/edit/restore workflow. Fog of war is deliberately absent. |
+| 7 — Hardening | Keyboard dialogs, responsive players, safe text rendering, bounded imports, quota messages, persistent-storage request, offline precache, between-session update prompt, local launcher | Chromium desktop/mobile-sized viewport and production offline checks. Firefox, Safari, iOS/Android physical devices, and human playtesting remain pending. |
+
+## Evidence
+
+Executable verification lives in `src/**/*.test.ts` and `tests/*.spec.ts`. Run the commands in the README to reproduce results. The local development environment uses Node 26 and cached Chromium for browser automation. Browser test profiles are isolated from personal data.
+
+Initial implementation verification on 2026-11-06 UTC (later updates follow below):
+
+| Check | Observed result |
+| --- | --- |
+| TypeScript and production build | Pass; static build and 35 precached application/reference/branding/font entries generated |
+| Vitest | 109 tests pass across 7 files: rules, commands, character imports, persistence, privacy/networking, references, and maps |
+| Campaign/map/mobile browser flows | 3 pass, including fresh-profile JSON/ZIP restoration and a 390px player viewport |
+| Character/mechanics browser flows | 2 pass, covering initial/in-play stunt costs, milestones, supported skill columns, full print sheets, and reviewed foreign-rule imports with portraits |
+| Direct peer browser flows | 2 pass: permissions/privacy/assets/retries/reconnect/revocation and one GM plus seven players |
+| Legacy signaling | Broker routing test and former local room-code UI test passed; room controls have since been removed and their UI test replaced |
+| Production offline | Pass: campaign reload/edit/search/reload, official logo, normal/italic text fonts, and Fate glyph font with network disabled |
+| Visual review | Desktop overview, session workspace, and mobile sheet inspected; Fate cover palette, licensed logo, and book-derived typography applied |
+
+The final peer checks fixed and verified a real presence bug: an SCTP data channel could close while ICE still reported connected. Presence now follows control-channel closure immediately. The five-second regression assertion was retained. Earlier failed runs are superseded by the final passing focused scenarios; they are not counted as passing evidence.
+
+The subsequent QR/connection-settings update passes 202 unit tests across nine files, nine connection-settings browser tests, five QR pairing browser tests, and the production offline regression. TypeScript and production build pass with 36 precached entries. Settings checks cover Cloudflare/custom endpoint selection, actual host/player RTC configuration, credentials, locking, memory-only persistence, both backup modes, and mobile geometry. Provider calls are intercepted in settings tests; live TURN is still an external gate. See `networking.md` for pairing, setup instructions, and verification limits.
+
+The repository-source migration on 2026-11-06 replaces the ZIP-based content pipeline with commit-pinned GitHub CC-BY source and locally generated Markdown. It produces 310 references with per-section links and complete attribution; all 19 upstream Markdown documents are inventoried for future review. The unit suite now passes 206 tests, including source/blob checksums, offline reproducibility, rejection of changed source before writing, preserved table rows, and matching attribution notices. Existing campaign/character/map browser flows pass, and the new provenance tests cover offline source links and preservation of older campaign content-version records. Printed PDF character-sheet fixtures have been replaced with original regression fixtures; gameplay mechanics are unchanged. See `content-sources.md` and `content-roadmap.md` for the source and licensing audit.
+
+The book's exact Gotham and Adobe Garamond Pro families are selected when installed. Bundled Montserrat and EB Garamond are licensed substitutes, not claims of exact font identity. See `design-sources.md` for original logo/font permissions and asset provenance.
+
+The printable-play update adds campaign navigation **Print sheets** and a character **Print** preview. Original Fate-style layouts cover selected character/NPC sheets, optional story and belongings pages, a game-creation worksheet, and a table worksheet with roster, scene aspects, inventory, and notes. Shared handouts use the player projection before rendering; only local GM copies can include secrets. Current draft values, configured skills/stress tracks, repeated consequence capacities, and recovery state are preserved. NPC Fate points are identified as using the GM pool rather than independent balances. Each sheet carries attribution; no PDF artwork or website rules prose is imported.
+
+Verification: 206 unit tests and production build pass; eight browser flows (three print plus five existing campaign/character/map checks) pass. The three print flows also pass against the production build, and the production offline test now verifies printable campaign data and its logo after an offline reload. Representative A4 and US Letter outputs each contain two complete pages (game worksheet and character sheet) without isolated footer pages; rendered pages were inspected. A long-stunt/long-notes fixture preserves both end markers over five Letter pages. The campaign Delete button remains icon-only with its missing hover tooltip added, and its confirmation now explicitly describes permanent local deletion; checked in an isolated browser without deleting user data. Copy/Archive tooltips are unchanged. Physical printers and non-Chromium print engines remain manual checks.
+
+## Latest companion refinements
+
+The latest companion refinements add embedded campaign banners; a build-time version/commit footer; a verified `/fatecc/` production base; readable Fate-SRD.com links for all 310 references and 33 rule topics; character-private inventory and activity; and the original Lantern Coast map with connected travel zones and party tokens. The map is included when creating a new example campaign; the existing-campaign add/migration option was removed at the user's request. Print sheets now use the workspace width, default to US Letter, and keep campaign worksheets outside character print dialogs. A repeating folio places the local date/time at bottom left and the app name centered. Player print copies retain only their own private belongings. Google STUN now follows Cloudflare in connection settings, using `stun:stun.l.google.com:19302`; the local-network default remains unchanged.
+
+Integrated verification for these changes: **242 unit tests across 14 files**, TypeScript, production build (**38 precache entries**) and offline importer reproducibility pass. Production Chromium checks at `/fatecc/` cover banner persistence, import/restore, inventory transfer/deletion, map movement/reload, print layout, website rule links, and offline use. The earlier 18-case set passed after correcting test selectors and awaiting a map save before reload. After adding Google STUN and removing the existing-campaign map path, all **14 affected production browser checks** pass: 11 connection-settings cases, new sample-map creation/play, and two offline cases. The sample campaign and its 1536 × 1024 map can be created after the network is disabled. A4/Letter two-sheet PDFs retain two pages; long PDFs repeat the footer without content overlap. Nothing has been deployed; this directory currently has no Git metadata and correctly shows **Local build**.
+
+Both direct WebRTC regression scenarios also pass with character-private inventory: the owning player receives their private items and events after reconnect, revoked clients receive no further changes, and seven players each receive only their own private possessions while sharing consistent roll history. These are isolated local browser contexts; external TURN verification remains pending.
+
+## Deliberate boundaries
+
+- Campaign replicas use one GM authority and full authorized snapshots on reconnect, rather than a multi-writer CRDT. Accepted command IDs persist on the host and duplicate submissions with the same ID are idempotent. The UI has no durable outgoing command queue or automatic action replay; after a lost acknowledgement, reconnect and inspect the log before issuing another action. Player-visible events have their own sequence numbers; private events are transmitted only to their authorized character audience.
+- Stunt prose and extras are guided/manual. The engine does not infer whether a narrative permission applies or execute arbitrary homebrew code.
+- Draft proposals currently cover character description, notes, and extras. Mechanical changes are reviewed and applied by the GM through the builder/advancement tools.
+- Published map revisions are disclosed in full. There is no fog overlay or hidden-pixel promise.
+- Version-0 import support is a documented same-shape prototype migration fixture. Unknown newer schemas are rejected; future format changes require explicit migration additions.
+- No dependency on a campaign backend, paid map API, or cloud storage. Local play and public STUN need no account. An optional authenticated TURN provider requires its own account or relay setup; the app accepts manually issued credentials.
+
+## Remaining release gates
+
+1. Configure real TURN credentials and verify forced relaying on independent residential/mobile networks, then test GM plus seven physical participants.
+2. Run offline storage and reconnection scenarios on actual Safari/iOS, Firefox, Chrome/Android, and Edge devices; pay attention to background-tab suspension.
+3. Play a real default-Core session and a house-rule session, then a follow-up scenario with recovery/advancement and restoration on a different device.
+4. Verify QR camera exchange between physical devices and image/text pairing from static HTTPS hosting.
+
+Do not mark these gates complete based solely on headless Chromium or unit-test results.

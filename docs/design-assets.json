@@ -1,0 +1,62 @@
+{
+  "retrieved": "2026-11-06",
+  "assets": [
+    {
+      "file": "public/branding/powered-by-fate-light.svg",
+      "source": "https://fate-srd.com/downloads/Powered-by-Fate-Logos.zip",
+      "bytes": 27653,
+      "sha256": "0bbed1cb370351eaf21c163bc0180c58fb34ac3f5516e56f871b4705078136e4",
+      "archiveMember": "Powered-by-Fate-Logos/Fate Final Light Background.svg"
+    },
+    {
+      "file": "public/branding/powered-by-fate-dark.svg",
+      "source": "https://fate-srd.com/downloads/Powered-by-Fate-Logos.zip",
+      "bytes": 3717,
+      "sha256": "971ee72a4057ab1ffe2a0ad31c2f4ce20e29b411a324b1cadcdcec3ae06a3682",
+      "archiveMember": "Powered-by-Fate-Logos/Fate Final Dark BG.svg"
+    },
+    {
+      "file": "public/fonts/Fate-Core-Font.ttf",
+      "source": "https://fate-srd.com/downloads/Fate-Core-Font-%28TTF%29.zip",
+      "bytes": 14548,
+      "sha256": "d43eb02c994cb55524480a3660f424bf92a4839cbfdac66541427c152ce02d8a",
+      "archiveMember": "Fate Core Font.ttf"
+    },
+    {
+      "file": "public/fonts/Montserrat-Variable.woff2",
+      "source": "https://fonts.gstatic.com/s/montserrat/v31/JTUSjIg1_i6t8kCHKm459WlhyyTh89Y.woff2",
+      "bytes": 35508,
+      "sha256": "6438d7b8ea9c7c3992d5e2fd2afdb1ff948570a3ef0bedae76247b51632960ba"
+    },
+    {
+      "file": "public/fonts/Montserrat-VariableItalic.woff2",
+      "source": "https://fonts.gstatic.com/s/montserrat/v31/JTUQjIg1_i6t8kCHKm459WxRyS7m0dR9pA.woff2",
+      "bytes": 37120,
+      "sha256": "86589d0b59b311712c3cbaac0b94eb054ecda4be7b52d695588548e4754b3165"
+    },
+    {
+      "file": "public/fonts/EBGaramond-Variable.woff2",
+      "source": "https://fonts.gstatic.com/s/ebgaramond/v33/SlGUmQSNjdsmc35JDF1K5GR1SDk_YAPI.woff2",
+      "bytes": 44172,
+      "sha256": "68fd4b247dde89984ee835d99953d235e4927be2b1b732ad81173b519869cee8"
+    },
+    {
+      "file": "public/fonts/EBGaramond-VariableItalic.woff2",
+      "source": "https://fonts.gstatic.com/s/ebgaramond/v33/SlGWmQSNjdsmc35JDF1K5GRweDs1ZyHKpWg.woff2",
+      "bytes": 47824,
+      "sha256": "d2761541b314509e02df3539cd35fc712954a48a50f4e0ab424dde817c699c2a"
+    },
+    {
+      "file": "public/fonts/LICENSE-Montserrat.txt",
+      "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/montserrat/OFL.txt",
+      "bytes": 4400,
+      "sha256": "8b7141c03fa4f8d44e6345d5d4931709290f0f67875e452e95ac1fd3a027802e"
+    },
+    {
+      "file": "public/fonts/LICENSE-EBGaramond.txt",
+      "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/ebgaramond/OFL.txt",
+      "bytes": 4398,
+      "sha256": "0985066662eb755ed3683ae5482a81a9195b49ce3f7e165cc2388b3dbece7dd7"
+    }
+  ]
+}

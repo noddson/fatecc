@@ -1,0 +1,641 @@
+.print-controls {
+  width: 100%;
+}
+.print-options-row {
+  display: flex;
+  align-items: end;
+  flex-wrap: wrap;
+  gap: 18px;
+}
+.print-options-row .field {
+  flex: 1 1 180px;
+  margin: 0;
+}
+.print-options-row > button {
+  margin-bottom: 1px;
+}
+.print-choices {
+  border: 0;
+  border-top: 1px solid var(--border);
+  padding: 16px 0 6px;
+  margin: 20px 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+}
+.print-choices legend {
+  padding: 0 10px 0 0;
+  font-size: 13px;
+  font-weight: 700;
+}
+.print-choices label,
+.print-detail-choice {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 13px;
+  line-height: 1.5;
+  cursor: pointer;
+}
+.print-choices input,
+.print-detail-choice input {
+  width: 17px;
+  height: 17px;
+  flex-shrink: 0;
+}
+.print-choices small {
+  color: var(--muted);
+}
+.print-selection-actions {
+  width: 100%;
+  display: flex;
+  gap: 8px;
+}
+.print-detail-choice {
+  margin-top: 18px;
+}
+.print-controls > p {
+  font-size: 12px;
+  line-height: 1.65;
+  margin-bottom: 0;
+}
+.print-preview-label {
+  color: var(--muted);
+  font-size: 12px;
+}
+.print-preview-scroll {
+  overflow-x: auto;
+  padding: 2px 2px 24px;
+}
+.print-packet {
+  width: var(--sheet-width);
+  min-width: 0;
+  max-width: none;
+  margin: 0 auto;
+}
+.print-packet.paper-letter {
+  width: var(--sheet-width);
+}
+.fate-sheet {
+  background: white;
+  color: #111;
+  padding: 10mm;
+  min-height: var(--sheet-height, 297mm);
+  margin: 0 0 20px;
+  box-shadow: 0 2px 8px #182d4420;
+  font-family: var(--font-prose);
+  font-size: 10.5pt;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+.paper-letter .fate-sheet {
+  min-height: var(--sheet-height, 279.4mm);
+  font-size: 10pt;
+}
+.paper-letter .fs-section {
+  margin-top: 2.3mm;
+}
+.paper-letter .fs-aspect {
+  min-height: 9mm;
+}
+.paper-letter .fs-skill-table th,
+.paper-letter .fs-skill-table td {
+  padding-top: 1mm;
+  padding-bottom: 1mm;
+}
+.paper-letter .fs-write-lines > div {
+  min-height: 4mm;
+}
+.paper-letter .fs-dials dd,
+.paper-letter .fs-skill-list > div {
+  padding-top: 0.7mm;
+  padding-bottom: 0.7mm;
+}
+.fate-sheet *,
+.fate-sheet *::before,
+.fate-sheet *::after {
+  box-sizing: border-box;
+}
+.fate-sheet p {
+  font-family: var(--font-prose);
+  font-size: inherit;
+  line-height: 1.25;
+  margin: 0 0 2mm;
+  white-space: pre-wrap;
+}
+.fate-sheet h1,
+.fate-sheet h2,
+.fate-sheet h3,
+.fate-sheet dt,
+.fate-sheet th {
+  font-family: var(--font-ui);
+  color: #111;
+  letter-spacing: 0;
+}
+.fate-sheet h3 {
+  font-size: 10pt;
+  line-height: 1.3;
+  margin: 0 0 1mm;
+}
+.fs-header {
+  display: grid;
+  grid-template-columns: 29mm minmax(0, 1fr);
+  gap: 5mm;
+  align-items: center;
+  margin-bottom: 4mm;
+  break-after: avoid;
+  break-inside: avoid;
+}
+.fs-header img {
+  width: 29mm;
+  height: auto;
+  flex-shrink: 0;
+}
+.fs-header h1 {
+  font-size: 19pt;
+  line-height: 1.08;
+  font-weight: 850;
+  margin: 0 0 2mm;
+}
+.fs-header p {
+  font-family: var(--font-ui);
+  font-size: 8pt;
+  margin: 0;
+}
+.fs-section {
+  margin-top: 3mm;
+}
+.fs-section > h2 {
+  font-size: 12pt;
+  font-weight: 850;
+  line-height: 1.2;
+  text-transform: uppercase;
+  background: #111;
+  color: white;
+  padding: 1mm 2.5mm;
+  margin: 0 0 2mm;
+  clip-path: polygon(2mm 0, 100% 0, 100% calc(100% - 2mm), calc(100% - 2mm) 100%, 0 100%, 0 2mm);
+  break-after: avoid;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+.fs-label,
+.fs-labelled-box > span,
+.fs-identity dt {
+  display: block;
+  font-family: var(--font-ui);
+  font-size: 8pt;
+  font-weight: 650;
+  line-height: 1.4;
+  color: #555;
+}
+.fs-labelled-box {
+  border: 1px solid #333;
+  padding: 1.5mm 2mm;
+  margin-bottom: 2mm;
+  min-width: 0;
+}
+.fs-text-value {
+  white-space: pre-wrap;
+  min-width: 0;
+}
+.fs-write-lines > div {
+  min-height: 5mm;
+  border-bottom: 1px solid #aaa;
+}
+.fs-write-lines {
+  margin-bottom: 1mm;
+}
+.fs-entry {
+  margin: 0 0 2mm;
+  break-inside: avoid;
+}
+.fate-sheet small,
+.fate-sheet .fs-small {
+  font-family: var(--font-ui);
+  font-size: 7.5pt;
+  line-height: 1.4;
+}
+.fate-sheet small {
+  display: block;
+}
+.fs-footer {
+  font-family: var(--font-ui);
+  font-size: 6pt;
+  line-height: 1.4;
+  margin-top: 2.5mm;
+  padding-top: 2mm;
+  border-top: 1px solid #ccc;
+  break-inside: avoid;
+}
+.fate-sheet .fs-footer p {
+  font: inherit;
+  margin: 0;
+}
+.fs-identity {
+  display: flex;
+  align-items: start;
+  gap: 3mm;
+}
+.fs-identity-copy {
+  flex: 1;
+  min-width: 0;
+}
+.fs-identity-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3mm;
+  margin: 0 0 2mm;
+}
+.fs-identity dd {
+  margin: 0;
+}
+.fs-identity-fields > div,
+.fs-description {
+  border: 1px solid #333;
+  padding: 1mm 2mm;
+}
+.fs-portrait {
+  width: 22mm;
+  max-height: 30mm;
+  object-fit: contain;
+}
+.fs-counters {
+  display: flex;
+  gap: 2mm;
+  margin: 0;
+}
+.fs-counters > div {
+  border: 2px solid #111;
+  min-width: 18mm;
+  text-align: center;
+  padding: 1mm;
+}
+.fs-counters dt {
+  font-size: 6.5pt;
+  text-transform: uppercase;
+}
+.fs-counters dd {
+  font: 750 22pt var(--font-ui);
+  line-height: 1.35;
+}
+.fate-sheet .fs-status {
+  margin: 2mm 0 0;
+  font: 7pt/1.4 var(--font-ui);
+}
+.fs-character-columns {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 4mm;
+}
+.fs-aspect {
+  border: 1px solid #333;
+  padding: 1mm 2mm;
+  min-height: 10mm;
+}
+.fs-skill-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.fs-skill-table th,
+.fs-skill-table td {
+  border-bottom: 1px solid #888;
+  text-align: left;
+  padding: 1.5mm 1mm;
+  vertical-align: top;
+}
+.fs-skill-table th {
+  width: 34%;
+  font-size: 8pt;
+  font-weight: 700;
+}
+.fs-skill-table th span {
+  display: block;
+  white-space: nowrap;
+}
+.fs-skills .fs-small {
+  margin-top: 2mm;
+}
+.fs-stunt {
+  padding-bottom: 1mm;
+}
+.fs-stunt .fs-small {
+  margin: 1mm 0 0;
+}
+.fs-extras > .fs-text-value {
+  border: 1px solid #555;
+  min-height: 12mm;
+  padding: 1mm 2mm;
+}
+.fs-durability .fs-stress-tracks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3mm 6mm;
+}
+.fs-stress-track {
+  flex: 1 1 55mm;
+}
+.fs-stress-track h3 small {
+  display: inline;
+  font-weight: 400;
+}
+.fs-stress-boxes {
+  display: flex;
+  gap: 3mm;
+  flex-wrap: wrap;
+  margin-top: 2mm;
+}
+.fs-stress-box {
+  display: inline-flex;
+  width: 9mm;
+  height: 9mm;
+  border: 1.5px solid #111;
+  position: relative;
+  align-items: center;
+  justify-content: center;
+}
+.fs-box-rating {
+  position: absolute;
+  left: -1.5mm;
+  top: -1.8mm;
+  background: #fff;
+  padding: 0 1mm;
+  font: 800 9pt var(--font-ui);
+}
+.fs-box-mark {
+  font:
+    500 23pt/1 Arial,
+    sans-serif;
+}
+.fs-consequences {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1mm 4mm;
+  margin-top: 2mm;
+}
+.fs-consequence {
+  display: flex;
+  align-items: stretch;
+  gap: 2mm;
+}
+.fs-consequence-rating {
+  font: 800 14pt var(--font-ui);
+  border: 1.5px solid #111;
+  align-self: center;
+  width: 8mm;
+  height: 8mm;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.fs-consequence > div {
+  flex: 1;
+  min-width: 0;
+  border-bottom: 1px solid #aaa;
+  padding-bottom: 1mm;
+}
+.fs-consequence .fs-write-lines > div {
+  border: 0;
+}
+.fs-phase {
+  border-bottom: 1px solid #aaa;
+  padding-bottom: 3mm;
+  margin-bottom: 3mm;
+}
+.fs-issue-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3mm;
+}
+.fs-face-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2mm;
+}
+.fs-face-grid .fs-labelled-box {
+  min-height: 30mm;
+}
+.fs-game-columns {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: 4mm;
+}
+.fs-dials {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  margin: 0;
+  gap: 1.2mm 2mm;
+  font-size: 9pt;
+}
+.fs-dials dt {
+  font-size: 8pt;
+  align-self: center;
+}
+.fs-dials dd {
+  margin: 0;
+  padding: 1mm 1.5mm;
+  border: 1px solid #333;
+}
+.fs-dials small {
+  font-size: 6.5pt;
+}
+.fs-skill-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5mm;
+}
+.fs-skill-list > div {
+  border: 1px solid #333;
+  padding: 1mm 1.5mm;
+  font-size: 9pt;
+}
+.fs-table-data,
+.fs-inventory-table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 9pt;
+}
+.fs-table-data td,
+.fs-table-data th,
+.fs-inventory-table td,
+.fs-inventory-table th {
+  text-align: left;
+  vertical-align: top;
+  padding: 1.8mm 2mm;
+  border: 1px solid #777;
+  font-size: inherit;
+}
+.fs-table-data thead th,
+.fs-inventory-table thead th {
+  font-size: 8pt;
+}
+.fs-table-data tbody th,
+.fs-inventory-table tbody th {
+  font-weight: 600;
+}
+.print-dialog .modal.wide {
+  width: 1040px;
+}
+.print-dialog .modal {
+  background: #f4f6f8;
+}
+.character-default-print {
+  display: none;
+}
+.print-folio {
+  display: none;
+}
+@media (max-width: 760px) {
+  .print-dialog .modal-backdrop {
+    padding: 8px;
+  }
+  .print-dialog .modal {
+    padding: 16px;
+  }
+  .print-options-row > button {
+    width: 100%;
+  }
+  .print-choices {
+    flex-direction: column;
+    gap: 14px;
+  }
+}
+@media print {
+  html,
+  body,
+  #root,
+  .app-shell,
+  .workspace {
+    background: white !important;
+  }
+  .app-shell,
+  .workspace {
+    display: block !important;
+    min-height: 0;
+  }
+  @page {
+    margin: 10mm 10mm 8mm;
+  }
+  .print-folio {
+    display: block;
+    position: fixed;
+    z-index: 1000;
+    pointer-events: none;
+    left: 0;
+    right: 0;
+    top: auto;
+    bottom: 0;
+    height: 4mm;
+    color: #333;
+    font: 7pt/1.3 var(--font-ui);
+  }
+  .print-folio-date {
+    display: block;
+    position: absolute;
+    left: 0;
+    top: 0;
+    max-width: 36%;
+    text-align: left;
+  }
+  .print-folio-title {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    transform: translateX(-50%);
+    white-space: nowrap;
+  }
+  .print-workspace,
+  .print-packet,
+  .print-packet.paper-letter,
+  .print-preview-scroll {
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+    padding: 0;
+    margin: 0;
+    overflow: visible;
+    zoom: 1 !important;
+  }
+  .print-packet,
+  .print-packet.paper-letter {
+    width: 100% !important;
+  }
+  .fate-sheet,
+  .paper-letter .fate-sheet {
+    /* Reserve the folio's space on every fragment, including long multi-page sheets. */
+    padding: 0 0 6mm;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+    margin: 0;
+    min-height: 0;
+    box-shadow: none;
+    break-before: page;
+  }
+  .print-packet > .fate-sheet:first-child,
+  .print-packet > .character-print:first-child > .fate-sheet:first-child,
+  .character-default-print .fate-sheet:first-child {
+    break-before: auto;
+  }
+  .fate-sheet p {
+    orphans: 3;
+    widows: 3;
+  }
+  .fate-sheet h3 {
+    break-after: avoid;
+  }
+  .fs-header {
+    margin-bottom: 3.5mm;
+  }
+  .fs-section {
+    margin-top: 3mm;
+  }
+  .fs-footer {
+    margin-top: 2mm;
+    padding-top: 1.5mm;
+  }
+  .fate-sheet > .fs-section:last-of-type {
+    break-inside: avoid;
+    break-after: avoid;
+  }
+  .fs-footer {
+    break-before: avoid;
+  }
+  .fate-sheet tr {
+    break-inside: avoid;
+  }
+  .fate-sheet thead {
+    display: table-header-group;
+  }
+  .character-default-print {
+    display: block;
+  }
+  .character-screen {
+    display: none !important;
+  }
+  body.has-print-dialog > #root {
+    display: none !important;
+  }
+  .print-dialog .modal-backdrop,
+  .print-dialog .modal {
+    display: block;
+    position: static;
+    inset: auto;
+    width: 100%;
+    max-width: none;
+    height: auto;
+    max-height: none;
+    padding: 0;
+    margin: 0;
+    overflow: visible;
+    background: white;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    backdrop-filter: none;
+    animation: none;
+  }
+  .print-dialog .modal-heading {
+    display: none;
+  }
+}

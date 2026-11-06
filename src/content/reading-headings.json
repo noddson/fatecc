@@ -1,0 +1,2306 @@
+{
+  "baseUrl": "https://fate-srd.com/fate-core/",
+  "verifiedAt": "2026-11-06",
+  "pages": {
+    "actions-outcomes": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Actions & Outcomes"
+      },
+      {
+        "level": 2,
+        "id": "its-time-for-action!",
+        "text": "It's Time For Action!"
+      },
+      {
+        "level": 2,
+        "id": "opposition",
+        "text": "Opposition"
+      },
+      {
+        "level": 3,
+        "id": "for-the-[gm]-active-or-passive",
+        "text": "For the [GM]: Active or Passive?"
+      },
+      {
+        "level": 3,
+        "id": "is-the-opposition-rating-for-a-roll-known-to-the-player-99%-of-the-time-yes",
+        "text": "Is the Opposition Rating for a roll known to the player? 99% of the time, Yes"
+      }
+    ],
+    "advancement-change": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Advancement & Change"
+      },
+      {
+        "level": 2,
+        "id": "defining-milestones",
+        "text": "Defining Milestones"
+      },
+      {
+        "level": 3,
+        "id": "minor-milestones",
+        "text": "Minor Milestones"
+      },
+      {
+        "level": 2,
+        "id": "significant-milestones",
+        "text": "Significant Milestones"
+      },
+      {
+        "level": 3,
+        "id": "skill-columns",
+        "text": "Skill Columns"
+      },
+      {
+        "level": 2,
+        "id": "major-milestones",
+        "text": "Major Milestones"
+      },
+      {
+        "level": 3,
+        "id": "back-to-character-creation",
+        "text": "Back to Character Creation"
+      }
+    ],
+    "advantages-conflict": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Advantages in a Conflict"
+      },
+      {
+        "level": 3,
+        "id": "cover-fire-and-other-impositions",
+        "text": "Cover Fire and Other Impositions"
+      },
+      {
+        "level": 3,
+        "id": "other-actions-in-a-conflict",
+        "text": "Other Actions in a Conflict"
+      },
+      {
+        "level": 3,
+        "id": "free-actions",
+        "text": "Free Actions"
+      }
+    ],
+    "ask-story-questions": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Ask Story Questions"
+      }
+    ],
+    "aspects-fate-points": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Aspects & Fate Points"
+      },
+      {
+        "level": 2,
+        "id": "defining-aspects",
+        "text": "Defining Aspects"
+      },
+      {
+        "level": 2,
+        "id": "defining-fate-points",
+        "text": "Defining Fate Points"
+      }
+    ],
+    "athletics": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Athletics"
+      },
+      {
+        "level": 2,
+        "id": "athletics-stunts",
+        "text": "Athletics Stunts"
+      }
+    ],
+    "basics": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Basics"
+      },
+      {
+        "level": 2,
+        "id": "welcome-to-fate!",
+        "text": "Welcome to Fate!"
+      },
+      {
+        "level": 3,
+        "id": "new-to-fate",
+        "text": "New To Fate"
+      },
+      {
+        "level": 3,
+        "id": "for-veterans",
+        "text": "For Veterans"
+      }
+    ],
+    "building-arc": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Building An Arc"
+      }
+    ],
+    "building-campaign": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Building A Campaign"
+      }
+    ],
+    "building-stunts": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Building Stunts"
+      },
+      {
+        "level": 3,
+        "id": "reinforcing-elements-unique-to-your-game",
+        "text": "Reinforcing Elements Unique to Your Game"
+      },
+      {
+        "level": 3,
+        "id": "stuntmaker—a-tool-for-stunt-inspiration",
+        "text": "Stuntmaker—A Tool for Stunt Inspiration"
+      },
+      {
+        "level": 2,
+        "id": "adding-a-new-action-to-a-skill",
+        "text": "Adding a New Action to a Skill"
+      },
+      {
+        "level": 2,
+        "id": "adding-a-bonus-to-an-action",
+        "text": "Adding a Bonus to an Action"
+      },
+      {
+        "level": 2,
+        "id": "creating-a-rules-exception",
+        "text": "Creating a Rules Exception"
+      },
+      {
+        "level": 2,
+        "id": "balancing-stunt-utility",
+        "text": "Balancing Stunt Utility"
+      },
+      {
+        "level": 3,
+        "id": "fate-point-powered-stunts",
+        "text": "Fate Point-Powered Stunts"
+      },
+      {
+        "level": 2,
+        "id": "stunt-families",
+        "text": "Stunt Families"
+      },
+      {
+        "level": 3,
+        "id": "stacking-effects",
+        "text": "Stacking Effects"
+      },
+      {
+        "level": 3,
+        "id": "branching-effects",
+        "text": "Branching Effects"
+      }
+    ],
+    "burglary": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Burglary"
+      },
+      {
+        "level": 2,
+        "id": "burglary-stunts",
+        "text": "Burglary Stunts"
+      }
+    ],
+    "challenges": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Challenges"
+      },
+      {
+        "level": 2,
+        "id": "when-to-call-for-a-challenge",
+        "text": "When To Call For A Challenge"
+      },
+      {
+        "level": 2,
+        "id": "setting-up-a-challenge",
+        "text": "Setting Up A Challenge"
+      },
+      {
+        "level": 2,
+        "id": "conducting-a-challenge",
+        "text": "Conducting A Challenge"
+      },
+      {
+        "level": 2,
+        "id": "advantages-in-a-challenge",
+        "text": "Advantages in a Challenge"
+      },
+      {
+        "level": 2,
+        "id": "attacks-in-a-challenge",
+        "text": "Attacks in a Challenge"
+      }
+    ],
+    "challenges-contests-conflicts": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Challenges, Contests, & Conflicts"
+      },
+      {
+        "level": 2,
+        "id": "zooming-in-on-the-action",
+        "text": "Zooming In On The Action"
+      }
+    ],
+    "character-creation": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Character Creation"
+      },
+      {
+        "level": 2,
+        "id": "character-creation-is-play",
+        "text": "Character Creation Is Play"
+      },
+      {
+        "level": 3,
+        "id": "when-creating-your-character",
+        "text": "When Creating Your Character"
+      }
+    ],
+    "character-sheet": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "The Character Sheet"
+      },
+      {
+        "level": 2,
+        "id": "aspects",
+        "text": "Aspects"
+      },
+      {
+        "level": 2,
+        "id": "skills",
+        "text": "Skills"
+      },
+      {
+        "level": 2,
+        "id": "stunts",
+        "text": "Stunts"
+      },
+      {
+        "level": 2,
+        "id": "stress",
+        "text": "Stress"
+      },
+      {
+        "level": 2,
+        "id": "consequences",
+        "text": "Consequences"
+      },
+      {
+        "level": 2,
+        "id": "refresh",
+        "text": "Refresh"
+      }
+    ],
+    "conceding-conflict": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Conceding the Conflict"
+      },
+      {
+        "level": 3,
+        "id": "further-clarification-on-conceding-vs-getting-taken-out",
+        "text": "Further Clarification on Conceding vs getting Taken Out"
+      }
+    ],
+    "conflicts": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Conflicts"
+      }
+    ],
+    "contacts": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Contacts"
+      },
+      {
+        "level": 2,
+        "id": "stunts",
+        "text": "Stunts"
+      }
+    ],
+    "contests": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Contests"
+      },
+      {
+        "level": 2,
+        "id": "setting-up-a-contest",
+        "text": "Setting Up A Contest"
+      },
+      {
+        "level": 2,
+        "id": "a-series-of-exchanges",
+        "text": "A Series of Exchanges"
+      },
+      {
+        "level": 2,
+        "id": "creating-advantages-in-a-contest",
+        "text": "Creating Advantages in a Contest"
+      },
+      {
+        "level": 2,
+        "id": "attacks-in-a-contest",
+        "text": "Attacks in a Contest"
+      }
+    ],
+    "crafts": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Crafts"
+      },
+      {
+        "level": 3,
+        "id": "so-many-crafts",
+        "text": "So Many Crafts"
+      },
+      {
+        "level": 2,
+        "id": "crafts-stunts",
+        "text": "Crafts Stunts"
+      }
+    ],
+    "creating-and-playing-opposition": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Creating and Playing the Opposition (NPCs)"
+      },
+      {
+        "level": 2,
+        "id": "take-only-what-you-need-to-survive",
+        "text": "Take Only What You Need to Survive"
+      },
+      {
+        "level": 2,
+        "id": "the-[npc]-types",
+        "text": "The [NPC] Types"
+      },
+      {
+        "level": 3,
+        "id": "nameless-[npc]s",
+        "text": "Nameless [NPC]s"
+      },
+      {
+        "level": 4,
+        "id": "average",
+        "text": "Average"
+      },
+      {
+        "level": 4,
+        "id": "fair",
+        "text": "Fair"
+      },
+      {
+        "level": 4,
+        "id": "good",
+        "text": "Good"
+      },
+      {
+        "level": 4,
+        "id": "mobs",
+        "text": "Mobs"
+      },
+      {
+        "level": 4,
+        "id": "hits-and-overflow",
+        "text": "Hits and Overflow"
+      },
+      {
+        "level": 4,
+        "id": "nameless-[npc]s-as-obstacles",
+        "text": "Nameless [NPC]s as Obstacles:"
+      },
+      {
+        "level": 4,
+        "id": "[npc]-first-name-later",
+        "text": "[NPC] First, Name Later"
+      },
+      {
+        "level": 3,
+        "id": "supporting-[npc]s",
+        "text": "Supporting [NPC]s"
+      },
+      {
+        "level": 3,
+        "id": "main-[npc]s",
+        "text": "Main [NPC]s"
+      },
+      {
+        "level": 2,
+        "id": "playing-the-opposition",
+        "text": "Playing The Opposition"
+      },
+      {
+        "level": 3,
+        "id": "right-sizing",
+        "text": "Right-sizing"
+      },
+      {
+        "level": 3,
+        "id": "creating-advantages-for-[npc]s",
+        "text": "Creating Advantages for [NPC]s"
+      },
+      {
+        "level": 3,
+        "id": "change-venues-of-conflict",
+        "text": "Change Venues of Conflict"
+      }
+    ],
+    "creating-extra": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Creating An Extra"
+      },
+      {
+        "level": 2,
+        "id": "setting-elements",
+        "text": "Setting Elements"
+      },
+      {
+        "level": 2,
+        "id": "what-extras-do",
+        "text": "What Extras Do"
+      },
+      {
+        "level": 2,
+        "id": "assigning-character-elements",
+        "text": "Assigning Character Elements"
+      },
+      {
+        "level": 2,
+        "id": "permissions-and-costs",
+        "text": "Permissions and Costs"
+      },
+      {
+        "level": 2,
+        "id": "the-writeup",
+        "text": "The Writeup"
+      },
+      {
+        "level": 2,
+        "id": "extras-and-advancement",
+        "text": "Extras and Advancement"
+      }
+    ],
+    "deceive": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Deceive"
+      },
+      {
+        "level": 2,
+        "id": "deceive-stunts",
+        "text": "Deceive Stunts"
+      },
+      {
+        "level": 3,
+        "id": "social-skills-and-other-characters",
+        "text": "Social Skills and Other Characters"
+      }
+    ],
+    "default-skill-list": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Default Skill List"
+      },
+      {
+        "level": 3,
+        "id": "creating-setting-with-skills",
+        "text": "Creating Setting With Skills"
+      },
+      {
+        "level": 3,
+        "id": "skills-and-gear",
+        "text": "Skills and Gear"
+      }
+    ],
+    "defining-scenarios": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Defining Scenarios"
+      },
+      {
+        "level": 2,
+        "id": "creating-a-scenario-step-by-step",
+        "text": "Creating A Scenario: Step By Step"
+      }
+    ],
+    "defining-scenes": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Defining Scenes"
+      },
+      {
+        "level": 2,
+        "id": "starting-scenes",
+        "text": "Starting Scenes"
+      },
+      {
+        "level": 2,
+        "id": "ending-scenes",
+        "text": "Ending Scenes"
+      },
+      {
+        "level": 2,
+        "id": "using-the-pillars-competence-proactivity-drama",
+        "text": "Using the Pillars (Competence, Proactivity, Drama)"
+      },
+      {
+        "level": 2,
+        "id": "hit-their-aspects",
+        "text": "Hit Their Aspects"
+      }
+    ],
+    "drive": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Drive"
+      },
+      {
+        "level": 3,
+        "id": "different-vehicles-different-skills",
+        "text": "Different Vehicles, Different Skills"
+      },
+      {
+        "level": 2,
+        "id": "drive-stunts",
+        "text": "Drive Stunts"
+      }
+    ],
+    "empathy": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Empathy"
+      },
+      {
+        "level": 2,
+        "id": "empathy-stunts",
+        "text": "Empathy Stunts"
+      }
+    ],
+    "ending-conflict": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Ending a Conflict"
+      },
+      {
+        "level": 3,
+        "id": "transitioning-to-a-contest-or-challenge",
+        "text": "Transitioning to a Contest or Challenge"
+      }
+    ],
+    "establish-opposition": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Establish the Opposition"
+      },
+      {
+        "level": 3,
+        "id": "advantages-can-save-you-work",
+        "text": "Advantages Can Save You Work"
+      }
+    ],
+    "establishing-sides": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Establishing Sides"
+      }
+    ],
+    "exchange": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "The Exchange"
+      },
+      {
+        "level": 3,
+        "id": "full-defense",
+        "text": "Full Defense"
+      }
+    ],
+    "extras": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Extras"
+      },
+      {
+        "level": 2,
+        "id": "defining-extras",
+        "text": "Defining Extras"
+      },
+      {
+        "level": 2,
+        "id": "the-bronze-rule-aka-the-fate-fractal",
+        "text": "The Bronze Rule, aka The Fate Fractal"
+      },
+      {
+        "level": 3,
+        "id": "some-advice-on-the-bronze-rule-by-ryan-macklin",
+        "text": "Some Advice on the Bronze Rule by Ryan Macklin"
+      }
+    ],
+    "faces-places": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Faces & Places"
+      },
+      {
+        "level": 2,
+        "id": "decide-who-the-important-people-and-locations-are",
+        "text": "Decide who the important people and locations are."
+      },
+      {
+        "level": 3,
+        "id": "hugo-the-charitable",
+        "text": "Hugo the Charitable"
+      },
+      {
+        "level": 3,
+        "id": "the-primarch",
+        "text": "The Primarch"
+      },
+      {
+        "level": 3,
+        "id": "kale-westal",
+        "text": "Kale Westal"
+      }
+    ],
+    "fate-point-economy": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Fate Point Economy"
+      },
+      {
+        "level": 2,
+        "id": "refresh",
+        "text": "Refresh"
+      },
+      {
+        "level": 3,
+        "id": "stunts-and-refresh",
+        "text": "Stunts and Refresh"
+      },
+      {
+        "level": 2,
+        "id": "spending-fate-points",
+        "text": "Spending Fate Points"
+      },
+      {
+        "level": 2,
+        "id": "earning-fate-points",
+        "text": "Earning Fate Points"
+      },
+      {
+        "level": 2,
+        "id": "the-[gm]-and-fate-points",
+        "text": "The [GM] and Fate Points"
+      },
+      {
+        "level": 3,
+        "id": "gm-fate-point-gain-clarifications",
+        "text": "GM Fate Point Gain Clarifications"
+      },
+      {
+        "level": 4,
+        "id": "gm-fate-points-for-concessions",
+        "text": "GM Fate Points for Concessions"
+      },
+      {
+        "level": 4,
+        "id": "gm-fate-points-for-hostile-invokes",
+        "text": "GM Fate Points for Hostile Invokes"
+      }
+    ],
+    "fate-points": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Fate Points"
+      },
+      {
+        "level": 3,
+        "id": "fate-points",
+        "text": "Fate Points"
+      },
+      {
+        "level": 2,
+        "id": "invoking-an-aspect",
+        "text": "Invoking an Aspect"
+      },
+      {
+        "level": 2,
+        "id": "declaring-a-story-detail",
+        "text": "Declaring a Story Detail"
+      },
+      {
+        "level": 2,
+        "id": "compels",
+        "text": "Compels"
+      }
+    ],
+    "feedback-heroes": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Feedback Heroes"
+      },
+      {
+        "level": 2,
+        "id": "​your-name-on-the-list",
+        "text": "​Your Name on the List?"
+      }
+    ],
+    "fight": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Fight"
+      },
+      {
+        "level": 2,
+        "id": "fight-stunts",
+        "text": "Fight Stunts"
+      },
+      {
+        "level": 3,
+        "id": "the-arts-of-fighting",
+        "text": "The Art(s) of Fighting"
+      }
+    ],
+    "find-problems": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Find Problems"
+      },
+      {
+        "level": 3,
+        "id": "you-dont-always-have-to-destroy-the-world",
+        "text": "You Don't Always Have To Destroy The World"
+      },
+      {
+        "level": 2,
+        "id": "problems-and-character-aspects",
+        "text": "Problems and Character Aspects"
+      },
+      {
+        "level": 2,
+        "id": "problems-and-game-aspects",
+        "text": "Problems and Game Aspects"
+      },
+      {
+        "level": 3,
+        "id": "put-a-face-on-it",
+        "text": "Put A Face On It"
+      },
+      {
+        "level": 2,
+        "id": "problems-and-aspect-pairs",
+        "text": "Problems and Aspect Pairs"
+      },
+      {
+        "level": 3,
+        "id": "two-character-aspects",
+        "text": "Two Character Aspects"
+      },
+      {
+        "level": 3,
+        "id": "character-aspect-and-issue",
+        "text": "Character Aspect and Issue"
+      },
+      {
+        "level": 3,
+        "id": "how-many-problems-do-i-need",
+        "text": "How Many Problems Do I Need"
+      }
+    ],
+    "four-actions": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Four Actions"
+      },
+      {
+        "level": 2,
+        "id": "overcome",
+        "text": "Overcome"
+      },
+      {
+        "level": 2,
+        "id": "create-an-advantage",
+        "text": "Create an Advantage"
+      },
+      {
+        "level": 2,
+        "id": "attack",
+        "text": "Attack"
+      },
+      {
+        "level": 2,
+        "id": "defend",
+        "text": "Defend"
+      },
+      {
+        "level": 3,
+        "id": "can-i-defend-against-overcome-actions",
+        "text": "Can I Defend Against Overcome Actions?"
+      },
+      {
+        "level": 3,
+        "id": "no-stacked-effects!",
+        "text": "No Stacked Effects!"
+      }
+    ],
+    "four-outcomes": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Four Outcomes"
+      },
+      {
+        "level": 2,
+        "id": "fail",
+        "text": "Fail"
+      },
+      {
+        "level": 2,
+        "id": "tie",
+        "text": "Tie"
+      },
+      {
+        "level": 2,
+        "id": "succeed",
+        "text": "Succeed"
+      },
+      {
+        "level": 2,
+        "id": "succeed-with-style",
+        "text": "Succeed with Style"
+      },
+      {
+        "level": 3,
+        "id": "for-the-[gm]-serious-cost-vs-minor-cost",
+        "text": "For the [GM]: Serious Cost Vs. Minor Cost"
+      },
+      {
+        "level": 3,
+        "id": "for-the-[gm]-how-hard-should-skill-rolls-be",
+        "text": "For the [GM]: How Hard Should Skill Rolls Be?"
+      }
+    ],
+    "game-creation": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Game Creation"
+      },
+      {
+        "level": 2,
+        "id": "what-makes-a-good-fate-game",
+        "text": "What Makes a Good Fate Game?"
+      },
+      {
+        "level": 2,
+        "id": "proactivity",
+        "text": "Proactivity"
+      },
+      {
+        "level": 2,
+        "id": "competence",
+        "text": "Competence"
+      },
+      {
+        "level": 2,
+        "id": "drama",
+        "text": "Drama"
+      },
+      {
+        "level": 3,
+        "id": "when-creating-your-game",
+        "text": "When Creating Your Game:"
+      }
+    ],
+    "games-scale": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "A Game’s Scale"
+      },
+      {
+        "level": 2,
+        "id": "decide-how-epic-or-personal-your-story-will-be",
+        "text": "Decide how epic or personal your story will be."
+      }
+    ],
+    "getting-taken-out": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Getting Taken Out"
+      },
+      {
+        "level": 3,
+        "id": "character-death",
+        "text": "Character Death"
+      }
+    ],
+    "investigate": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Investigate"
+      },
+      {
+        "level": 2,
+        "id": "investigate-stunts",
+        "text": "Investigate Stunts"
+      }
+    ],
+    "invoking-compelling-aspects": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Invoking & Compelling Aspects"
+      },
+      {
+        "level": 2,
+        "id": "invoking-aspects",
+        "text": "Invoking Aspects"
+      },
+      {
+        "level": 3,
+        "id": "the-reroll-vs-the-2",
+        "text": "The Reroll Vs. The +2"
+      },
+      {
+        "level": 3,
+        "id": "the-ellipsis-trick",
+        "text": "The Ellipsis Trick"
+      },
+      {
+        "level": 3,
+        "id": "free-invocations",
+        "text": "Free Invocations"
+      },
+      {
+        "level": 3,
+        "id": "for-veterans",
+        "text": "For Veterans"
+      },
+      {
+        "level": 2,
+        "id": "compelling-aspects",
+        "text": "Compelling Aspects"
+      },
+      {
+        "level": 3,
+        "id": "clarification-about-players-compelling-players",
+        "text": "Clarification about Players Compelling Players"
+      },
+      {
+        "level": 3,
+        "id": "for-veterans",
+        "text": "For Veterans"
+      },
+      {
+        "level": 3,
+        "id": "types-of-compels",
+        "text": "Types of Compels"
+      },
+      {
+        "level": 4,
+        "id": "events",
+        "text": "Events"
+      },
+      {
+        "level": 4,
+        "id": "decisions",
+        "text": "Decisions"
+      },
+      {
+        "level": 3,
+        "id": "retroactive-compels",
+        "text": "Retroactive Compels"
+      },
+      {
+        "level": 3,
+        "id": "compelling-with-situation-aspects",
+        "text": "Compelling with Situation Aspects"
+      }
+    ],
+    "long-game": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "The Long Game"
+      },
+      {
+        "level": 2,
+        "id": "defining-arcs",
+        "text": "Defining Arcs"
+      },
+      {
+        "level": 2,
+        "id": "defining-campaigns",
+        "text": "Defining Campaigns"
+      }
+    ],
+    "lore": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Lore"
+      },
+      {
+        "level": 2,
+        "id": "lore-stunts",
+        "text": "Lore Stunts"
+      }
+    ],
+    "make-characters": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Make Characters"
+      },
+      {
+        "level": 2,
+        "id": "each-player-makes-a-protagonist",
+        "text": "Each player makes a protagonist."
+      },
+      {
+        "level": 3,
+        "id": "skills-and-your-setting",
+        "text": "Skills and Your Setting"
+      }
+    ],
+    "making-good-aspect": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Making A Good Aspect"
+      },
+      {
+        "level": 2,
+        "id": "double-edged",
+        "text": "Double-Edged"
+      },
+      {
+        "level": 2,
+        "id": "say-more-than-one-thing",
+        "text": "Say More Than One Thing"
+      },
+      {
+        "level": 2,
+        "id": "clear-phrasing",
+        "text": "Clear Phrasing"
+      },
+      {
+        "level": 2,
+        "id": "if-you-get-stuck",
+        "text": "If You Get Stuck"
+      },
+      {
+        "level": 3,
+        "id": "sometimes-its-better-not-to-choose",
+        "text": "Sometimes, It’s Better Not to Choose"
+      },
+      {
+        "level": 3,
+        "id": "always-ask-what-matters-and-why",
+        "text": "Always Ask What Matters and Why"
+      },
+      {
+        "level": 2,
+        "id": "vary-it-up",
+        "text": "Vary It Up"
+      },
+      {
+        "level": 2,
+        "id": "let-your-friends-decide",
+        "text": "Let Your Friends Decide"
+      }
+    ],
+    "making-setting-work-fate": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Making the Setting Work in Fate"
+      },
+      {
+        "level": 2,
+        "id": "decide-what-the-world-that-surrounds-the-protagonists-is-like",
+        "text": "Decide what the world that surrounds the protagonists is like."
+      }
+    ],
+    "more-examples-extras": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "More Examples of Extras"
+      },
+      {
+        "level": 2,
+        "id": "weapon-and-armor-ratings",
+        "text": "Weapon and Armor Ratings"
+      },
+      {
+        "level": 3,
+        "id": "zero-sum-is-boring",
+        "text": "Zero-Sum Is Boring"
+      },
+      {
+        "level": 2,
+        "id": "superpowers",
+        "text": "Superpowers"
+      },
+      {
+        "level": 4,
+        "id": "extra-energy-blast",
+        "text": "Extra: Energy Blast"
+      },
+      {
+        "level": 4,
+        "id": "extra-super-strength",
+        "text": "Extra: Super-Strength"
+      },
+      {
+        "level": 4,
+        "id": "extra-super-speed",
+        "text": "Extra: Super-Speed"
+      },
+      {
+        "level": 4,
+        "id": "extra-super-resilience",
+        "text": "Extra: Super-Resilience"
+      },
+      {
+        "level": 4,
+        "id": "extra-x-ray-vision",
+        "text": "Extra: X-Ray Vision"
+      },
+      {
+        "level": 3,
+        "id": "powers--scaling",
+        "text": "Powers & Scaling"
+      },
+      {
+        "level": 2,
+        "id": "special-gear",
+        "text": "Special Gear"
+      },
+      {
+        "level": 3,
+        "id": "quick-and-dirty-story-based-gear",
+        "text": "Quick and Dirty Story-based Gear"
+      },
+      {
+        "level": 4,
+        "id": "extra-demonbane-the-enchanted-sword",
+        "text": "Extra: Demonbane, The Enchanted Sword"
+      },
+      {
+        "level": 4,
+        "id": "extra-brace-jovannichs-dueling-pistol",
+        "text": "Extra: Brace Jovannich’s Dueling Pistol"
+      },
+      {
+        "level": 2,
+        "id": "cybertech-and-super-skills",
+        "text": "Cybertech and Super-Skills"
+      },
+      {
+        "level": 4,
+        "id": "extra-interface",
+        "text": "Extra: Interface"
+      },
+      {
+        "level": 4,
+        "id": "extra-media",
+        "text": "Extra: Media"
+      },
+      {
+        "level": 2,
+        "id": "wealth",
+        "text": "Wealth"
+      },
+      {
+        "level": 4,
+        "id": "extra-resources-revisited",
+        "text": "Extra: Resources, Revisited"
+      },
+      {
+        "level": 2,
+        "id": "vehicles-locations-and-organizations",
+        "text": "Vehicles, Locations, and Organizations"
+      },
+      {
+        "level": 4,
+        "id": "extra-the-plenary-of-ghiraul",
+        "text": "Extra: The Plenary of Ghiraul"
+      },
+      {
+        "level": 2,
+        "id": "magic",
+        "text": "Magic"
+      },
+      {
+        "level": 4,
+        "id": "extra-lucass-arts",
+        "text": "Extra: Lucas’s Arts"
+      },
+      {
+        "level": 4,
+        "id": "commune",
+        "text": "Commune"
+      },
+      {
+        "level": 4,
+        "id": "sujan-the-spirit-of-warding",
+        "text": "Sujan, the Spirit of Warding"
+      },
+      {
+        "level": 4,
+        "id": "extra-schools-of-power",
+        "text": "Extra: Schools of Power"
+      },
+      {
+        "level": 4,
+        "id": "the-black-league",
+        "text": "The Black League"
+      }
+    ],
+    "movement": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Movement"
+      }
+    ],
+    "notice": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Notice"
+      },
+      {
+        "level": 2,
+        "id": "notice-stunts",
+        "text": "Notice Stunts"
+      }
+    ],
+    "phase-trio": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "The Phase Trio"
+      },
+      {
+        "level": 3,
+        "id": "intro-to-choosing-aspects",
+        "text": "Intro to Choosing Aspects"
+      },
+      {
+        "level": 2,
+        "id": "phase-one-your-adventure",
+        "text": "Phase One: Your Adventure"
+      },
+      {
+        "level": 3,
+        "id": "phases--index-cards",
+        "text": "Phases & Index Cards"
+      },
+      {
+        "level": 2,
+        "id": "phase-two-crossing-paths",
+        "text": "Phase Two: Crossing Paths"
+      },
+      {
+        "level": 2,
+        "id": "phase-three-crossing-paths-again",
+        "text": "Phase Three: Crossing Paths Again"
+      },
+      {
+        "level": 3,
+        "id": "fewer-than-three-players",
+        "text": "Fewer Than Three Players?"
+      }
+    ],
+    "physique": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Physique"
+      },
+      {
+        "level": 2,
+        "id": "physique-stunts",
+        "text": "Physique Stunts"
+      }
+    ],
+    "players-gamemasters": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Players & Gamemasters"
+      },
+      {
+        "level": 2,
+        "id": "in-any-game-of-fate-youre-either-a-player-or-a-gamemaster",
+        "text": "In any game of Fate, you’re either a player or a gamemaster."
+      },
+      {
+        "level": 3,
+        "id": "the-example-game",
+        "text": "THE EXAMPLE GAME"
+      }
+    ],
+    "provoke": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Provoke"
+      },
+      {
+        "level": 2,
+        "id": "provoke-stunts",
+        "text": "Provoke Stunts"
+      }
+    ],
+    "quick-character-creation": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Quick Character Creation"
+      },
+      {
+        "level": 2,
+        "id": "starting-play",
+        "text": "Starting Play"
+      },
+      {
+        "level": 2,
+        "id": "filling-aspects-in-play",
+        "text": "Filling Aspects in Play"
+      },
+      {
+        "level": 2,
+        "id": "filling-skills-in-play",
+        "text": "Filling Skills in Play"
+      },
+      {
+        "level": 2,
+        "id": "filling-stunts-in-play",
+        "text": "Filling Stunts in Play"
+      }
+    ],
+    "rapport": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Rapport"
+      },
+      {
+        "level": 2,
+        "id": "rapport-stunts",
+        "text": "Rapport Stunts"
+      }
+    ],
+    "resolving-attacks": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Resolving Attacks"
+      },
+      {
+        "level": 3,
+        "id": "stress",
+        "text": "Stress"
+      },
+      {
+        "level": 3,
+        "id": "consequences",
+        "text": "Consequences"
+      },
+      {
+        "level": 4,
+        "id": "naming-a-consequence",
+        "text": "Naming a Consequence"
+      },
+      {
+        "level": 3,
+        "id": "what-skill-do-i-use-for-recovery",
+        "text": "What Skill Do I Use For Recovery?"
+      },
+      {
+        "level": 4,
+        "id": "recovering-from-a-consequence",
+        "text": "Recovering from a Consequence"
+      },
+      {
+        "level": 3,
+        "id": "potions-and-other-insta-healing",
+        "text": "Potions and Other Insta-Healing"
+      },
+      {
+        "level": 4,
+        "id": "extreme-consequences",
+        "text": "Extreme Consequences"
+      }
+    ],
+    "resources": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Resources"
+      },
+      {
+        "level": 2,
+        "id": "resources-stunts",
+        "text": "Resources Stunts"
+      },
+      {
+        "level": 3,
+        "id": "limiting-resources",
+        "text": "Limiting Resources"
+      },
+      {
+        "level": 3,
+        "id": "alternate-thoughts-on-the-resources-skill",
+        "text": "Alternate Thoughts on the Resources Skill"
+      }
+    ],
+    "running-game": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Running the Game"
+      },
+      {
+        "level": 2,
+        "id": "what-the-gamemaster-does",
+        "text": "What the Gamemaster Does"
+      },
+      {
+        "level": 2,
+        "id": "start-and-end-scenes",
+        "text": "Start and End Scenes"
+      },
+      {
+        "level": 3,
+        "id": "drama-is-better-than-realism",
+        "text": "Drama Is Better Than Realism"
+      },
+      {
+        "level": 2,
+        "id": "play-the-world-and-the-[npc]s",
+        "text": "Play the World and the [NPC]s"
+      },
+      {
+        "level": 3,
+        "id": "let-the-players-help-you",
+        "text": "Let the Players Help You"
+      },
+      {
+        "level": 2,
+        "id": "judge-the-use-of-the-rules",
+        "text": "Judge the Use of the Rules"
+      },
+      {
+        "level": 3,
+        "id": "youre-the-chairman-not-god",
+        "text": "You're the Chairman, Not God"
+      },
+      {
+        "level": 2,
+        "id": "create-scenarios-and-nearly-everything-else",
+        "text": "Create Scenarios (and Nearly Everything Else)"
+      }
+    ],
+    "scenario-play": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "The Scenario In Play"
+      },
+      {
+        "level": 2,
+        "id": "resolving-the-scenario",
+        "text": "Resolving the Scenario"
+      }
+    ],
+    "scenes-sessions-scenarios": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Scenes, Sessions, & Scenarios"
+      }
+    ],
+    "set-first-scene": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Set Up The First Scene"
+      },
+      {
+        "level": 2,
+        "id": "powerful-session-starting-ninja-[gm]-trick",
+        "text": "Powerful Session-Starting Ninja [GM] Trick"
+      }
+    ],
+    "setting-scene": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Setting the Scene"
+      },
+      {
+        "level": 3,
+        "id": "situation-aspects",
+        "text": "Situation Aspects"
+      },
+      {
+        "level": 3,
+        "id": "situation-aspects--zones-in-mental-conflicts",
+        "text": "Situation Aspects & Zones In Mental Conflicts"
+      },
+      {
+        "level": 3,
+        "id": "zones",
+        "text": "Zones"
+      }
+    ],
+    "setting-your-game": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Setting Up Your Game"
+      },
+      {
+        "level": 2,
+        "id": "setting-up-your-game",
+        "text": "Setting Up Your Game"
+      }
+    ],
+    "settings-big-issues": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "The Setting’s Big Issues"
+      },
+      {
+        "level": 2,
+        "id": "decide-what-threats-and-pressures-inherent-to-the-setting-will-spur-the-protagonists-to-action",
+        "text": "Decide what threats and pressures inherent to the setting will spur the protagonists to action."
+      },
+      {
+        "level": 3,
+        "id": "changing-the-number-of-issues",
+        "text": "Changing the Number of Issues"
+      },
+      {
+        "level": 3,
+        "id": "issues",
+        "text": "Issues"
+      },
+      {
+        "level": 2,
+        "id": "making-the-issues-into-aspects",
+        "text": "Making the Issues into Aspects"
+      },
+      {
+        "level": 3,
+        "id": "the-scar-triad",
+        "text": "*The Scar Triad"
+      },
+      {
+        "level": 3,
+        "id": "the-doom-that-is-to-come",
+        "text": "*The Doom that Is to Come"
+      },
+      {
+        "level": 3,
+        "id": "changing-issues-in-play",
+        "text": "Changing Issues In Play"
+      },
+      {
+        "level": 2,
+        "id": "drilling-down",
+        "text": "Drilling Down"
+      },
+      {
+        "level": 3,
+        "id": "the-cult-of-tranquility",
+        "text": "The Cult of Tranquility"
+      }
+    ],
+    "shoot": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Shoot"
+      },
+      {
+        "level": 2,
+        "id": "shoot-stunts",
+        "text": "Shoot Stunts"
+      }
+    ],
+    "skills": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Skills"
+      },
+      {
+        "level": 2,
+        "id": "pick-and-rate-your-characters-skills",
+        "text": "Pick and rate your character’s skills."
+      },
+      {
+        "level": 3,
+        "id": "for-veterans-why-the-pyramid",
+        "text": "For Veterans: Why The Pyramid?"
+      },
+      {
+        "level": 3,
+        "id": "the-skill-cap",
+        "text": "The Skill Cap"
+      }
+    ],
+    "skills-stunts": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Skills & Stunts"
+      },
+      {
+        "level": 2,
+        "id": "defining-skills",
+        "text": "Defining Skills"
+      },
+      {
+        "level": 2,
+        "id": "the-basic-game-actions",
+        "text": "The Basic Game Actions"
+      },
+      {
+        "level": 2,
+        "id": "defining-stunts",
+        "text": "Defining Stunts"
+      },
+      {
+        "level": 2,
+        "id": "stunts-and-refresh",
+        "text": "Stunts and Refresh"
+      },
+      {
+        "level": 3,
+        "id": "stuntmaker—a-tool-for-stunt-inspiration",
+        "text": "Stuntmaker—A Tool for Stunt Inspiration"
+      }
+    ],
+    "start-playing": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Start Playing"
+      },
+      {
+        "level": 3,
+        "id": "where-to-go-from-here",
+        "text": "Where To Go From Here"
+      }
+    ],
+    "stealth": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Stealth"
+      },
+      {
+        "level": 2,
+        "id": "stealth-stunts",
+        "text": "Stealth Stunts"
+      }
+    ],
+    "stress-consequences": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Stress & Consequences"
+      },
+      {
+        "level": 2,
+        "id": "stress-tracks",
+        "text": "Stress Tracks"
+      },
+      {
+        "level": 2,
+        "id": "consequence-slots",
+        "text": "Consequence Slots"
+      },
+      {
+        "level": 2,
+        "id": "adding-tracks-and-slots",
+        "text": "Adding Tracks and Slots"
+      }
+    ],
+    "stunts-refresh": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Stunts & Refresh"
+      },
+      {
+        "level": 2,
+        "id": "pick-or-invent-three-to-five-stunts-determine-how-many-fate-points-you-start-play-with",
+        "text": "Pick or invent three to five stunts. Determine how many fate points you start play with."
+      },
+      {
+        "level": 2,
+        "id": "adjusting-refresh",
+        "text": "Adjusting Refresh"
+      }
+    ],
+    "taking-action-dice-ladder": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Taking Action, Dice, & The Ladder"
+      },
+      {
+        "level": 2,
+        "id": "rolling-the-dice",
+        "text": "Rolling the Dice"
+      },
+      {
+        "level": 3,
+        "id": "the-math-behind-the-dice",
+        "text": "The Math Behind the Dice"
+      },
+      {
+        "level": 2,
+        "id": "the-ladder",
+        "text": "The Ladder"
+      },
+      {
+        "level": 2,
+        "id": "interpreting-results",
+        "text": "Interpreting Results"
+      }
+    ],
+    "teamwork": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Teamwork"
+      },
+      {
+        "level": 3,
+        "id": "revising-teamwork-in-fate",
+        "text": "Revising Teamwork in Fate"
+      }
+    ],
+    "turn-order": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Turn Order"
+      }
+    ],
+    "types-aspects": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Types of Aspects"
+      },
+      {
+        "level": 2,
+        "id": "game-aspects",
+        "text": "Game Aspects"
+      },
+      {
+        "level": 2,
+        "id": "character-aspects",
+        "text": "Character Aspects"
+      },
+      {
+        "level": 2,
+        "id": "situation-aspects",
+        "text": "Situation Aspects"
+      },
+      {
+        "level": 2,
+        "id": "consequences",
+        "text": "Consequences"
+      },
+      {
+        "level": 2,
+        "id": "boosts",
+        "text": "Boosts"
+      },
+      {
+        "level": 3,
+        "id": "a-clarification-about-boosts-from-ryan-macklin-and-leonard-balsera",
+        "text": "A Clarification About Boosts from Ryan Macklin and Leonard Balsera"
+      },
+      {
+        "level": 4,
+        "id": "boosts",
+        "text": "Boosts"
+      },
+      {
+        "level": 4,
+        "id": "leaving-boosts-unnamed",
+        "text": "Leaving Boosts Unnamed"
+      },
+      {
+        "level": 4,
+        "id": "promoting-boosts",
+        "text": "Promoting Boosts"
+      },
+      {
+        "level": 4,
+        "id": "remember-that-boosts-are-not-aspects",
+        "text": "Remember that Boosts are not Aspects"
+      },
+      {
+        "level": 4,
+        "id": "attribution-of-this-text",
+        "text": "Attribution of this text"
+      }
+    ],
+    "using-aspects-roleplaying": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Using Aspects For Roleplaying"
+      },
+      {
+        "level": 2,
+        "id": "removing-or-changing-an-aspect",
+        "text": "Removing Or Changing An Aspect"
+      },
+      {
+        "level": 2,
+        "id": "creating-and-discovering-new-aspects-in-play",
+        "text": "Creating and Discovering New Aspects In Play"
+      },
+      {
+        "level": 3,
+        "id": "for-the-[gm]-extremely-powerful-ninja-[gm]-trick",
+        "text": "For the [GM]: Extremely Powerful Ninja [GM] Trick"
+      },
+      {
+        "level": 2,
+        "id": "secret-or-hidden-aspects",
+        "text": "Secret or Hidden Aspects"
+      }
+    ],
+    "veterans-guide": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Veteran's Guide"
+      },
+      {
+        "level": 2,
+        "id": "game-and-character-creation",
+        "text": "Game and Character Creation"
+      },
+      {
+        "level": 2,
+        "id": "aspects",
+        "text": "Aspects"
+      },
+      {
+        "level": 2,
+        "id": "actions-and-stuff",
+        "text": "Actions and Stuff"
+      },
+      {
+        "level": 2,
+        "id": "scenario-creation",
+        "text": "Scenario Creation"
+      },
+      {
+        "level": 2,
+        "id": "extras",
+        "text": "Extras"
+      }
+    ],
+    "what-aspects-do": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "What Aspects Do"
+      },
+      {
+        "level": 2,
+        "id": "importance",
+        "text": "Importance"
+      },
+      {
+        "level": 2,
+        "id": "deciding-when-to-use-mechanics",
+        "text": "Deciding When to Use Mechanics"
+      }
+    ],
+    "what-do-during-game-creation": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "What To Do During Game Creation"
+      },
+      {
+        "level": 2,
+        "id": "out-there-vs-down-here",
+        "text": "Out There vs. Down Here"
+      },
+      {
+        "level": 2,
+        "id": "top-down-vs-bottom-up",
+        "text": "Top Down vs. Bottom Up"
+      },
+      {
+        "level": 2,
+        "id": "small-scale-vs-large-scale",
+        "text": "Small Scale vs. Large Scale"
+      },
+      {
+        "level": 2,
+        "id": "extras-do-you-need-them",
+        "text": "Extras: Do You Need Them?"
+      }
+    ],
+    "what-do-during-play": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "What To Do During Play"
+      },
+      {
+        "level": 2,
+        "id": "the-golden-rule",
+        "text": "The Golden Rule"
+      },
+      {
+        "level": 3,
+        "id": "the-silver-rule",
+        "text": "The Silver Rule"
+      },
+      {
+        "level": 2,
+        "id": "when-to-roll-dice",
+        "text": "When to Roll Dice"
+      },
+      {
+        "level": 3,
+        "id": "situation-aspects-are-your-friend",
+        "text": "Situation Aspects Are Your Friend"
+      },
+      {
+        "level": 2,
+        "id": "making-failure-awesome",
+        "text": "Making Failure Awesome"
+      },
+      {
+        "level": 3,
+        "id": "blame-the-circumstances",
+        "text": "Blame the Circumstances"
+      },
+      {
+        "level": 3,
+        "id": "succeed-at-a-cost",
+        "text": "Succeed at a Cost"
+      },
+      {
+        "level": 3,
+        "id": "let-the-player-do-the-work",
+        "text": "Let the Player Do the Work"
+      },
+      {
+        "level": 2,
+        "id": "setting-difficulties",
+        "text": "Setting Difficulties"
+      },
+      {
+        "level": 3,
+        "id": "important-justify-your-choice",
+        "text": "Important: Justify Your Choice"
+      },
+      {
+        "level": 2,
+        "id": "dealing-with-extraordinary-success",
+        "text": "Dealing with Extraordinary Success"
+      },
+      {
+        "level": 2,
+        "id": "dealing-with-time",
+        "text": "Dealing with Time"
+      },
+      {
+        "level": 3,
+        "id": "game-time",
+        "text": "Game Time"
+      },
+      {
+        "level": 3,
+        "id": "story-time",
+        "text": "Story Time"
+      },
+      {
+        "level": 4,
+        "id": "deadline-pressure",
+        "text": "Deadline Pressure"
+      },
+      {
+        "level": 4,
+        "id": "using-story-time-in-success-and-failure",
+        "text": "Using Story Time in Success and Failure"
+      },
+      {
+        "level": 3,
+        "id": "how-much-time-is-a-shift-worth",
+        "text": "How Much Time Is A Shift Worth?"
+      },
+      {
+        "level": 4,
+        "id": "story-time-and-the-scope-of-an-action",
+        "text": "Story Time and the Scope of an Action"
+      },
+      {
+        "level": 3,
+        "id": "zoom-in-zoom-out",
+        "text": "Zoom In, Zoom Out"
+      },
+      {
+        "level": 2,
+        "id": "judging-the-use-of-skills-and-stunts",
+        "text": "Judging the Use of Skills and Stunts"
+      },
+      {
+        "level": 3,
+        "id": "aspects-and-details-discovery-vs-creation",
+        "text": "Aspects and Details: Discovery vs. Creation"
+      },
+      {
+        "level": 3,
+        "id": "skills-and-specific-measurements",
+        "text": "Skills and Specific Measurements"
+      },
+      {
+        "level": 2,
+        "id": "dealing-with-conflicts-and-other-weird-stuff",
+        "text": "Dealing with Conflicts and Other Weird Stuff"
+      },
+      {
+        "level": 3,
+        "id": "affecting-multiple-targets",
+        "text": "Affecting Multiple Targets"
+      },
+      {
+        "level": 3,
+        "id": "compels-and-multiple-targets",
+        "text": "Compels and Multiple Targets"
+      },
+      {
+        "level": 3,
+        "id": "environmental-hazards",
+        "text": "Environmental Hazards"
+      },
+      {
+        "level": 2,
+        "id": "dealing-with-aspects",
+        "text": "Dealing with Aspects"
+      },
+      {
+        "level": 3,
+        "id": "invocations",
+        "text": "Invocations"
+      },
+      {
+        "level": 3,
+        "id": "compels",
+        "text": "Compels"
+      },
+      {
+        "level": 4,
+        "id": "weaksauce-compels",
+        "text": "Weaksauce Compels"
+      },
+      {
+        "level": 4,
+        "id": "encouraging-the-players-to-compel",
+        "text": "Encouraging the Players to Compel"
+      }
+    ],
+    "what-you-need-play": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "What You Need To Play"
+      },
+      {
+        "level": 3,
+        "id": "alternatives-to-fate-dice",
+        "text": "Alternatives to Fate Dice"
+      }
+    ],
+    "will": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Will"
+      },
+      {
+        "level": 2,
+        "id": "will-stunts",
+        "text": "Will Stunts"
+      }
+    ],
+    "world-advancement": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "World Advancement"
+      },
+      {
+        "level": 2,
+        "id": "for-minor-milestones",
+        "text": "For Minor Milestones"
+      },
+      {
+        "level": 2,
+        "id": "for-significant-milestones",
+        "text": "For Significant Milestones"
+      },
+      {
+        "level": 2,
+        "id": "for-major-milestones",
+        "text": "For Major Milestones"
+      },
+      {
+        "level": 2,
+        "id": "dealing-with-[npc]s",
+        "text": "Dealing with [NPC]s"
+      },
+      {
+        "level": 2,
+        "id": "recurring-[npc]s",
+        "text": "Recurring [NPC]s"
+      }
+    ],
+    "your-character-idea": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Your Character Idea"
+      },
+      {
+        "level": 3,
+        "id": "keep-building-your-setting",
+        "text": "Keep Building Your Setting"
+      },
+      {
+        "level": 3,
+        "id": "dials-dials-everywhere",
+        "text": "Dials, Dials Everywhere"
+      },
+      {
+        "level": 2,
+        "id": "high-concept",
+        "text": "High Concept"
+      },
+      {
+        "level": 3,
+        "id": "if-you-get-stumped-on-aspects",
+        "text": "If You Get Stumped On Aspects"
+      },
+      {
+        "level": 2,
+        "id": "trouble",
+        "text": "Trouble"
+      },
+      {
+        "level": 3,
+        "id": "the-bright-side-of-troubles",
+        "text": "The Bright Side of Troubles"
+      },
+      {
+        "level": 3,
+        "id": "intro-to-choosing-aspects",
+        "text": "Intro to Choosing Aspects"
+      },
+      {
+        "level": 2,
+        "id": "name",
+        "text": "Name"
+      }
+    ],
+    "youre-all-set": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "You're All Set!"
+      }
+    ]
+  }
+}

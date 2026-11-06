@@ -1,0 +1,28 @@
+Fate Core Companion — Rules attribution
+
+©2013 Evil Hat Productions, LLC.
+
+This work is based on Fate Core System and Fate Accelerated Edition (found at http://www.faterpg.com/), products of Evil Hat Productions, LLC, developed, authored, and edited by Leonard Balsera, Brian Engard, Jeremy Keller, Ryan Macklin, Mike Olson, Clark Valentine, Amanda Valentine, Fred Hicks, and Rob Donoghue, and licensed for our use under the Creative Commons Attribution 3.0 Unported license (http://creativecommons.org/licenses/by/3.0/).
+
+Rules source: https://github.com/fate-srd/fate-srd-content
+Pinned commit: 93ed848e723f31b4994b466b7241011ba24be885
+Source file: source/fate-core-SRD.html
+Permanent source link: https://github.com/fate-srd/fate-srd-content/blob/93ed848e723f31b4994b466b7241011ba24be885/source/fate-core-SRD.html
+Source SHA-256: d345efb80ca2221df88157d4e553d247662661781cac04e610d4c3147cba07ec
+
+Only the Fate Core SRD is bundled as rules content. It comes from the repository's explicitly CC-BY source file. The repository's abridged OGL Core Markdown edition is not used. Repository preparation is credited to Randy Oest and the fate-srd-content contributors; the upstream README is retained with the source.
+
+Changes: Repository HTML is converted to generated Markdown and heading-based plain-text reference entries. Markup and whitespace are normalized, empty graphic placeholders are omitted, and the original copyright and attribution are retained. App-written explanations and sample campaign material are adaptations or original companion content, identified separately from the imported reference text. No rules prose is extracted from the retail PDF or scraped from rendered website pages.
+
+This is an independent companion application and does not imply endorsement by Evil Hat Productions.
+
+Fate™ is a trademark of Evil Hat Productions, LLC. The Powered by Fate logo is © Evil Hat Productions, LLC and is used with permission.
+
+The Fate Core font is © Evil Hat Productions, LLC and is used with permission. The Four Actions icons were designed by Jeremy Keller.
+
+The official Powered by Fate logos are displayed unaltered under the terms at https://fate-srd.com/official-licensing-fate. No book artwork is redistributed. The interface palette follows the book's blue cover and black-and-white interior.
+
+The book's Gotham and Adobe Garamond Pro faces are used only when installed on the device. Those commercial fonts are not bundled or extracted from the PDF. Montserrat and EB Garamond are bundled as offline alternatives under the SIL Open Font License; their notices and licenses accompany the font files.
+
+Licensing guidance: https://fate-srd.com/official-licensing-fate/cc
+Creative Commons Attribution 3.0 Unported: https://creativecommons.org/licenses/by/3.0/

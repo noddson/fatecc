@@ -1,0 +1,1253 @@
+{
+  "baseUrl": "https://fate-srd.com/fate-core/",
+  "verifiedAt": "2026-11-06",
+  "verificationUrl": "https://fate-srd.com/fate-core/building-stunts#balancing-stunt-utility",
+  "sourceRevision": "93ed848e723f31b4994b466b7241011ba24be885",
+  "sections": [
+    {
+      "sourceLine": 3,
+      "path": "basics"
+    },
+    {
+      "sourceLine": 17,
+      "path": "basics#welcome-to-fate!"
+    },
+    {
+      "sourceLine": 47,
+      "path": "what-you-need-play"
+    },
+    {
+      "sourceLine": 71,
+      "path": "players-gamemasters"
+    },
+    {
+      "sourceLine": 91,
+      "path": "character-sheet"
+    },
+    {
+      "sourceLine": 97,
+      "path": "character-sheet#aspects"
+    },
+    {
+      "sourceLine": 111,
+      "path": "character-sheet#skills"
+    },
+    {
+      "sourceLine": 123,
+      "path": "character-sheet#stunts"
+    },
+    {
+      "sourceLine": 131,
+      "path": "character-sheet#stress"
+    },
+    {
+      "sourceLine": 135,
+      "path": "character-sheet#consequences"
+    },
+    {
+      "sourceLine": 139,
+      "path": "character-sheet#refresh"
+    },
+    {
+      "sourceLine": 143,
+      "path": "taking-action-dice-ladder"
+    },
+    {
+      "sourceLine": 157,
+      "path": "taking-action-dice-ladder#rolling-the-dice"
+    },
+    {
+      "sourceLine": 172,
+      "path": "taking-action-dice-ladder#the-ladder"
+    },
+    {
+      "sourceLine": 234,
+      "path": "taking-action-dice-ladder#interpreting-results"
+    },
+    {
+      "sourceLine": 258,
+      "path": "fate-points"
+    },
+    {
+      "sourceLine": 268,
+      "path": "fate-points#invoking-an-aspect"
+    },
+    {
+      "sourceLine": 286,
+      "path": "fate-points#declaring-a-story-detail"
+    },
+    {
+      "sourceLine": 301,
+      "path": "fate-points#compels"
+    },
+    {
+      "sourceLine": 329,
+      "path": "start-playing"
+    },
+    {
+      "sourceLine": 352,
+      "path": "game-creation#what-makes-a-good-fate-game"
+    },
+    {
+      "sourceLine": 358,
+      "path": "game-creation#proactivity"
+    },
+    {
+      "sourceLine": 366,
+      "path": "game-creation#competence"
+    },
+    {
+      "sourceLine": 374,
+      "path": "game-creation#drama"
+    },
+    {
+      "sourceLine": 404,
+      "path": "setting-your-game"
+    },
+    {
+      "sourceLine": 410,
+      "path": "making-setting-work-fate"
+    },
+    {
+      "sourceLine": 426,
+      "path": "games-scale"
+    },
+    {
+      "sourceLine": 439,
+      "path": "settings-big-issues"
+    },
+    {
+      "sourceLine": 475,
+      "path": "settings-big-issues#making-the-issues-into-aspects"
+    },
+    {
+      "sourceLine": 492,
+      "path": "settings-big-issues#drilling-down"
+    },
+    {
+      "sourceLine": 503,
+      "path": "faces-places"
+    },
+    {
+      "sourceLine": 533,
+      "path": "make-characters"
+    },
+    {
+      "sourceLine": 556,
+      "path": "character-creation"
+    },
+    {
+      "sourceLine": 558,
+      "path": "character-creation#character-creation-is-play"
+    },
+    {
+      "sourceLine": 602,
+      "path": "your-character-idea"
+    },
+    {
+      "sourceLine": 636,
+      "path": "your-character-idea#high-concept"
+    },
+    {
+      "sourceLine": 674,
+      "path": "your-character-idea#trouble"
+    },
+    {
+      "sourceLine": 736,
+      "path": "your-character-idea#name"
+    },
+    {
+      "sourceLine": 748,
+      "path": "phase-trio"
+    },
+    {
+      "sourceLine": 786,
+      "path": "phase-trio#phase-one-your-adventure"
+    },
+    {
+      "sourceLine": 837,
+      "path": "phase-trio#phase-two-crossing-paths"
+    },
+    {
+      "sourceLine": 878,
+      "path": "phase-trio#phase-three-crossing-paths-again"
+    },
+    {
+      "sourceLine": 918,
+      "path": "skills"
+    },
+    {
+      "sourceLine": 967,
+      "path": "stunts-refresh"
+    },
+    {
+      "sourceLine": 981,
+      "path": "stunts-refresh#adjusting-refresh"
+    },
+    {
+      "sourceLine": 993,
+      "path": "stress-consequences"
+    },
+    {
+      "sourceLine": 1024,
+      "path": "youre-all-set"
+    },
+    {
+      "sourceLine": 1048,
+      "path": "quick-character-creation"
+    },
+    {
+      "sourceLine": 1068,
+      "path": "quick-character-creation#starting-play"
+    },
+    {
+      "sourceLine": 1074,
+      "path": "quick-character-creation#filling-aspects-in-play"
+    },
+    {
+      "sourceLine": 1080,
+      "path": "quick-character-creation#filling-skills-in-play"
+    },
+    {
+      "sourceLine": 1090,
+      "path": "quick-character-creation#filling-stunts-in-play"
+    },
+    {
+      "sourceLine": 1110,
+      "path": "aspects-fate-points#defining-aspects"
+    },
+    {
+      "sourceLine": 1116,
+      "path": "aspects-fate-points#defining-fate-points"
+    },
+    {
+      "sourceLine": 1122,
+      "path": "types-aspects"
+    },
+    {
+      "sourceLine": 1126,
+      "path": "types-aspects#game-aspects"
+    },
+    {
+      "sourceLine": 1132,
+      "path": "types-aspects#character-aspects"
+    },
+    {
+      "sourceLine": 1152,
+      "path": "types-aspects#situation-aspects"
+    },
+    {
+      "sourceLine": 1174,
+      "path": "types-aspects#consequences"
+    },
+    {
+      "sourceLine": 1180,
+      "path": "types-aspects#boosts"
+    },
+    {
+      "sourceLine": 1188,
+      "path": "what-aspects-do"
+    },
+    {
+      "sourceLine": 1192,
+      "path": "what-aspects-do#importance"
+    },
+    {
+      "sourceLine": 1202,
+      "path": "what-aspects-do#deciding-when-to-use-mechanics"
+    },
+    {
+      "sourceLine": 1210,
+      "path": "making-good-aspect"
+    },
+    {
+      "sourceLine": 1216,
+      "path": "making-good-aspect#double-edged"
+    },
+    {
+      "sourceLine": 1232,
+      "path": "making-good-aspect#say-more-than-one-thing"
+    },
+    {
+      "sourceLine": 1252,
+      "path": "making-good-aspect#clear-phrasing"
+    },
+    {
+      "sourceLine": 1276,
+      "path": "making-good-aspect#if-you-get-stuck"
+    },
+    {
+      "sourceLine": 1282,
+      "path": "making-good-aspect#sometimes-its-better-not-to-choose"
+    },
+    {
+      "sourceLine": 1290,
+      "path": "making-good-aspect#always-ask-what-matters-and-why"
+    },
+    {
+      "sourceLine": 1320,
+      "path": "making-good-aspect#vary-it-up"
+    },
+    {
+      "sourceLine": 1334,
+      "path": "making-good-aspect#let-your-friends-decide"
+    },
+    {
+      "sourceLine": 1342,
+      "path": "invoking-compelling-aspects#invoking-aspects"
+    },
+    {
+      "sourceLine": 1396,
+      "path": "invoking-compelling-aspects#free-invocations"
+    },
+    {
+      "sourceLine": 1422,
+      "path": "invoking-compelling-aspects#compelling-aspects"
+    },
+    {
+      "sourceLine": 1450,
+      "path": "invoking-compelling-aspects#types-of-compels"
+    },
+    {
+      "sourceLine": 1454,
+      "path": "invoking-compelling-aspects#events"
+    },
+    {
+      "sourceLine": 1478,
+      "path": "invoking-compelling-aspects#decisions"
+    },
+    {
+      "sourceLine": 1514,
+      "path": "invoking-compelling-aspects#retroactive-compels"
+    },
+    {
+      "sourceLine": 1520,
+      "path": "invoking-compelling-aspects#compelling-with-situation-aspects"
+    },
+    {
+      "sourceLine": 1534,
+      "path": "using-aspects-roleplaying"
+    },
+    {
+      "sourceLine": 1562,
+      "path": "using-aspects-roleplaying#removing-or-changing-an-aspect"
+    },
+    {
+      "sourceLine": 1572,
+      "path": "using-aspects-roleplaying#creating-and-discovering-new-aspects-in-play"
+    },
+    {
+      "sourceLine": 1590,
+      "path": "using-aspects-roleplaying#secret-or-hidden-aspects"
+    },
+    {
+      "sourceLine": 1610,
+      "path": "fate-point-economy"
+    },
+    {
+      "sourceLine": 1618,
+      "path": "fate-point-economy#refresh"
+    },
+    {
+      "sourceLine": 1638,
+      "path": "fate-point-economy#spending-fate-points"
+    },
+    {
+      "sourceLine": 1652,
+      "path": "fate-point-economy#earning-fate-points"
+    },
+    {
+      "sourceLine": 1664,
+      "path": "fate-point-economy#the-[gm]-and-fate-points"
+    },
+    {
+      "sourceLine": 1719,
+      "path": "skills-stunts#defining-skills"
+    },
+    {
+      "sourceLine": 1727,
+      "path": "skills-stunts#the-basic-game-actions"
+    },
+    {
+      "sourceLine": 1745,
+      "path": "skills-stunts#defining-stunts"
+    },
+    {
+      "sourceLine": 1761,
+      "path": "skills-stunts#stunts-and-refresh"
+    },
+    {
+      "sourceLine": 1765,
+      "path": "building-stunts"
+    },
+    {
+      "sourceLine": 1774,
+      "path": "building-stunts#adding-a-new-action-to-a-skill"
+    },
+    {
+      "sourceLine": 1794,
+      "path": "building-stunts#adding-a-bonus-to-an-action"
+    },
+    {
+      "sourceLine": 1818,
+      "path": "building-stunts#creating-a-rules-exception"
+    },
+    {
+      "sourceLine": 1834,
+      "path": "building-stunts#balancing-stunt-utility"
+    },
+    {
+      "sourceLine": 1875,
+      "path": "building-stunts#stunt-families"
+    },
+    {
+      "sourceLine": 1883,
+      "path": "building-stunts#stacking-effects"
+    },
+    {
+      "sourceLine": 1907,
+      "path": "building-stunts#branching-effects"
+    },
+    {
+      "sourceLine": 1937,
+      "path": "default-skill-list"
+    },
+    {
+      "sourceLine": 2388,
+      "path": "athletics"
+    },
+    {
+      "sourceLine": 2415,
+      "path": "burglary"
+    },
+    {
+      "sourceLine": 2429,
+      "path": "burglary#burglary-stunts"
+    },
+    {
+      "sourceLine": 2439,
+      "path": "contacts"
+    },
+    {
+      "sourceLine": 2461,
+      "path": "contacts#stunts"
+    },
+    {
+      "sourceLine": 2471,
+      "path": "crafts"
+    },
+    {
+      "sourceLine": 2498,
+      "path": "crafts#crafts-stunts"
+    },
+    {
+      "sourceLine": 2511,
+      "path": "deceive"
+    },
+    {
+      "sourceLine": 2528,
+      "path": "deceive#deceive-stunts"
+    },
+    {
+      "sourceLine": 2550,
+      "path": "drive"
+    },
+    {
+      "sourceLine": 2594,
+      "path": "drive#drive-stunts"
+    },
+    {
+      "sourceLine": 2604,
+      "path": "empathy"
+    },
+    {
+      "sourceLine": 2619,
+      "path": "empathy#empathy-stunts"
+    },
+    {
+      "sourceLine": 2629,
+      "path": "fight"
+    },
+    {
+      "sourceLine": 2645,
+      "path": "fight#fight-stunts"
+    },
+    {
+      "sourceLine": 2665,
+      "path": "investigate"
+    },
+    {
+      "sourceLine": 2679,
+      "path": "investigate#investigate-stunts"
+    },
+    {
+      "sourceLine": 2689,
+      "path": "lore"
+    },
+    {
+      "sourceLine": 2707,
+      "path": "lore#lore-stunts"
+    },
+    {
+      "sourceLine": 2717,
+      "path": "notice"
+    },
+    {
+      "sourceLine": 2730,
+      "path": "notice#notice-stunts"
+    },
+    {
+      "sourceLine": 2740,
+      "path": "physique"
+    },
+    {
+      "sourceLine": 2760,
+      "path": "physique#physique-stunts"
+    },
+    {
+      "sourceLine": 2770,
+      "path": "provoke"
+    },
+    {
+      "sourceLine": 2788,
+      "path": "provoke#provoke-stunts"
+    },
+    {
+      "sourceLine": 2798,
+      "path": "rapport"
+    },
+    {
+      "sourceLine": 2812,
+      "path": "rapport#rapport-stunts"
+    },
+    {
+      "sourceLine": 2822,
+      "path": "resources"
+    },
+    {
+      "sourceLine": 2838,
+      "path": "resources#resources-stunts"
+    },
+    {
+      "sourceLine": 2862,
+      "path": "shoot"
+    },
+    {
+      "sourceLine": 2878,
+      "path": "shoot#shoot-stunts"
+    },
+    {
+      "sourceLine": 2888,
+      "path": "stealth"
+    },
+    {
+      "sourceLine": 2902,
+      "path": "stealth#stealth-stunts"
+    },
+    {
+      "sourceLine": 2912,
+      "path": "will"
+    },
+    {
+      "sourceLine": 2927,
+      "path": "will#will-stunts"
+    },
+    {
+      "sourceLine": 2947,
+      "path": "actions-outcomes#its-time-for-action!"
+    },
+    {
+      "sourceLine": 2979,
+      "path": "actions-outcomes#opposition"
+    },
+    {
+      "sourceLine": 3005,
+      "path": "four-outcomes"
+    },
+    {
+      "sourceLine": 3011,
+      "path": "four-outcomes#fail"
+    },
+    {
+      "sourceLine": 3017,
+      "path": "four-outcomes#tie"
+    },
+    {
+      "sourceLine": 3023,
+      "path": "four-outcomes#succeed"
+    },
+    {
+      "sourceLine": 3029,
+      "path": "four-outcomes#succeed-with-style"
+    },
+    {
+      "sourceLine": 3078,
+      "path": "four-actions"
+    },
+    {
+      "sourceLine": 3088,
+      "path": "four-actions#overcome"
+    },
+    {
+      "sourceLine": 3131,
+      "path": "four-actions#create-an-advantage"
+    },
+    {
+      "sourceLine": 3201,
+      "path": "four-actions#attack"
+    },
+    {
+      "sourceLine": 3237,
+      "path": "four-actions#defend"
+    },
+    {
+      "sourceLine": 3296,
+      "path": "challenges-contests-conflicts#zooming-in-on-the-action"
+    },
+    {
+      "sourceLine": 3312,
+      "path": "challenges"
+    },
+    {
+      "sourceLine": 3368,
+      "path": "challenges#advantages-in-a-challenge"
+    },
+    {
+      "sourceLine": 3372,
+      "path": "challenges#attacks-in-a-challenge"
+    },
+    {
+      "sourceLine": 3376,
+      "path": "contests"
+    },
+    {
+      "sourceLine": 3442,
+      "path": "contests#creating-advantages-in-a-contest"
+    },
+    {
+      "sourceLine": 3460,
+      "path": "contests#attacks-in-a-contest"
+    },
+    {
+      "sourceLine": 3464,
+      "path": "conflicts"
+    },
+    {
+      "sourceLine": 3492,
+      "path": "setting-scene"
+    },
+    {
+      "sourceLine": 3516,
+      "path": "setting-scene#situation-aspects"
+    },
+    {
+      "sourceLine": 3549,
+      "path": "setting-scene#zones"
+    },
+    {
+      "sourceLine": 3579,
+      "path": "establishing-sides"
+    },
+    {
+      "sourceLine": 3597,
+      "path": "turn-order"
+    },
+    {
+      "sourceLine": 3611,
+      "path": "exchange"
+    },
+    {
+      "sourceLine": 3624,
+      "path": "exchange#full-defense"
+    },
+    {
+      "sourceLine": 3638,
+      "path": "resolving-attacks"
+    },
+    {
+      "sourceLine": 3652,
+      "path": "resolving-attacks#stress"
+    },
+    {
+      "sourceLine": 3686,
+      "path": "resolving-attacks#consequences"
+    },
+    {
+      "sourceLine": 3714,
+      "path": "resolving-attacks#naming-a-consequence"
+    },
+    {
+      "sourceLine": 3734,
+      "path": "resolving-attacks#recovering-from-a-consequence"
+    },
+    {
+      "sourceLine": 3775,
+      "path": "resolving-attacks#extreme-consequences"
+    },
+    {
+      "sourceLine": 3785,
+      "path": "conceding-conflict"
+    },
+    {
+      "sourceLine": 3817,
+      "path": "getting-taken-out"
+    },
+    {
+      "sourceLine": 3823,
+      "path": "getting-taken-out#character-death"
+    },
+    {
+      "sourceLine": 3837,
+      "path": "movement"
+    },
+    {
+      "sourceLine": 3863,
+      "path": "advantages-conflict"
+    },
+    {
+      "sourceLine": 3895,
+      "path": "advantages-conflict#other-actions-in-a-conflict"
+    },
+    {
+      "sourceLine": 3920,
+      "path": "ending-conflict"
+    },
+    {
+      "sourceLine": 3938,
+      "path": "ending-conflict#transitioning-to-a-contest-or-challenge"
+    },
+    {
+      "sourceLine": 3950,
+      "path": "teamwork"
+    },
+    {
+      "sourceLine": 3987,
+      "path": "running-game#what-the-gamemaster-does"
+    },
+    {
+      "sourceLine": 3993,
+      "path": "running-game#start-and-end-scenes"
+    },
+    {
+      "sourceLine": 4009,
+      "path": "running-game#play-the-world-and-the-[npc]s"
+    },
+    {
+      "sourceLine": 4037,
+      "path": "running-game#judge-the-use-of-the-rules"
+    },
+    {
+      "sourceLine": 4053,
+      "path": "running-game#create-scenarios-and-nearly-everything-else"
+    },
+    {
+      "sourceLine": 4059,
+      "path": "what-do-during-game-creation"
+    },
+    {
+      "sourceLine": 4065,
+      "path": "what-do-during-game-creation#out-there-vs-down-here"
+    },
+    {
+      "sourceLine": 4071,
+      "path": "what-do-during-game-creation#top-down-vs-bottom-up"
+    },
+    {
+      "sourceLine": 4085,
+      "path": "what-do-during-game-creation#small-scale-vs-large-scale"
+    },
+    {
+      "sourceLine": 4099,
+      "path": "what-do-during-game-creation#extras-do-you-need-them"
+    },
+    {
+      "sourceLine": 4103,
+      "path": "what-do-during-play"
+    },
+    {
+      "sourceLine": 4107,
+      "path": "what-do-during-play#the-golden-rule"
+    },
+    {
+      "sourceLine": 4160,
+      "path": "what-do-during-play#when-to-roll-dice"
+    },
+    {
+      "sourceLine": 4178,
+      "path": "what-do-during-play#making-failure-awesome"
+    },
+    {
+      "sourceLine": 4182,
+      "path": "what-do-during-play#blame-the-circumstances"
+    },
+    {
+      "sourceLine": 4188,
+      "path": "what-do-during-play#succeed-at-a-cost"
+    },
+    {
+      "sourceLine": 4226,
+      "path": "what-do-during-play#let-the-player-do-the-work"
+    },
+    {
+      "sourceLine": 4232,
+      "path": "what-do-during-play#setting-difficulties"
+    },
+    {
+      "sourceLine": 4262,
+      "path": "what-do-during-play#dealing-with-extraordinary-success"
+    },
+    {
+      "sourceLine": 4278,
+      "path": "what-do-during-play#dealing-with-time"
+    },
+    {
+      "sourceLine": 4282,
+      "path": "what-do-during-play#game-time"
+    },
+    {
+      "sourceLine": 4300,
+      "path": "what-do-during-play#story-time"
+    },
+    {
+      "sourceLine": 4308,
+      "path": "what-do-during-play#deadline-pressure"
+    },
+    {
+      "sourceLine": 4318,
+      "path": "what-do-during-play#using-story-time-in-success-and-failure"
+    },
+    {
+      "sourceLine": 4344,
+      "path": "what-do-during-play#story-time-and-the-scope-of-an-action"
+    },
+    {
+      "sourceLine": 4366,
+      "path": "what-do-during-play#zoom-in-zoom-out"
+    },
+    {
+      "sourceLine": 4396,
+      "path": "what-do-during-play#judging-the-use-of-skills-and-stunts"
+    },
+    {
+      "sourceLine": 4416,
+      "path": "what-do-during-play#aspects-and-details-discovery-vs-creation"
+    },
+    {
+      "sourceLine": 4444,
+      "path": "what-do-during-play#skills-and-specific-measurements"
+    },
+    {
+      "sourceLine": 4458,
+      "path": "what-do-during-play#dealing-with-conflicts-and-other-weird-stuff"
+    },
+    {
+      "sourceLine": 4466,
+      "path": "what-do-during-play#affecting-multiple-targets"
+    },
+    {
+      "sourceLine": 4520,
+      "path": "what-do-during-play#environmental-hazards"
+    },
+    {
+      "sourceLine": 4552,
+      "path": "what-do-during-play#dealing-with-aspects"
+    },
+    {
+      "sourceLine": 4556,
+      "path": "what-do-during-play#invocations"
+    },
+    {
+      "sourceLine": 4564,
+      "path": "what-do-during-play#compels"
+    },
+    {
+      "sourceLine": 4584,
+      "path": "what-do-during-play#weaksauce-compels"
+    },
+    {
+      "sourceLine": 4590,
+      "path": "what-do-during-play#encouraging-the-players-to-compel"
+    },
+    {
+      "sourceLine": 4600,
+      "path": "creating-and-playing-opposition"
+    },
+    {
+      "sourceLine": 4608,
+      "path": "creating-and-playing-opposition#take-only-what-you-need-to-survive"
+    },
+    {
+      "sourceLine": 4612,
+      "path": "creating-and-playing-opposition#the-[npc]-types"
+    },
+    {
+      "sourceLine": 4616,
+      "path": "creating-and-playing-opposition#nameless-[npc]s"
+    },
+    {
+      "sourceLine": 4626,
+      "path": "creating-and-playing-opposition#average"
+    },
+    {
+      "sourceLine": 4640,
+      "path": "creating-and-playing-opposition#fair"
+    },
+    {
+      "sourceLine": 4654,
+      "path": "creating-and-playing-opposition#good"
+    },
+    {
+      "sourceLine": 4668,
+      "path": "creating-and-playing-opposition#mobs"
+    },
+    {
+      "sourceLine": 4674,
+      "path": "creating-and-playing-opposition#hits-and-overflow"
+    },
+    {
+      "sourceLine": 4694,
+      "path": "creating-and-playing-opposition#nameless-[npc]s-as-obstacles"
+    },
+    {
+      "sourceLine": 4706,
+      "path": "creating-and-playing-opposition#[npc]-first-name-later"
+    },
+    {
+      "sourceLine": 4730,
+      "path": "creating-and-playing-opposition#supporting-[npc]s"
+    },
+    {
+      "sourceLine": 4775,
+      "path": "creating-and-playing-opposition#main-[npc]s"
+    },
+    {
+      "sourceLine": 4815,
+      "path": "creating-and-playing-opposition#playing-the-opposition"
+    },
+    {
+      "sourceLine": 4819,
+      "path": "creating-and-playing-opposition#right-sizing"
+    },
+    {
+      "sourceLine": 4837,
+      "path": "creating-and-playing-opposition#creating-advantages-for-[npc]s"
+    },
+    {
+      "sourceLine": 4845,
+      "path": "creating-and-playing-opposition#change-venues-of-conflict"
+    },
+    {
+      "sourceLine": 4865,
+      "path": "scenes-sessions-scenarios"
+    },
+    {
+      "sourceLine": 4873,
+      "path": "defining-scenarios"
+    },
+    {
+      "sourceLine": 4899,
+      "path": "find-problems"
+    },
+    {
+      "sourceLine": 4921,
+      "path": "find-problems#problems-and-character-aspects"
+    },
+    {
+      "sourceLine": 4953,
+      "path": "find-problems#problems-and-game-aspects"
+    },
+    {
+      "sourceLine": 4986,
+      "path": "find-problems#problems-and-aspect-pairs"
+    },
+    {
+      "sourceLine": 5020,
+      "path": "find-problems#character-aspect-and-issue"
+    },
+    {
+      "sourceLine": 5049,
+      "path": "ask-story-questions"
+    },
+    {
+      "sourceLine": 5094,
+      "path": "establish-opposition"
+    },
+    {
+      "sourceLine": 5151,
+      "path": "set-first-scene"
+    },
+    {
+      "sourceLine": 5177,
+      "path": "set-first-scene#powerful-session-starting-ninja-[gm]-trick"
+    },
+    {
+      "sourceLine": 5203,
+      "path": "defining-scenes"
+    },
+    {
+      "sourceLine": 5211,
+      "path": "defining-scenes#starting-scenes"
+    },
+    {
+      "sourceLine": 5257,
+      "path": "defining-scenes#ending-scenes"
+    },
+    {
+      "sourceLine": 5269,
+      "path": "defining-scenes#using-the-pillars-competence-proactivity-drama"
+    },
+    {
+      "sourceLine": 5293,
+      "path": "defining-scenes#hit-their-aspects"
+    },
+    {
+      "sourceLine": 5309,
+      "path": "scenario-play"
+    },
+    {
+      "sourceLine": 5355,
+      "path": "scenario-play#resolving-the-scenario"
+    },
+    {
+      "sourceLine": 5374,
+      "path": "long-game#defining-arcs"
+    },
+    {
+      "sourceLine": 5382,
+      "path": "long-game#defining-campaigns"
+    },
+    {
+      "sourceLine": 5390,
+      "path": "building-arc"
+    },
+    {
+      "sourceLine": 5418,
+      "path": "building-campaign"
+    },
+    {
+      "sourceLine": 5432,
+      "path": "advancement-change"
+    },
+    {
+      "sourceLine": 5440,
+      "path": "advancement-change#defining-milestones"
+    },
+    {
+      "sourceLine": 5450,
+      "path": "advancement-change#minor-milestones"
+    },
+    {
+      "sourceLine": 5486,
+      "path": "advancement-change#significant-milestones"
+    },
+    {
+      "sourceLine": 5500,
+      "path": "advancement-change#skill-columns"
+    },
+    {
+      "sourceLine": 5550,
+      "path": "advancement-change#major-milestones"
+    },
+    {
+      "sourceLine": 5603,
+      "path": "world-advancement"
+    },
+    {
+      "sourceLine": 5611,
+      "path": "world-advancement#for-minor-milestones"
+    },
+    {
+      "sourceLine": 5625,
+      "path": "world-advancement#for-significant-milestones"
+    },
+    {
+      "sourceLine": 5639,
+      "path": "world-advancement#for-major-milestones"
+    },
+    {
+      "sourceLine": 5661,
+      "path": "world-advancement#dealing-with-[npc]s"
+    },
+    {
+      "sourceLine": 5675,
+      "path": "world-advancement#recurring-[npc]s"
+    },
+    {
+      "sourceLine": 5697,
+      "path": "extras#defining-extras"
+    },
+    {
+      "sourceLine": 5719,
+      "path": "extras#the-bronze-rule-aka-the-fate-fractal"
+    },
+    {
+      "sourceLine": 5729,
+      "path": "creating-extra"
+    },
+    {
+      "sourceLine": 5747,
+      "path": "creating-extra#setting-elements"
+    },
+    {
+      "sourceLine": 5761,
+      "path": "creating-extra#what-extras-do"
+    },
+    {
+      "sourceLine": 5793,
+      "path": "creating-extra#assigning-character-elements"
+    },
+    {
+      "sourceLine": 5821,
+      "path": "creating-extra#permissions-and-costs"
+    },
+    {
+      "sourceLine": 5837,
+      "path": "creating-extra#the-writeup"
+    },
+    {
+      "sourceLine": 5842,
+      "path": "creating-extra"
+    },
+    {
+      "sourceLine": 5858,
+      "path": "creating-extra#extras-and-advancement"
+    },
+    {
+      "sourceLine": 5872,
+      "path": "more-examples-extras"
+    },
+    {
+      "sourceLine": 5876,
+      "path": "more-examples-extras#weapon-and-armor-ratings"
+    },
+    {
+      "sourceLine": 5913,
+      "path": "more-examples-extras#superpowers"
+    },
+    {
+      "sourceLine": 5926,
+      "path": "more-examples-extras#extra-energy-blast"
+    },
+    {
+      "sourceLine": 5935,
+      "path": "more-examples-extras#extra-super-strength"
+    },
+    {
+      "sourceLine": 5942,
+      "path": "more-examples-extras#extra-super-speed"
+    },
+    {
+      "sourceLine": 5953,
+      "path": "more-examples-extras#extra-super-resilience"
+    },
+    {
+      "sourceLine": 5960,
+      "path": "more-examples-extras#extra-x-ray-vision"
+    },
+    {
+      "sourceLine": 5978,
+      "path": "more-examples-extras#special-gear"
+    },
+    {
+      "sourceLine": 5989,
+      "path": "more-examples-extras#quick-and-dirty-story-based-gear"
+    },
+    {
+      "sourceLine": 5998,
+      "path": "more-examples-extras#extra-demonbane-the-enchanted-sword"
+    },
+    {
+      "sourceLine": 6009,
+      "path": "more-examples-extras#extra-brace-jovannichs-dueling-pistol"
+    },
+    {
+      "sourceLine": 6022,
+      "path": "more-examples-extras#cybertech-and-super-skills"
+    },
+    {
+      "sourceLine": 6033,
+      "path": "more-examples-extras#extra-interface"
+    },
+    {
+      "sourceLine": 6050,
+      "path": "more-examples-extras#extra-media"
+    },
+    {
+      "sourceLine": 6071,
+      "path": "more-examples-extras#wealth"
+    },
+    {
+      "sourceLine": 6080,
+      "path": "more-examples-extras#extra-resources-revisited"
+    },
+    {
+      "sourceLine": 6098,
+      "path": "more-examples-extras#vehicles-locations-and-organizations"
+    },
+    {
+      "sourceLine": 6109,
+      "path": "more-examples-extras"
+    },
+    {
+      "sourceLine": 6130,
+      "path": "more-examples-extras#extra-the-plenary-of-ghiraul"
+    },
+    {
+      "sourceLine": 6151,
+      "path": "more-examples-extras#magic"
+    },
+    {
+      "sourceLine": 6158,
+      "path": "more-examples-extras#extra-lucass-arts"
+    },
+    {
+      "sourceLine": 6170,
+      "path": "more-examples-extras#commune"
+    },
+    {
+      "sourceLine": 6188,
+      "path": "more-examples-extras#sujan-the-spirit-of-warding"
+    },
+    {
+      "sourceLine": 6206,
+      "path": "more-examples-extras#extra-schools-of-power"
+    },
+    {
+      "sourceLine": 6217,
+      "path": "more-examples-extras#the-black-league"
+    },
+    {
+      "sourceLine": 6245,
+      "path": "basics"
+    },
+    {
+      "sourceLine": 6251,
+      "path": "veterans-guide"
+    },
+    {
+      "sourceLine": 6255,
+      "path": "veterans-guide#game-and-character-creation"
+    },
+    {
+      "sourceLine": 6269,
+      "path": "veterans-guide#aspects"
+    },
+    {
+      "sourceLine": 6285,
+      "path": "veterans-guide#actions-and-stuff"
+    },
+    {
+      "sourceLine": 6301,
+      "path": "veterans-guide#scenario-creation"
+    },
+    {
+      "sourceLine": 6307,
+      "path": "veterans-guide#extras"
+    },
+    {
+      "sourceLine": 6313,
+      "path": "feedback-heroes"
+    }
+  ],
+  "headingSnapshot": "reading-headings.json"
+}
