@@ -4,6 +4,7 @@ import { validateAssets } from '../storage/assets';
 import { GrantStore, loadReconnect, saveReconnect } from './credentials';
 import type { DeviceGrant } from './credentials';
 import { projectCampaign } from './projection';
+import { observeResume } from './resume';
 import {
   connectionRoute,
   DataTransport,
@@ -79,10 +80,17 @@ export class FatePeerHost {
   private socket?: WebSocket;
   private closed = false;
   private campaignId: string;
+  private stopObservingResume: () => void;
   readonly epoch = crypto.randomUUID();
   constructor(private options: HostOptions) {
     this.campaignId = options.getCampaign().id;
     this.grants = new GrantStore(this.campaignId);
+    this.stopObservingResume = observeResume(() => {
+      if (!this.closed) {
+        for (const peer of this.peers.values()) peer.sentAssets.clear();
+        void this.broadcast();
+      }
+    });
   }
   private campaign(): Campaign {
     const campaign = this.options.getCampaign();
@@ -154,6 +162,7 @@ export class FatePeerHost {
       this.notify();
     });
     pc.onconnectionstatechange = () => {
+      const wasReconnecting = peer.info.status === 'reconnecting';
       peer.info.status =
         pc.connectionState === 'connected'
           ? control.channel.readyState === 'closed'
@@ -161,7 +170,13 @@ export class FatePeerHost {
             : peer.grant
               ? 'connected'
               : 'awaiting-approval'
-          : pc.connectionState;
+          : pc.connectionState === 'disconnected'
+            ? 'reconnecting'
+            : pc.connectionState;
+      if (pc.connectionState === 'connected' && wasReconnecting && peer.grant) {
+        peer.sentAssets.clear();
+        void this.sendSnapshot(peer).catch((error) => this.error(errorText(error)));
+      }
       if (pc.connectionState === 'connected')
         void connectionRoute(pc)
           .then((route) => {
@@ -169,7 +184,7 @@ export class FatePeerHost {
             this.notify();
           })
           .catch(() => {});
-      if (['closed', 'failed', 'disconnected'].includes(pc.connectionState)) this.pending.delete(peerId);
+      if (['closed', 'failed'].includes(pc.connectionState)) this.pending.delete(peerId);
       this.notify();
     };
     assets.channel.addEventListener('open', () => {
@@ -309,6 +324,9 @@ export class FatePeerHost {
       return;
     }
     if (value.type === 'resync') {
+      // A suspended transfer may never have reached the player. Allow missing
+      // assets to be requested again when the fresh snapshot arrives.
+      peer.sentAssets.clear();
       await this.sendSnapshot(peer);
       return;
     }
@@ -399,7 +417,9 @@ export class FatePeerHost {
   async broadcast(): Promise<void> {
     await Promise.all(
       [...this.peers.values()]
-        .filter((p) => p.grant && p.control.channel.readyState === 'open')
+        .filter(
+          (p) => p.grant && p.pc.connectionState === 'connected' && p.control.channel.readyState === 'open',
+        )
         .map((p) => this.sendSnapshot(p).catch((e) => this.error(errorText(e)))),
     );
   }
@@ -510,6 +530,7 @@ export class FatePeerHost {
   }
   close(): void {
     this.closed = true;
+    this.stopObservingResume();
     this.socket?.close();
     for (const peer of this.peers.values()) peer.pc.close();
     this.pending.clear();
@@ -534,6 +555,8 @@ export class FatePeerClient {
   private characterIds: string[] = [];
   private approved = false;
   private socket?: WebSocket;
+  private stopObservingResume?: () => void;
+  private currentStatus = 'disconnected';
   private pendingCommands = new Map<
     string,
     { resolve: () => void; reject: (error: Error) => void; timer: ReturnType<typeof setTimeout> }
@@ -541,9 +564,15 @@ export class FatePeerClient {
   constructor(private options: ClientOptions) {}
   setObservers(observers: Pick<ClientOptions, 'onStatus' | 'onError'>): void {
     Object.assign(this.options, observers);
+    this.options.onStatus?.(this.currentStatus);
+  }
+  get status(): string {
+    return this.currentStatus;
   }
   get connected(): boolean {
-    return this.approved && this.control?.channel.readyState === 'open';
+    return (
+      this.approved && this.pc?.connectionState === 'connected' && this.control?.channel.readyState === 'open'
+    );
   }
   get actor(): Actor | undefined {
     return this.memberId
@@ -551,6 +580,15 @@ export class FatePeerClient {
       : undefined;
   }
   private error = (message: string) => this.options.onError?.(message);
+  private reportStatus(status: string): void {
+    this.currentStatus = status;
+    this.options.onStatus?.(status);
+  }
+  /** Ask the host for current state without discarding a surviving transport or grant. */
+  async resume(): Promise<void> {
+    if (!this.connected) return;
+    await this.control!.send({ type: 'resync' });
+  }
   async acceptOffer(offer: string): Promise<string> {
     this.close();
     const generation = this.generation;
@@ -558,14 +596,20 @@ export class FatePeerClient {
     this.campaignId = parsed.campaignId;
     const pc = new RTCPeerConnection(rtcConfig(this.options));
     this.pc = pc;
-    this.options.onStatus?.('connecting');
+    this.stopObservingResume = observeResume(() => {
+      void this.resume().catch((error) => this.error(errorText(error)));
+    });
+    this.reportStatus('connecting');
     pc.onconnectionstatechange = () => {
       if (generation !== this.generation || this.pc !== pc) return;
-      if (pc.connectionState === 'connected')
-        this.options.onStatus?.(this.approved ? 'connected' : 'awaiting-approval');
-      else {
-        this.options.onStatus?.(pc.connectionState);
-        if (['closed', 'failed', 'disconnected'].includes(pc.connectionState)) this.approved = false;
+      if (pc.connectionState === 'connected') {
+        this.reportStatus(this.approved ? 'connected' : 'awaiting-approval');
+        void this.resume().catch((error) => this.error(errorText(error)));
+      } else {
+        // ICE disconnected is recoverable. Losing approval here strands a
+        // restored connection because the host already admitted this peer.
+        this.reportStatus(pc.connectionState === 'disconnected' ? 'reconnecting' : pc.connectionState);
+        if (['closed', 'failed'].includes(pc.connectionState)) this.approved = false;
       }
     };
     pc.ondatachannel = (event) => {
@@ -627,7 +671,7 @@ export class FatePeerClient {
       this.characterIds = value.characterIds;
       this.approved = true;
       this.options.onGrant?.(this.actor!);
-      this.options.onStatus?.('connected');
+      this.reportStatus('connected');
     } else if (
       value.type === 'permissions' &&
       this.approved &&
@@ -703,7 +747,7 @@ export class FatePeerClient {
     );
     assertReferences(campaign);
     this.options.onCampaign(structuredClone(campaign));
-    this.options.onStatus?.(complete ? 'connected' : 'syncing-assets');
+    if (this.connected) this.reportStatus(complete ? 'connected' : 'syncing-assets');
   }
   sendCommand(command: unknown): Promise<void> {
     if (!this.connected || !validCommand(command))
@@ -791,6 +835,8 @@ export class FatePeerClient {
   }
   close(): void {
     this.generation++;
+    this.stopObservingResume?.();
+    this.stopObservingResume = undefined;
     this.approved = false;
     this.pendingCampaign = undefined;
     const pc = this.pc;
@@ -807,6 +853,6 @@ export class FatePeerClient {
       );
     }
     this.pendingCommands.clear();
-    this.options.onStatus?.('disconnected');
+    this.reportStatus('disconnected');
   }
 }

@@ -92,11 +92,15 @@ describe('campaign banner visibility and replacement', () => {
     const client = new FatePeerClient({ name: 'Player', onCampaign, onStatus });
     const internal = client as unknown as {
       approved: boolean;
+      pc: { connectionState: string; close(): void };
+      control: { channel: { readyState: string } };
       pendingCampaign: Campaign;
       publishIfReady(): void;
       receiveAsset(value: unknown): Promise<void>;
     };
     internal.approved = true;
+    internal.pc = { connectionState: 'connected', close() {} };
+    internal.control = { channel: { readyState: 'open' } };
     internal.pendingCampaign = c;
     expect(() => internal.publishIfReady()).not.toThrow();
     const pending = onCampaign.mock.calls[0][0] as Campaign;

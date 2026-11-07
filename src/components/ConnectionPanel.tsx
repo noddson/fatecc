@@ -31,7 +31,7 @@ export function ConnectionPanel(props: ConnectionPanelProps) {
   const [tab, setTab] = useState<'host' | 'join' | 'drafts'>(
     props.isPlayerView || props.clientRef.current ? 'join' : 'host',
   );
-  const [status, setStatus] = useState(props.clientRef.current?.connected ? 'connected' : 'disconnected');
+  const [status, setStatus] = useState(props.clientRef.current?.status ?? 'disconnected');
   const [peers, setPeers] = useState<PeerInfo[]>(props.hostRef.current?.peerList ?? []);
   const [joins, setJoins] = useState<PendingJoin[]>([]);
   const [proposals, setProposals] = useState<DraftProposal[]>(props.hostRef.current?.pendingDrafts ?? []);
@@ -411,6 +411,19 @@ export function ConnectionPanel(props: ConnectionPanelProps) {
             <h3>Bring your character to the table</h3>
             <Badge>{status}</Badge>
           </div>
+          {status === 'reconnecting' && (
+            <p role="status">
+              Connection interrupted. Keep this tab open while it reconnects; your saved approval is retained.
+            </p>
+          )}
+          {(status === 'failed' ||
+            status === 'closed' ||
+            (status === 'disconnected' && props.isPlayerView)) && (
+            <p role="status">
+              The live connection has closed. Ask the GM for a new invitation. Your saved approval and cached
+              campaign are retained.
+            </p>
+          )}
           <Field label="Your name">
             <input value={name} onChange={(e) => setName(e.target.value)} maxLength={100} />
           </Field>

@@ -46,6 +46,18 @@ The earlier room-code controls have been removed from Connect. The legacy broker
 
 Each approved device receives a random revocable reconnect credential. The host stores grants separately from the campaign in its browser's local storage; clients store only their own credential. Ordinary campaign exports contain neither. Restoring a backup onto another installation requires fresh pairing. Existing tokens for a revoked device are rejected until its saved pairing is cleared and the GM explicitly approves a new request.
 
+### Sleep and temporary interruptions
+
+The application remains fully serverless. A recoverable WebRTC `disconnected` state retains the player's approval and the GM's pending approval request. The interface shows **reconnecting**, and player actions pause until the transport is connected again. A recovered connection requests a fresh authorized snapshot. Returning to a visible tab, restoring a page, resuming a suspended tab, or coming back online also refreshes a surviving connection. Missing images can be requested again after an interrupted transfer. These observers belong to the session and stop when it is explicitly disconnected.
+
+This fixes an approval-loss bug: previously, even if WebRTC restored the same connection, the player had cleared its approved state while the GM still considered it admitted. A working transport could therefore remain unusable until another invitation/response exchange.
+
+If the phone's browser discards the tab or closes/fails the transport, the original QR/text exchange cannot recreate it. It contains the handshake for that particular live session, rather than a reusable table address. With no always-on signaling service, a new invitation and response are still needed. The saved device credential normally avoids another GM approval unless it was cleared, revoked, or lost. A surviving connection has no application-imposed three-minute invitation expiry. STUN/TURN configuration remaining unchanged does not guarantee that the browser's live session survived. The connection dialog distinguishes a temporary interruption from a closed session.
+
+Recovery is tested with unit cases for approval preservation, offline action blocking, pending approvals, resync, interrupted-asset retry, and observer cleanup. The browser regression uses native data channels, injects a recoverable connection-state report, and freezes/resumes the player tab through Chrome's lifecycle API. It checks that shared rolls continue with one peer connection per browser and no second GM approval. This is a controlled regression test; actual phone sleep, tab eviction, and switching between Wi-Fi and cellular still need physical-device verification.
+
+### Shared actions and drafts
+
 The host's domain processor validates the action and commits state/history before acknowledging it. Accepted command identifiers persist on the host; resubmitting the same identifier cannot repeat its effect. The current UI does not keep a durable outgoing command queue or automatically replay actions after a disconnect. If an acknowledgement is interrupted, reconnect and check the shared log before issuing the action again. The network derives actor and permissions from the live authenticated connection, ignoring claimed identity in the command. A reconnect receives a fresh authorized snapshot; history is sequenced within the visible projection. There is no automatic host election or background server keeping the table alive.
 
 When disconnected, keep reading cached authorized material and prepare a separate character draft. Drafts currently cover description, notes, and extras; mechanical sheet changes remain GM-controlled. Drafts preserve the original character revision. The comparison helper identifies conflicting fields, and the GM cannot apply a stale proposal: review the latest sheet and start a fresh draft containing the changes you still want. Local drafts are local browser data until explicitly exported or submitted.
@@ -64,6 +76,25 @@ The connection-settings update passes 202 unit tests across nine files, includin
 
 Earlier browser integration tests verified real two-context WebRTC connections, GM approval, hidden-content filtering, a generated PNG transfer, forged-role rejection, duplicate command handling, revocation, and a fresh peer connection using saved credentials. A second browser test verified one GM with seven independent player contexts, identical accepted dice history, and the eighth-player limit. The legacy broker's routing and closed-room behavior passed an integration test. Its former room-code UI test has been replaced by the current connection-settings and QR pairing tests.
 
-The peer tests use separate browser contexts on one development machine, not separate physical devices. The cached headless Chromium required test-only launch arguments `--disable-features=WebRtcHideLocalIpsWithMdns` and `--force-webrtc-ip-handling-policy=default` to gather usable local ICE candidates. QR and manual offer/answer exchange pass locally. This validates the application protocol locally; it does not establish normal-browser interoperability or NAT reliability. Real devices on separate networks, forced TURN with supplied credentials, host-tab suspension, and mobile behavior remain release gates. Browser suspension can interrupt hosting; autosave and reconnect are the recovery path.
+The earlier peer tests use separate browser contexts on one development machine, not separate physical devices. The cached headless Chromium required test-only launch arguments `--disable-features=WebRtcHideLocalIpsWithMdns` and `--force-webrtc-ip-handling-policy=default` to gather usable local ICE candidates. QR and manual offer/answer exchange pass locally. The deployed-site test below adds separate Chrome processes without those overrides. Real devices on separate networks, forced TURN with supplied credentials, host-tab suspension, and mobile behavior remain release gates. Browser suspension can interrupt hosting; autosave and reconnect are the recovery path.
+
+### Deployed-site two-client test
+
+On November 6, 2026, two independent headless Chrome processes loaded `https://noddson.github.io/fatecc/` (build `2026.11.05254aa`) and passed copy/paste pairing with default WebRTC networking and no STUN or TURN. The GM opened the sample campaign, exchanged an invitation and answer with a fresh player browser, approved Mara Voss, and reached `connected` with a `direct` route. The player received shared journal content without the private entry. A GM roll and a player roll appeared on both clients with identical dice, totals, and activity counts. Native connection statistics confirmed a successful host-to-host candidate pair with bytes flowing in both directions. No application change was needed for this result.
+
+The same workflow passed with Cloudflare STUN and Google STUN selected on both clients. Those connections also used host-to-host local routes. Both presets gathered server-reflexive (`srflx`) candidates as well, alongside a browser ICE error 701, `STUN host lookup received error.` Discovery therefore produced internet candidates despite the reported lookup error. These passes establish that local pairing still works with those settings; they do **not** verify STUN traversal between networks or explain a particular physical device's failure.
+
+Repeat the test with an installed Playwright Chromium and its video recorder:
+
+```sh
+npx playwright install chromium ffmpeg
+FATE_TEST_URL=https://noddson.github.io/fatecc npx playwright test tests/deployed-connection.spec.ts
+# Run only the local route case:
+FATE_TEST_URL=https://noddson.github.io/fatecc npx playwright test tests/deployed-connection.spec.ts --grep 'none STUN'
+```
+
+For an existing Chrome installation, set `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` to its executable instead of installing Chromium. The test launches two fresh processes with separate storage and native peer connections; its observer records diagnostics without changing ICE configuration or candidate handling. It is skipped unless `FATE_TEST_URL` is supplied, so the ordinary local suite does not contact public STUN services through these tests.
+
+Each case saves GM/player videos, connected-state and shared-roll screenshots, and JSON with the deployed build, ICE settings/errors, candidate types, selected pair types, connection state, and byte counts. Diagnostics omit candidate addresses, SDP, and reconnect tokens. Videos show the invitation/answer exchange, so use these fresh test campaigns when sharing recordings. The default artifact directory is `test-results/`; pass `--output=output/live-connection` to keep a separate local evidence directory.
 
 References: [WebRTC peer connections](https://webrtc.org/getting-started/peer-connections), [TURN](https://webrtc.org/getting-started/turn-server), [data channels](https://developer.mozilla.org/en-US/docs/Web/API/WebRTC_API/Using_data_channels).

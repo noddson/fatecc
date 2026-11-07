@@ -70,6 +70,8 @@ Settings stay in memory until the page reloads and are excluded from campaign ba
 
 The GM browser must stay open during shared play. A disconnected player keeps a sanitized cached view and can prepare a local narrative draft. Reconnect, submit the draft, and let the GM review it against its base revision. There is no automatic host election. Read [networking and deployment details](docs/networking.md) for credentials, ownership, and test limitations.
 
+Temporary interruptions retain device approval and refresh the shared state when the existing connection recovers or the tab wakes. A phone that closes its connection or discards the tab still needs a fresh invitation/response exchange; saved device approval is reused. The app remains fully serverless. See [sleep and recovery limits](docs/networking.md#sleep-and-temporary-interruptions).
+
 ## Verification
 
 ```sh
@@ -81,7 +83,15 @@ npm run test:e2e     # UI, QR pairing, connection settings, WebRTC, legacy broke
 npm run test:offline # Build and verify offline operation against production
 ```
 
-For an existing compatible Chromium installation, set `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` to its executable. Automated tests use isolated browser profiles. The test-only ICE flags in Playwright expose local candidates in headless Chromium; the application does not change browser security settings.
+For an existing compatible Chromium installation, set `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` to its executable. Automated tests use isolated browser profiles. The protocol tests use test-only ICE flags to expose local candidates in headless Chromium; the application does not change browser security settings.
+
+To test the deployed site in two independent Chrome processes with default WebRTC networking, run:
+
+```sh
+FATE_TEST_URL=https://noddson.github.io/fatecc npx playwright test tests/deployed-connection.spec.ts
+```
+
+This opt-in suite exchanges invitations and answers through the UI, approves a player, checks privacy, and verifies identical rolls in both directions. It tests no STUN, Cloudflare STUN, and Google STUN, saving videos, screenshots, and connection diagnostics. Both clients run on the same machine; a passing STUN-selected case can still use a local route. See [live connection verification](docs/networking.md#deployed-site-two-client-test).
 
 ## Project structure
 

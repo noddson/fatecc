@@ -473,7 +473,9 @@ export default function App() {
             <span>
               {clientRef.current?.connected
                 ? 'Connected player view'
-                : 'Cached player view · shared play is paused'}
+                : remoteStatus === 'reconnecting'
+                  ? 'Reconnecting to the table · your saved approval is retained'
+                  : 'Cached player view · shared play is paused'}
             </span>
             <button onClick={() => setConnection(true)}>Connection & drafts</button>
             <button onClick={disconnect}>Return to my campaigns</button>
