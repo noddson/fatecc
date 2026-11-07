@@ -1,7 +1,7 @@
 import type { Actor, Asset, Campaign } from '../domain/types';
 import { campaignSchema, assetSchema, assertReferences, assertSafeObject } from '../storage/schema';
 import { validateAssets } from '../storage/assets';
-import { GrantStore, loadReconnect, saveReconnect } from './credentials';
+import { GrantStore, loadReconnect, saveReconnect, clearReconnect, savePlayerName } from './credentials';
 import type { DeviceGrant } from './credentials';
 import { projectCampaign } from './projection';
 import { observeResume } from './resume';
@@ -18,6 +18,9 @@ import {
 export interface PendingJoin {
   peerId: string;
   name: string;
+  needsReapproval?: boolean;
+  replacesDevice?: string;
+  characterIds?: string[];
 }
 export interface DraftProposal {
   id: string;
@@ -59,7 +62,12 @@ interface HostPeer {
   receivedAt: number[];
   snapshotQueue: Promise<void>;
   assetQueue: Promise<void>;
+  timer?: ReturnType<typeof setTimeout>;
+  acceptedAnswer?: string;
+  reconnectMemberId?: string;
 }
+export const CONNECTION_TIMEOUT_MS = 45_000;
+export const RESPONSE_TIMEOUT_MS = 120_000;
 const defaultIce: RTCIceServer[] = [];
 function rtcConfig(options: NetworkOptions): RTCConfiguration {
   return {
@@ -82,6 +90,7 @@ export class FatePeerHost {
   private campaignId: string;
   private stopObservingResume: () => void;
   readonly epoch = crypto.randomUUID();
+  invitation?: { peerId: string; offer: string };
   constructor(private options: HostOptions) {
     this.campaignId = options.getCampaign().id;
     this.grants = new GrantStore(this.campaignId);
@@ -119,6 +128,46 @@ export class FatePeerHost {
     this.options.onPendingJoin?.([...this.pending.values()]);
     this.options.onDrafts?.(this.pendingDrafts);
   }
+  private removePeer(peerId: string): void {
+    const peer = this.peers.get(peerId);
+    if (!peer) return;
+    this.peers.delete(peerId);
+    this.pending.delete(peerId);
+    for (const [id, draft] of this.drafts) if (draft.peerId === peerId) this.drafts.delete(id);
+    clearTimeout(peer.timer);
+    peer.pc.onconnectionstatechange = null;
+    peer.pc.close();
+    if (this.invitation?.peerId === peerId) this.invitation = undefined;
+    this.notify();
+  }
+  private watchPeer(peer: HostPeer): void {
+    clearTimeout(peer.timer);
+    peer.timer = setTimeout(() => {
+      if (this.peers.get(peer.info.peerId) !== peer) return;
+      if (
+        peer.pc.connectionState === 'connected' &&
+        peer.control.channel.readyState === 'open' &&
+        (peer.grant || this.pending.has(peer.info.peerId))
+      )
+        return;
+      this.removePeer(peer.info.peerId);
+      this.error(
+        'The player connection timed out. Create a fresh invitation or choose Reconnect device. Saved approvals are unchanged.',
+      );
+    }, CONNECTION_TIMEOUT_MS);
+  }
+  async replaceInvitation(memberId?: string): Promise<{ peerId: string; offer: string }> {
+    if (memberId && !this.savedGrants.some((grant) => grant.memberId === memberId && !grant.revoked))
+      throw new Error('This device is no longer approved. Create a new player invitation.');
+    if (this.invitation) this.removePeer(this.invitation.peerId);
+    if (memberId)
+      for (const peer of [...this.peers.values()])
+        if (peer.grant?.memberId === memberId || peer.reconnectMemberId === memberId)
+          this.removePeer(peer.info.peerId);
+    const invitation = await this.createOffer();
+    this.peers.get(invitation.peerId)!.reconnectMemberId = memberId;
+    return invitation;
+  }
 
   setObservers(observers: Pick<HostOptions, 'onPendingJoin' | 'onPeers' | 'onError' | 'onDrafts'>): void {
     Object.assign(this.options, observers);
@@ -126,6 +175,8 @@ export class FatePeerHost {
   }
   async createOffer(peerId: string = crypto.randomUUID()): Promise<{ peerId: string; offer: string }> {
     if (this.closed) throw new Error('This session is closed. Start hosting again.');
+    for (const peer of [...this.peers.values()])
+      if (['closed', 'failed', 'disconnected'].includes(peer.info.status)) this.removePeer(peer.info.peerId);
     const active = [...this.peers.values()].filter(
       (p) => !['closed', 'failed', 'disconnected'].includes(p.info.status),
     );
@@ -155,6 +206,8 @@ export class FatePeerHost {
     };
     this.peers.set(peerId, peer);
     control.channel.addEventListener('close', () => {
+      if (this.peers.get(peerId) !== peer) return;
+      clearTimeout(peer.timer);
       // SCTP closure is definitive for this session even while ICE still reports connected.
       peer.info.status = 'disconnected';
       this.pending.delete(peerId);
@@ -162,6 +215,7 @@ export class FatePeerHost {
       this.notify();
     });
     pc.onconnectionstatechange = () => {
+      if (this.peers.get(peerId) !== peer || this.closed) return;
       const wasReconnecting = peer.info.status === 'reconnecting';
       peer.info.status =
         pc.connectionState === 'connected'
@@ -185,6 +239,13 @@ export class FatePeerHost {
           })
           .catch(() => {});
       if (['closed', 'failed'].includes(pc.connectionState)) this.pending.delete(peerId);
+      if (pc.connectionState === 'disconnected') this.watchPeer(peer);
+      if (['closed', 'failed'].includes(pc.connectionState)) {
+        clearTimeout(peer.timer);
+        peer.info.route = 'unknown';
+      }
+      if (pc.connectionState === 'connected' && (peer.grant || this.pending.has(peerId)))
+        clearTimeout(peer.timer);
       this.notify();
     };
     assets.channel.addEventListener('open', () => {
@@ -194,7 +255,9 @@ export class FatePeerHost {
     try {
       await pc.setLocalDescription(await pc.createOffer());
       await finishIce(pc);
-      return {
+      if (this.closed || this.peers.get(peerId) !== peer || ['closed', 'failed'].includes(pc.connectionState))
+        throw new Error('This invitation was cancelled. Create a fresh invitation.');
+      const invitation = {
         peerId,
         offer: encodeDescription({
           version: 1,
@@ -203,6 +266,10 @@ export class FatePeerHost {
           description: pc.localDescription!,
         }),
       };
+      this.invitation = invitation;
+      peer.info.status = 'awaiting-answer';
+      this.notify();
+      return invitation;
     } catch (error) {
       pc.close();
       this.peers.delete(peerId);
@@ -215,7 +282,22 @@ export class FatePeerHost {
     const peer = this.peers.get(peerId);
     if (!peer || parsed.peerId !== peerId || parsed.campaignId !== this.campaign().id)
       throw new Error('This answer belongs to another invitation.');
+    if (['closed', 'failed'].includes(peer.pc.connectionState))
+      throw new Error('This invitation has closed. Create a fresh invitation.');
+    if (peer.acceptedAnswer === answer) return;
+    if (peer.acceptedAnswer)
+      throw new Error('A different response was already used. Create a fresh invitation for this retry.');
     await peer.pc.setRemoteDescription(parsed.description);
+    peer.acceptedAnswer = answer;
+    if (this.invitation?.peerId === peerId) this.invitation = undefined;
+    if (!peer.grant && !this.pending.has(peerId)) {
+      peer.info.status = 'connecting';
+      this.watchPeer(peer);
+    }
+    this.notify();
+  }
+  cancelInvitation(peerId: string): void {
+    this.removePeer(peerId);
   }
   async approve(peerId: string, name: string, characterIds: string[]): Promise<DeviceGrant> {
     const peer = this.peers.get(peerId);
@@ -226,18 +308,30 @@ export class FatePeerHost {
       .map((c) => c.id);
     if (characterIds.some((id) => !allowed.includes(id)))
       throw new Error('Only shared player characters can be assigned.');
-    const grant = this.grants.create(name.trim().slice(0, 100) || 'Player', characterIds);
+    const approvedName = name.trim().slice(0, 100) || 'Player';
+    const grant = peer.reconnectMemberId
+      ? this.grants.renew(peer.reconnectMemberId, approvedName, characterIds)
+      : this.grants.create(approvedName, characterIds);
     try {
       const { token: _, ...publicGrant } = grant;
       await this.options.onGrant?.(publicGrant);
-      await this.admit(peer, grant);
-      return grant;
     } catch (error) {
       this.grants.revoke(grant.memberId);
       throw error;
     }
+    // Once permission is saved, delivery failure is only a transport failure.
+    // Revoking here would invalidate the credential the player may already have received.
+    await this.admit(peer, grant);
+    return grant;
   }
   private async admit(peer: HostPeer, grant: DeviceGrant): Promise<void> {
+    if (this.closed || this.peers.get(peer.info.peerId) !== peer || !this.grants.authenticate(grant.token))
+      throw new Error('This connection has closed. Reconnect the approved device.');
+    // One live session per approved device. Retire stale transports without revoking identity.
+    for (const previous of [...this.peers.values()])
+      if (previous !== peer && previous.grant?.memberId === grant.memberId)
+        this.removePeer(previous.info.peerId);
+    clearTimeout(peer.timer);
     peer.grant = grant;
     const actor = this.currentActor(grant);
     peer.info = {
@@ -251,9 +345,11 @@ export class FatePeerHost {
     await peer.control.send({
       type: 'approved',
       token: grant.token,
+      name: grant.name,
       memberId: grant.memberId,
       characterIds: actor.characterIds,
       epoch: this.epoch,
+      resyncAcknowledgements: true,
     });
     this.notify();
     await this.sendSnapshot(peer);
@@ -261,15 +357,14 @@ export class FatePeerHost {
   reject(peerId: string): void {
     const peer = this.peers.get(peerId);
     this.pending.delete(peerId);
-    if (peer)
+    if (peer && peer.control.channel.readyState === 'open')
       void peer.control
         .send({ type: 'rejected', message: 'The GM declined this join request.' })
         .catch(() => {})
         .finally(() => {
-          peer.pc.close();
-          this.peers.delete(peerId);
-          this.notify();
+          this.removePeer(peerId);
         });
+    else this.removePeer(peerId);
     this.notify();
   }
   revoke(memberId: string): void {
@@ -301,18 +396,26 @@ export class FatePeerHost {
         const grant = this.grants.authenticate(value.token);
         if (!grant) {
           await peer.control.send({
-            type: 'rejected',
+            type: 'approval-required',
             message:
-              'This reconnect credential was revoked or is no longer valid. Clear the saved pairing and ask the GM to approve a new invitation.',
+              'The saved pairing is no longer valid. This connection is waiting for fresh GM approval.',
           });
-          peer.pc.close();
+        } else {
+          await this.admit(peer, grant);
           return;
         }
-        await this.admit(peer, grant);
-        return;
       }
       const name = typeof value.name === 'string' ? value.name.trim().slice(0, 100) : 'Player';
-      this.pending.set(peerId, { peerId, name: name || 'Player' });
+      if (this.closed || this.peers.get(peerId) !== peer) return;
+      const previous = this.savedGrants.find((grant) => grant.memberId === peer.reconnectMemberId);
+      clearTimeout(peer.timer);
+      this.pending.set(peerId, {
+        peerId,
+        name: name || 'Player',
+        needsReapproval: typeof value.token === 'string',
+        replacesDevice: previous?.name,
+        characterIds: previous?.characterIds,
+      });
       peer.info.name = name || 'Player';
       peer.info.status = 'awaiting-approval';
       this.notify();
@@ -328,6 +431,8 @@ export class FatePeerHost {
       // assets to be requested again when the fresh snapshot arrives.
       peer.sentAssets.clear();
       await this.sendSnapshot(peer);
+      if (typeof value.requestId === 'string' && value.requestId.length <= 128)
+        await peer.control.send({ type: 'resynced', requestId: value.requestId });
       return;
     }
     if (
@@ -388,7 +493,7 @@ export class FatePeerHost {
       return;
     }
     const process = async () => {
-      if (this.closed) return;
+      if (this.closed || this.peers.get(peerId) !== peer) return;
       const currentGrant = this.grants.authenticate(grant.token);
       if (!currentGrant) {
         await peer.control.send({ type: 'ack', id: command.id, ok: false, message: 'Access was revoked.' });
@@ -532,7 +637,11 @@ export class FatePeerHost {
     this.closed = true;
     this.stopObservingResume();
     this.socket?.close();
-    for (const peer of this.peers.values()) peer.pc.close();
+    for (const peer of this.peers.values()) {
+      clearTimeout(peer.timer);
+      peer.pc.close();
+    }
+    this.invitation = undefined;
     this.pending.clear();
     this.notify();
   }
@@ -557,6 +666,32 @@ export class FatePeerClient {
   private socket?: WebSocket;
   private stopObservingResume?: () => void;
   private currentStatus = 'disconnected';
+  private connectionTimer?: ReturnType<typeof setTimeout>;
+  private recoveryTimer?: ReturnType<typeof setInterval>;
+  private recoveryId?: string;
+  private resyncAcknowledgements = false;
+  offerText = '';
+  answerText = '';
+  setName(name: string): void {
+    this.options.name = name;
+  }
+  private failAttempt(message: string): void {
+    this.close();
+    this.reportStatus('failed');
+    this.error(message);
+  }
+  private watchConnection(delay: number): void {
+    clearTimeout(this.connectionTimer);
+    this.connectionTimer = setTimeout(() => {
+      if (this.connected) {
+        void this.resume().catch((error) => this.error(errorText(error)));
+        return;
+      }
+      this.failAttempt(
+        'The connection timed out. Ask the GM to choose Reconnect device and exchange the new invitation and response. Your saved approval is retained.',
+      );
+    }, delay);
+  }
   private pendingCommands = new Map<
     string,
     { resolve: () => void; reject: (error: Error) => void; timer: ReturnType<typeof setTimeout> }
@@ -571,7 +706,10 @@ export class FatePeerClient {
   }
   get connected(): boolean {
     return (
-      this.approved && this.pc?.connectionState === 'connected' && this.control?.channel.readyState === 'open'
+      this.approved &&
+      !this.recoveryId &&
+      this.pc?.connectionState === 'connected' &&
+      this.control?.channel.readyState === 'open'
     );
   }
   get actor(): Actor | undefined {
@@ -584,15 +722,64 @@ export class FatePeerClient {
     this.currentStatus = status;
     this.options.onStatus?.(status);
   }
-  /** Ask the host for current state without discarding a surviving transport or grant. */
+  private finishRecovery(): void {
+    clearInterval(this.recoveryTimer);
+    this.recoveryTimer = undefined;
+    this.recoveryId = undefined;
+    if (this.connected) this.publishIfReady();
+  }
+  /** Require a round trip after wake: native "connected" can describe a dead path. */
   async resume(): Promise<void> {
-    if (!this.connected) return;
-    await this.control!.send({ type: 'resync' });
+    if (!this.approved || !this.pc || this.recoveryId) return;
+    clearTimeout(this.connectionTimer);
+    const requestId = crypto.randomUUID();
+    this.recoveryId = requestId;
+    this.reportStatus('reconnecting');
+    let lastTick = Date.now();
+    let deadline = lastTick + CONNECTION_TIMEOUT_MS;
+    let sending = false;
+    const probe = () => {
+      if (this.recoveryId !== requestId) return;
+      const now = Date.now();
+      // Do not count this browser's own suspension as time spent trying to recover.
+      if (
+        now - lastTick > 10_000 ||
+        (typeof document !== 'undefined' && document.visibilityState === 'hidden')
+      )
+        deadline = now + CONNECTION_TIMEOUT_MS;
+      lastTick = now;
+      if (now >= deadline) {
+        this.failAttempt(
+          'The host did not respond after waking. Ask the GM to choose Reconnect device and exchange the new codes. Your saved approval is retained.',
+        );
+        return;
+      }
+      if (sending || this.control?.channel.readyState !== 'open') return;
+      sending = true;
+      void this.control
+        .send({ type: 'resync', requestId })
+        .catch(() => {
+          // Retry until the recovery deadline; a buffered send is not proof of recovery.
+        })
+        .finally(() => {
+          sending = false;
+        });
+    };
+    this.recoveryTimer = setInterval(probe, 3_000);
+    probe();
   }
   async acceptOffer(offer: string): Promise<string> {
+    const parsed = decodeDescription(offer, 'offer');
+    if (
+      this.offerText === offer &&
+      this.answerText &&
+      this.pc &&
+      !['failed', 'closed'].includes(this.pc.connectionState)
+    )
+      return this.answerText;
     this.close();
     const generation = this.generation;
-    const parsed = decodeDescription(offer, 'offer');
+    this.offerText = offer;
     this.campaignId = parsed.campaignId;
     const pc = new RTCPeerConnection(rtcConfig(this.options));
     this.pc = pc;
@@ -603,13 +790,22 @@ export class FatePeerClient {
     pc.onconnectionstatechange = () => {
       if (generation !== this.generation || this.pc !== pc) return;
       if (pc.connectionState === 'connected') {
-        this.reportStatus(this.approved ? 'connected' : 'awaiting-approval');
+        if (this.control?.channel.readyState === 'open') clearTimeout(this.connectionTimer);
+        this.reportStatus(this.approved ? 'reconnecting' : 'awaiting-approval');
         void this.resume().catch((error) => this.error(errorText(error)));
       } else {
         // ICE disconnected is recoverable. Losing approval here strands a
         // restored connection because the host already admitted this peer.
         this.reportStatus(pc.connectionState === 'disconnected' ? 'reconnecting' : pc.connectionState);
         if (['closed', 'failed'].includes(pc.connectionState)) this.approved = false;
+        if (pc.connectionState === 'disconnected') {
+          if (this.approved) void this.resume();
+          else this.watchConnection(CONNECTION_TIMEOUT_MS);
+        }
+        if (pc.connectionState === 'failed')
+          this.failAttempt(
+            'The connection failed. Ask the GM to choose Reconnect device. Your saved approval is retained.',
+          );
       }
     };
     pc.ondatachannel = (event) => {
@@ -631,6 +827,8 @@ export class FatePeerClient {
         );
         const hello = () => {
           if (generation !== this.generation || this.pc !== pc) return;
+          clearTimeout(this.connectionTimer);
+          this.reportStatus('awaiting-approval');
           const credential = loadReconnect(parsed.campaignId);
           void this.control!.send({ type: 'hello', name: this.options.name, token: credential?.token }).catch(
             (error) => this.error(errorText(error)),
@@ -649,15 +847,31 @@ export class FatePeerClient {
         );
       } else event.channel.close();
     };
-    await pc.setRemoteDescription(parsed.description);
-    await pc.setLocalDescription(await pc.createAnswer());
-    await finishIce(pc);
+    try {
+      await pc.setRemoteDescription(parsed.description);
+      await pc.setLocalDescription(await pc.createAnswer());
+      await finishIce(pc);
+    } catch (error) {
+      if (generation === this.generation) this.failAttempt(errorText(error));
+      throw error;
+    }
     if (generation !== this.generation || this.pc !== pc)
       throw new Error('This connection attempt was cancelled.');
-    return encodeDescription({ ...parsed, description: pc.localDescription! });
+    this.answerText = encodeDescription({ ...parsed, description: pc.localDescription! });
+    if (!this.control || this.control.channel.readyState !== 'open') {
+      this.reportStatus('awaiting-host');
+      this.watchConnection(RESPONSE_TIMEOUT_MS);
+    }
+    return this.answerText;
   }
   private async receive(value: unknown): Promise<void> {
     if (!isRecord(value)) return;
+    if (value.type === 'approval-required') {
+      if (this.approved) return;
+      if (this.campaignId) clearReconnect(this.campaignId);
+      this.reportStatus('awaiting-approval');
+      return;
+    }
     if (
       value.type === 'approved' &&
       typeof value.token === 'string' &&
@@ -670,8 +884,12 @@ export class FatePeerClient {
       this.memberId = value.memberId;
       this.characterIds = value.characterIds;
       this.approved = true;
+      if (typeof value.name === 'string') savePlayerName(value.name);
+      this.resyncAcknowledgements = value.resyncAcknowledgements === true;
       this.options.onGrant?.(this.actor!);
       this.reportStatus('connected');
+    } else if (value.type === 'resynced' && this.approved && value.requestId === this.recoveryId) {
+      this.finishRecovery();
     } else if (
       value.type === 'permissions' &&
       this.approved &&
@@ -685,6 +903,8 @@ export class FatePeerClient {
       const campaign = campaignSchema.parse(value.campaign);
       if (campaign.id !== this.campaignId) throw new Error('Received a snapshot for another campaign.');
       this.pendingCampaign = campaign;
+      // Older hosts acknowledge resync by returning their authorized snapshot.
+      if (this.recoveryId && !this.resyncAcknowledgements) this.finishRecovery();
       // Remove assets no longer visible from the live cache. Previously disclosed bytes cannot be recalled externally.
       const allowed = new Set(campaign.assets.map((a) => `${a.id}:${a.hash}`));
       for (const signature of this.assetCache.keys())
@@ -831,10 +1051,17 @@ export class FatePeerClient {
     });
   }
   clearPairing(): void {
-    if (this.campaignId) localStorage.removeItem(`fate.client-grant.v1.${this.campaignId}`);
+    if (this.campaignId) clearReconnect(this.campaignId);
   }
   close(): void {
     this.generation++;
+    clearTimeout(this.connectionTimer);
+    clearInterval(this.recoveryTimer);
+    this.recoveryTimer = undefined;
+    this.recoveryId = undefined;
+    this.resyncAcknowledgements = false;
+    this.offerText = '';
+    this.answerText = '';
     this.stopObservingResume?.();
     this.stopObservingResume = undefined;
     this.approved = false;

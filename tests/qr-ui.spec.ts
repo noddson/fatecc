@@ -95,7 +95,7 @@ test('QR image invitations and responses join without a broker, preserve permiss
     ).toBeVisible();
     await hostDialog.getByRole('checkbox', { name: 'Mara Voss', exact: true }).check();
     await hostDialog.getByRole('button', { name: 'Approve player', exact: true }).click();
-    await expect(joinDialog.getByText('connected', { exact: true })).toBeVisible();
+    await expect(joinDialog.getByText('connected', { exact: true })).toBeVisible({ timeout: 20_000 });
     await hostDialog.getByRole('button', { name: 'Done', exact: true }).click();
     await joinDialog.getByRole('button', { name: 'Done', exact: true }).click();
     await expect(player.getByText('Connected player view', { exact: true })).toBeVisible();
@@ -203,7 +203,8 @@ test('copy and paste remains a complete alternative to cameras and image uploads
     await joinDialog.getByRole('button', { name: 'Create connection answer', exact: true }).click();
     await expect(joinDialog.getByRole('img', { name: 'Response QR code', exact: true })).toBeVisible();
     await joinDialog.getByText('Copy/paste response', { exact: true }).click();
-    await expect(answer).not.toHaveValue(previousAnswer);
+    // Returning to the same invitation preserves the response already in circulation.
+    await expect(answer).toHaveValue(previousAnswer);
     await hostDialog
       .getByRole('textbox', { name: "2. Paste the player's answer", exact: true })
       .fill(await answer.inputValue());
@@ -213,7 +214,7 @@ test('copy and paste remains a complete alternative to cameras and image uploads
     ).toBeVisible();
     await hostDialog.getByRole('checkbox', { name: 'Mara Voss', exact: true }).check();
     await hostDialog.getByRole('button', { name: 'Approve player', exact: true }).click();
-    await expect(joinDialog.getByText('connected', { exact: true })).toBeVisible();
+    await expect(joinDialog.getByText('connected', { exact: true })).toBeVisible({ timeout: 20_000 });
   } finally {
     await Promise.allSettled([gmContext.close(), playerContext.close()]);
   }

@@ -57,16 +57,47 @@ export class GrantStore {
   revoke(memberId: string): void {
     this.write(this.list().map((g) => (g.memberId === memberId ? { ...g, revoked: true } : g)));
   }
+  renew(memberId: string, name: string, characterIds: string[]): DeviceGrant {
+    const grants = this.list();
+    const existing = grants.find((grant) => grant.memberId === memberId && !grant.revoked);
+    if (!existing) throw new Error('This approval was revoked. Create a new player invitation.');
+    const renewed = { ...existing, name, characterIds: [...new Set(characterIds)], token: randomSecret() };
+    this.write(grants.map((grant) => (grant.memberId === memberId ? renewed : grant)));
+    return renewed;
+  }
   actor(grant: DeviceGrant): Actor {
     return { id: grant.memberId, role: 'player', characterIds: [...grant.characterIds] };
   }
 }
 export function loadReconnect(campaignId: string): ReconnectCredential | undefined {
   try {
-    return JSON.parse(localStorage.getItem(`fate.client-grant.v1.${campaignId}`) || 'null') || undefined;
+    const value = JSON.parse(localStorage.getItem(`fate.client-grant.v1.${campaignId}`) || 'null');
+    return value &&
+      typeof value.token === 'string' &&
+      /^[a-f0-9]{64}$/.test(value.token) &&
+      typeof value.memberId === 'string'
+      ? value
+      : undefined;
   } catch {
     return undefined;
   }
+}
+export function loadPlayerName(): string {
+  try {
+    return localStorage.getItem('fate.player-name.v1') || 'Player';
+  } catch {
+    return 'Player';
+  }
+}
+export function savePlayerName(name: string): void {
+  try {
+    localStorage.setItem('fate.player-name.v1', name.slice(0, 100));
+  } catch {
+    /* Optional preference. */
+  }
+}
+export function clearReconnect(campaignId: string): void {
+  localStorage.removeItem(`fate.client-grant.v1.${campaignId}`);
 }
 export function saveReconnect(campaignId: string, credential: ReconnectCredential): void {
   localStorage.setItem(`fate.client-grant.v1.${campaignId}`, JSON.stringify(credential));

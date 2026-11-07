@@ -70,7 +70,7 @@ Settings stay in memory until the page reloads and are excluded from campaign ba
 
 The GM browser must stay open during shared play. A disconnected player keeps a sanitized cached view and can prepare a local narrative draft. Reconnect, submit the draft, and let the GM review it against its base revision. There is no automatic host election. Read [networking and deployment details](docs/networking.md) for credentials, ownership, and test limitations.
 
-Temporary interruptions retain device approval and refresh the shared state when the existing connection recovers or the tab wakes. A phone that closes its connection or discards the tab still needs a fresh invitation/response exchange; saved device approval is reused. The app remains fully serverless. See [sleep and recovery limits](docs/networking.md#sleep-and-temporary-interruptions).
+After wake, the client confirms recovery with a fresh host response before enabling actions. If the connection has died, the GM chooses **Reconnect device** beside the saved player and exchanges fresh invitation/response codes. Names, approval, and character assignments are retained. A stale credential waits for explicit GM approval on the new connection; clearing pairing or revoking access is not a repair step. The app remains fully serverless, and actual phone lock/wake behavior still needs device testing. See [sleep and recovery limits](docs/networking.md#sleep-and-temporary-interruptions).
 
 ## Verification
 

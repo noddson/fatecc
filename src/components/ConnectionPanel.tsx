@@ -10,6 +10,7 @@ import { ConnectionSettingsEditor } from './ConnectionSettings';
 import { buildIceConfiguration, type ConnectionSettings } from '../network/connection-settings';
 import { compareDraft, deleteDraft, listDrafts, makeDraft, saveDraft } from '../network/drafts';
 import type { CharacterDraft } from '../network/drafts';
+import { loadPlayerName, savePlayerName } from '../network/credentials';
 
 export interface ConnectionPanelProps {
   campaign: Campaign | undefined;
@@ -37,11 +38,11 @@ export function ConnectionPanel(props: ConnectionPanelProps) {
   const [proposals, setProposals] = useState<DraftProposal[]>(props.hostRef.current?.pendingDrafts ?? []);
   const [grants, setGrants] = useState(props.hostRef.current?.savedGrants ?? []);
   const [assignments, setAssignments] = useState<Record<string, string[]>>({});
-  const [offer, setOffer] = useState('');
-  const [answer, setAnswer] = useState('');
-  const [incomingOffer, setIncomingOffer] = useState('');
+  const [offer, setOffer] = useState(props.hostRef.current?.invitation?.offer ?? '');
+  const [answer, setAnswer] = useState(props.clientRef.current?.answerText ?? '');
+  const [incomingOffer, setIncomingOffer] = useState(props.clientRef.current?.offerText ?? '');
   const [incomingAnswer, setIncomingAnswer] = useState('');
-  const [name, setName] = useState('Player');
+  const [name, setName] = useState(loadPlayerName);
   const [busy, setBusy] = useState(false);
   const [settings, setSettings] = useState<ConnectionSettings>(() => ({ ...props.settingsRef.current }));
   const [drafts, setDrafts] = useState<CharacterDraft[]>(() => listDrafts(props.campaign?.id));
@@ -50,7 +51,11 @@ export function ConnectionPanel(props: ConnectionPanelProps) {
   const mounted = useRef(true);
   const failure = (message: string) => props.notify(message, true);
   const reportStatus = (value: string) => {
-    if (mounted.current) setStatus(value);
+    if (mounted.current) {
+      setStatus(value);
+      if (value === 'connected') setName(loadPlayerName());
+    }
+    if (mounted.current && ['failed', 'closed', 'disconnected'].includes(value)) setAnswer('');
     props.onConnectionStatus?.(value);
   };
   const hostObservers = {
@@ -61,6 +66,7 @@ export function ConnectionPanel(props: ConnectionPanelProps) {
       if (mounted.current) {
         setPeers(value);
         setGrants(props.hostRef.current?.savedGrants ?? []);
+        setOffer(props.hostRef.current?.invitation?.offer ?? '');
       }
     },
     onDrafts: (value: DraftProposal[]) => {
@@ -128,10 +134,13 @@ export function ConnectionPanel(props: ConnectionPanelProps) {
   };
   const client = () => {
     const configuration = buildIceConfiguration(settings);
+    savePlayerName(name.trim() || 'Player');
+    if (props.clientRef.current) {
+      props.clientRef.current.setName(name.trim() || 'Player');
+      return props.clientRef.current;
+    }
     props.hostRef.current?.close();
     props.hostRef.current = null;
-    props.clientRef.current?.close();
-    props.clientRef.current = null;
     const instance = new FatePeerClient({
       ...configuration,
       name: name.trim() || 'Player',
@@ -224,7 +233,7 @@ export function ConnectionPanel(props: ConnectionPanelProps) {
               disabled={busy || !props.campaign || props.isPlayerView}
               onClick={() =>
                 void run(async () => {
-                  const invite = await host().createOffer();
+                  const invite = await host().replaceInvitation();
                   setOffer(invite.offer);
                   setIncomingAnswer('');
                 })
@@ -282,6 +291,12 @@ export function ConnectionPanel(props: ConnectionPanelProps) {
           {joins.map((join) => (
             <section className="card" key={join.peerId} style={{ padding: 16, marginTop: 12 }}>
               <h3>{join.name} wants to join</h3>
+              {join.replacesDevice && (
+                <p>This will restore the saved device entry for {join.replacesDevice} after you approve.</p>
+              )}
+              {join.needsReapproval && (
+                <p>The saved pairing could not be verified. Approve this device again to restore access.</p>
+              )}
               <p>Choose the player characters this device may control.</p>
               {(props.campaign?.characters ?? [])
                 .filter((c) => c.kind === 'pc' && c.visibility === 'shared')
@@ -289,13 +304,13 @@ export function ConnectionPanel(props: ConnectionPanelProps) {
                   <label className="checkbox-row" key={c.id}>
                     <input
                       type="checkbox"
-                      checked={(assignments[join.peerId] ?? []).includes(c.id)}
+                      checked={(assignments[join.peerId] ?? join.characterIds ?? []).includes(c.id)}
                       onChange={(e) =>
                         setAssignments((values) => ({
                           ...values,
                           [join.peerId]: e.target.checked
-                            ? [...(values[join.peerId] ?? []), c.id]
-                            : (values[join.peerId] ?? []).filter((id) => id !== c.id),
+                            ? [...(values[join.peerId] ?? join.characterIds ?? []), c.id]
+                            : (values[join.peerId] ?? join.characterIds ?? []).filter((id) => id !== c.id),
                         }))
                       }
                     />
@@ -311,7 +326,7 @@ export function ConnectionPanel(props: ConnectionPanelProps) {
                       await props.hostRef.current!.approve(
                         join.peerId,
                         join.name,
-                        assignments[join.peerId] ?? [],
+                        assignments[join.peerId] ?? join.characterIds ?? [],
                       );
                       props.notify(`${join.name} joined the table.`);
                     })
@@ -333,13 +348,19 @@ export function ConnectionPanel(props: ConnectionPanelProps) {
               <Badge>{peer.status}</Badge>
               <span className="muted">{peer.route === 'unknown' ? '' : peer.route}</span>
               {!peer.memberId && (
-                <button onClick={() => props.hostRef.current?.reject(peer.peerId)}>Cancel invitation</button>
+                <button onClick={() => props.hostRef.current?.cancelInvitation(peer.peerId)}>
+                  Cancel invitation
+                </button>
               )}
             </div>
           ))}
           {grants.filter((g) => !g.revoked).length > 0 && (
             <details>
               <summary>Approved devices and revocation</summary>
+              <p className="muted">
+                These are saved permissions, not active connections. Reconnect device replaces its old
+                connection while keeping its approval.
+              </p>
               {grants
                 .filter((g) => !g.revoked)
                 .map((grant) => (
@@ -347,6 +368,23 @@ export function ConnectionPanel(props: ConnectionPanelProps) {
                     <span>
                       {grant.name} · {grant.characterIds.length} character(s)
                     </span>
+                    <button
+                      aria-label={`Reconnect ${grant.name}`}
+                      disabled={busy}
+                      onClick={() =>
+                        void run(async () => {
+                          const invite = await host().replaceInvitation(grant.memberId);
+                          setAssignments((current) => ({ ...current, [invite.peerId]: grant.characterIds }));
+                          setOffer(invite.offer);
+                          setIncomingAnswer('');
+                          props.notify(
+                            `New invitation ready for ${grant.name}. Their saved approval is retained.`,
+                          );
+                        })
+                      }
+                    >
+                      Reconnect device
+                    </button>
                     <button onClick={() => props.hostRef.current?.revoke(grant.memberId)}>
                       Revoke access
                     </button>
@@ -413,19 +451,37 @@ export function ConnectionPanel(props: ConnectionPanelProps) {
           </div>
           {status === 'reconnecting' && (
             <p role="status">
-              Connection interrupted. Keep this tab open while it reconnects; your saved approval is retained.
+              Checking the connection and refreshing the table. Keep this tab open; your saved approval is
+              retained.
             </p>
+          )}
+          {status === 'awaiting-host' && (
+            <p role="status">
+              Show this response to the GM, who must scan it and select Connect player. If it expires, ask for
+              a fresh invitation.
+            </p>
+          )}
+          {status === 'awaiting-approval' && (
+            <p role="status">Connected to the host. Waiting for the GM to approve your device if needed.</p>
           )}
           {(status === 'failed' ||
             status === 'closed' ||
             (status === 'disconnected' && props.isPlayerView)) && (
             <p role="status">
-              The live connection has closed. Ask the GM for a new invitation. Your saved approval and cached
-              campaign are retained.
+              The live connection has closed. Ask the GM to choose Reconnect device beside your name and
+              exchange the new invitation and response. Your saved approval and cached campaign are retained;
+              you do not need to clear the pairing.
             </p>
           )}
           <Field label="Your name">
-            <input value={name} onChange={(e) => setName(e.target.value)} maxLength={100} />
+            <input
+              value={name}
+              onChange={(e) => {
+                setName(e.target.value);
+                savePlayerName(e.target.value);
+              }}
+              maxLength={100}
+            />
           </Field>
           <ConnectionQrReader
             key="invitation-reader"

@@ -19,6 +19,16 @@ test('a surviving table recovers approval and state after interruption and tab s
             peers.push(this);
           }
         };
+        const send = RTCDataChannel.prototype.send;
+        const recoveryTraffic = { drop: false, dropped: 0 };
+        Object.assign(window, { recoveryTraffic });
+        RTCDataChannel.prototype.send = function (data: string) {
+          if (this.label === 'fate-control' && recoveryTraffic.drop) {
+            recoveryTraffic.dropped++;
+            return;
+          }
+          send.call(this, data);
+        };
       });
     }
     const gm = await gmContext.newPage();
@@ -76,6 +86,24 @@ test('a surviving table recovers approval and state after interruption and tab s
     await joinDialog.getByRole('button', { name: 'Done', exact: true }).click();
     await Promise.all(pages.map(restore));
     await expect(player.getByText('Connected player view', { exact: true })).toBeVisible();
+
+    // A native connected state must not hide a control path that silently drops messages.
+    await player.evaluate(() => {
+      (window as any).recoveryTraffic.drop = true;
+      window.dispatchEvent(new Event('online'));
+    });
+    await expect(
+      player.getByText('Reconnecting to the table · your saved approval is retained', { exact: true }),
+    ).toBeVisible();
+    await expect
+      .poll(() => player.evaluate(() => (window as any).recoveryTraffic.dropped))
+      .toBeGreaterThan(1);
+    expect(await player.evaluate(() => (window as any).recoveryPeers[0].connectionState)).toBe('connected');
+    await expect(player.getByText('Connected player view', { exact: true })).toHaveCount(0);
+    await player.evaluate(() => {
+      (window as any).recoveryTraffic.drop = false;
+    });
+    await expect(player.getByText('Connected player view', { exact: true })).toBeVisible({ timeout: 10_000 });
 
     for (const page of pages) {
       await page

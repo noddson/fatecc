@@ -98,6 +98,13 @@
   color: #a64c43;
 }
 @media (max-width: 430px) {
+  /* Readable controls also avoid automatic input zoom on mobile Safari. */
+  .connection-settings-details input,
+  .connection-settings-details select,
+  .connection-settings-details ~ .stack input,
+  .connection-settings-details ~ .stack textarea {
+    font-size: 16px;
+  }
   .connection-qr-display {
     padding: 12px;
   }
