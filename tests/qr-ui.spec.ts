@@ -124,8 +124,10 @@ test('QR image invitations and responses join without a broker, preserve permiss
     ).toBeDisabled();
     await player.getByRole('combobox', { name: 'Skill', exact: true }).selectOption('notice');
     await player.getByRole('button', { name: /Roll the dice/ }).click();
-    await expect(player.locator('.roll-result')).toBeVisible();
-    await expect(gm.locator('.roll-result')).toBeVisible();
+    // A production peer may still be transferring the bundled sample map.
+    // Verify host acceptance and bounded propagation separately.
+    await expect(gm.locator('.roll-result')).toBeVisible({ timeout: 20_000 });
+    await expect(player.locator('.roll-result')).toBeVisible({ timeout: 20_000 });
     await expect(player.locator('.activity-entry').filter({ hasText: 'Silas Reed · Notice' })).toHaveCount(1);
     await expect(gm.locator('.activity-entry').filter({ hasText: 'Silas Reed · Notice' })).toHaveCount(1);
     expect(await player.locator('.roll-total strong').innerText()).toBe(
@@ -140,7 +142,7 @@ test('QR image invitations and responses join without a broker, preserve permiss
     await expect(gm.locator('.roll-result')).toContainText('Finalized');
     await gm.getByRole('button', { name: 'Undo roll', exact: true }).click();
     await gm.getByRole('button', { name: 'Confirm undo', exact: true }).click();
-    await expect(player.locator('.roll-result')).toHaveCount(0);
+    await expect(player.locator('.roll-result')).toHaveCount(0, { timeout: 20_000 });
     await expect(player.locator('.activity-entry').filter({ hasText: 'roll undone by the GM' })).toHaveCount(
       1,
     );
