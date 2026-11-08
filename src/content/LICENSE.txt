@@ -14,6 +14,8 @@ Only the Fate Core SRD is bundled as rules content. It comes from the repository
 
 Changes: Repository HTML is converted to generated Markdown and heading-based plain-text reference entries. Markup and whitespace are normalized, empty graphic placeholders are omitted, and the original copyright and attribution are retained. App-written explanations and sample campaign material are adaptations or original companion content, identified separately from the imported reference text. No rules prose is extracted from the retail PDF or scraped from rendered website pages.
 
+Hearts of Steel starter: The optional campaign adapts examples from the same pinned CC-BY Core SRD. Descriptions and stunt rules are condensed; selected skill allocations, stunt selections, two additional PC aspects, an NPC aspect, and opening prompts are companion adaptations or original additions. Its journal retains full attribution and an element-by-element source register in campaign exports. No retail character sheets, supplemental adventures, or book artwork are imported.
+
 This is an independent companion application and does not imply endorsement by Evil Hat Productions.
 
 Fate™ is a trademark of Evil Hat Productions, LLC. The Powered by Fate logo is © Evil Hat Productions, LLC and is used with permission.

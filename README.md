@@ -35,7 +35,7 @@ details everything included in the first commit and its verification limits.
 
 ## Start a story
 
-1. Create a campaign or one-shot. The optional **Lantern Coast** sample is original material for exploring the interface. Newly created examples include an illustrated coast map, five connected travel zones, and party tokens at Bellweather Harbor. The image is bundled for offline use and embedded in JSON/ZIP backups; `public/sample/lantern-coast.png` is also available to upload or print separately.
+1. Create a campaign or one-shot, or explore either optional starter. **Lantern Coast** is original companion material with an illustrated coast map, five connected travel zones, and party tokens at Bellweather Harbor. Its bundled image works offline and travels in JSON/ZIP backups; `public/sample/lantern-coast.png` is also available to upload or print. **Hearts of Steel** adapts the pinned CC-BY Core SRD, with Landon, Cynere, Zird, Riverton, factions, GM characters, and a private opening scene. Its journal identifies companion additions and retains element-by-element source links and full attribution in exports. See [starter provenance](docs/hearts-of-steel.md).
 2. Define the setting and issues in Overview. In Game settings, review/apply changes to the Core preset before creating characters.
 3. Create full or quick characters. Draft edits save locally; character checks explain missing choices and invalid mechanics. NPCs have separate profiles.
 4. Use At the table for rolls, invocations, compels, stress, consequences, scene/session boundaries, and a permanent activity log. The table still decides fictional permissions and narrative costs.

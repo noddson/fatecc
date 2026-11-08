@@ -62,6 +62,7 @@ import {
   type EditorProps,
 } from './ui';
 import { sampleCampaign } from './sample';
+import { heartsOfSteelCampaign } from './hearts-of-steel';
 
 type PlayerSnapshot = { id: string; campaign: Campaign; actor?: Actor };
 const cacheDb = new Dexie('fate-player-cache') as Dexie & {
@@ -87,7 +88,7 @@ export default function App() {
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState<{ text: string; error: boolean }>();
   const [creating, setCreating] = useState(false);
-  const [loadingSample, setLoadingSample] = useState(false);
+  const [loadingSample, setLoadingSample] = useState<'lantern' | 'hearts' | null>(null);
   const [createName, setCreateName] = useState('');
   const [createKind, setCreateKind] = useState<'campaign' | 'one-shot'>('campaign');
   const [showArchived, setShowArchived] = useState(false);
@@ -268,15 +269,15 @@ export default function App() {
       notify(e instanceof Error ? e.message : String(e), true);
     }
   };
-  const exploreSample = async () => {
+  const exploreSample = async (sample: 'lantern' | 'hearts') => {
     if (loadingSample) return;
-    setLoadingSample(true);
+    setLoadingSample(sample);
     try {
-      await add(await sampleCampaign());
+      await add(sample === 'hearts' ? heartsOfSteelCampaign() : await sampleCampaign());
     } catch (error) {
       notify(error instanceof Error ? error.message : 'The example campaign could not be loaded.', true);
     } finally {
-      setLoadingSample(false);
+      setLoadingSample(null);
     }
   };
   const onRemoteCampaign = useCallback(
@@ -672,22 +673,28 @@ export default function App() {
                   <p>Give your next story a home.</p>
                 </button>
               </div>
-              {!campaigns.length && (
-                <div className="starter-row">
-                  <span>
-                    <Sparkles size={18} />
-                    Want to look around first?
-                  </span>
-                  <button
-                    className="button-text"
-                    disabled={loadingSample}
-                    onClick={() => void exploreSample()}
-                  >
-                    {loadingSample ? 'Loading The Lantern Coast…' : 'Explore The Lantern Coast'}{' '}
-                    <ArrowRight size={16} />
-                  </button>
-                </div>
-              )}
+              <div className="starter-row">
+                <span>
+                  <Sparkles size={18} />
+                  Try an example campaign
+                </span>
+                <button
+                  className="button-text"
+                  disabled={!!loadingSample}
+                  onClick={() => void exploreSample('lantern')}
+                >
+                  {loadingSample === 'lantern' ? 'Loading The Lantern Coast…' : 'Explore The Lantern Coast'}{' '}
+                  <ArrowRight size={16} />
+                </button>
+                <button
+                  className="button-text"
+                  disabled={!!loadingSample}
+                  onClick={() => void exploreSample('hearts')}
+                >
+                  {loadingSample === 'hearts' ? 'Loading Hearts of Steel…' : 'Explore Hearts of Steel'}{' '}
+                  <ArrowRight size={16} />
+                </button>
+              </div>
               {playerCopies.length > 0 && (
                 <section className="joined-campaigns">
                   <h2>Joined campaigns</h2>
