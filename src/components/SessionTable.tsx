@@ -17,6 +17,7 @@ import { activeRolls } from '../domain/commands';
 import { deriveCharacter, initiative, resolveMobHit, validateHarm } from '../domain/rules';
 import { id } from '../domain/defaults';
 import type { Action, Character, RollRecord } from '../domain/types';
+import { StressHelp } from './StressHelp';
 import {
   Badge,
   ConfirmButton,
@@ -275,7 +276,10 @@ export function SessionTable({ campaign: c, update, dispatch, notify, readOnly }
                     ))}
                   </select>
                 </Field>
-                <Field label="Opposition" hint="Set passive difficulty or enter the opposing roll’s total.">
+                <Field
+                  label="Opposition"
+                  hint="The number after “vs”: set the difficulty or opposing roll’s total before rolling."
+                >
                   <input
                     type="number"
                     min="-20"
@@ -346,7 +350,10 @@ export function SessionTable({ campaign: c, update, dispatch, notify, readOnly }
             </form>
           </section>
           {rolls.length > 1 && (
-            <Field label="Roll to resolve">
+            <Field
+              label="Roll to review"
+              hint="Open rolls can still change. Finalized rolls are here for reference; attack harm may still need applying separately."
+            >
               <select value={roll?.id || ''} onChange={(e) => setSelectedRollId(e.target.value)}>
                 {[...rolls].reverse().map((r) => (
                   <option key={r.id} value={r.id}>
@@ -608,7 +615,7 @@ export function SessionTable({ campaign: c, update, dispatch, notify, readOnly }
                   </div>
                   {stats.tracks.map((t) => (
                     <div className="roster-track" key={t.id}>
-                      <small>{t.name}</small>
+                      <StressHelp character={ch} track={t} compact />
                       <div className="stress-boxes">
                         {t.boxes.map((v: number) => (
                           <span key={v} className={(ch.stress[t.id] || []).includes(v) ? 'checked' : ''}>

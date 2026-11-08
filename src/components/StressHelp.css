@@ -1,0 +1,57 @@
+.stress-help-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 4px 0;
+  margin: -4px 0 5px;
+  border: 0;
+  border-radius: 3px;
+  background: transparent;
+  color: #185d8e;
+  font-size: 11px;
+  text-align: left;
+}
+.stress-help-trigger svg {
+  flex-shrink: 0;
+}
+.stress-help-trigger:hover {
+  background: #edf4f9;
+  color: #103d5d;
+}
+.stress-help-trigger:focus-visible {
+  outline: 2px solid #185d8e;
+  outline-offset: 3px;
+}
+.stress-help-trigger.compact {
+  margin: 0;
+}
+.stress-help-content {
+  font-size: 14px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.stress-help-content h3 {
+  margin: 18px 0 6px;
+  font-size: 14px;
+}
+.stress-help-content p {
+  margin: 0 0 12px;
+}
+.stress-help-current {
+  padding: 14px 16px;
+  border: 1px solid #c7dbe9;
+  border-radius: 8px;
+  background: #f1f6fa;
+}
+.stress-help-current h3 {
+  margin-top: 0;
+}
+.stress-help-current p:last-child {
+  margin-bottom: 0;
+}
+@media (pointer: coarse) {
+  .stress-help-trigger {
+    min-height: 44px;
+  }
+}

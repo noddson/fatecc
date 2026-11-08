@@ -20,6 +20,7 @@ import { createAsset } from '../storage/assets';
 import { campaignForPrint, PrintDialog } from './PrintSheets';
 import { CharacterSheet } from './print/CharacterSheet';
 import { PrintFolio } from './print/PrintFolio';
+import { StressHelp } from './StressHelp';
 import { exportCharacter, parseCharacterExport } from '../storage/backup';
 import type { CharacterExport } from '../storage/backup';
 import { prepareCharacterImport, ruleDifferences } from '../domain/character-import';
@@ -577,7 +578,7 @@ function CharacterEditor({
           </div>
           {stats.tracks.map((t) => (
             <div key={t.id}>
-              <span>{t.name} stress</span>
+              <StressHelp character={form} track={t} />
               <div className="stress-boxes">
                 {t.boxes.map((v) => (
                   <span key={v} className={(form.stress[t.id] || []).includes(v) ? 'checked' : ''}>
