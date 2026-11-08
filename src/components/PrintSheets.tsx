@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Printer } from 'lucide-react';
 import type { Actor, Campaign } from '../domain/types';
+import { controlledCharacters } from '../domain/player-view';
 import { projectCampaign } from '../network/projection';
 import { Field, Modal, PageTitle } from '../ui';
 import { CharacterSheet } from './print/CharacterSheet';
@@ -54,11 +55,15 @@ export function PrintSheets({
     if (preview.current) observer.observe(preview.current);
     return () => observer.disconnect();
   }, []);
-  const [game, setGame] = useState(!characterId);
+  const [game, setGame] = useState(!characterId && !playerActor);
   const [table, setTable] = useState(false);
   const [details, setDetails] = useState(false);
   const [selected, setSelected] = useState(() =>
-    characterId ? [characterId] : campaign.characters.filter((ch) => ch.kind === 'pc').map((ch) => ch.id),
+    characterId
+      ? [characterId]
+      : controlledCharacters(campaign, readOnly, playerActor)
+          .filter((ch) => ch.kind === 'pc')
+          .map((ch) => ch.id),
   );
   const [printing, setPrinting] = useState(false);
   const [printError, setPrintError] = useState('');

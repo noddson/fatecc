@@ -1,3 +1,4 @@
+import { controlledCharacters, playerName } from '../domain/player-view';
 import { useEffect, useRef, useState } from 'react';
 import {
   ArrowLeft,
@@ -53,25 +54,23 @@ const emptyStunt = (): Stunt => ({
 });
 
 export function Characters(props: EditorProps) {
-  const { campaign: c, update, notify, readOnly } = props;
-  const [selected, setSelected] = useState<string>();
+  const { campaign: c, update, notify, readOnly, playerActor } = props;
+  const [selected, setSelected] = useState<string | null>(null);
+  const defaultCharacter = controlledCharacters(c, readOnly, playerActor)[0];
   const [filter, setFilter] = useState<'pc' | 'npc'>('pc');
   const [creating, setCreating] = useState(false);
   const [name, setName] = useState('');
   const [kind, setKind] = useState<Character['kind']>('pc');
   const [mode, setMode] = useState<Character['creationMode']>('full');
   const [pendingImport, setPendingImport] = useState<CharacterExport>();
-  const character = c.characters.find((ch) => ch.id === selected);
+  const character = c.characters.find(
+    (ch) => ch.id === (selected === null && readOnly ? defaultCharacter?.id : selected),
+  );
   const importIssues = pendingImport ? validateCharacter(pendingImport.character, c.rules) : [];
   const differences = pendingImport ? ruleDifferences(pendingImport.rules, c.rules) : [];
   if (character)
     return (
-      <CharacterEditor
-        key={character.id}
-        {...props}
-        character={character}
-        back={() => setSelected(undefined)}
-      />
+      <CharacterEditor key={character.id} {...props} character={character} back={() => setSelected('')} />
     );
   return (
     <>
@@ -141,6 +140,7 @@ export function Characters(props: EditorProps) {
                 </div>
                 <div className="character-card-body">
                   <h2>{ch.name}</h2>
+                  {playerName(c, ch) && <small className="player-name">{playerName(c, ch)}</small>}
                   <p>
                     {ch.aspects.find((a) => a.kind === 'highConcept')?.name || 'A story waiting to happen'}
                   </p>
@@ -536,6 +536,7 @@ function CharacterEditor({
           <div>
             <p className="eyebrow">{form.kind === 'pc' ? 'PROTAGONIST' : `${form.kind.toUpperCase()} NPC`}</p>
             <h1>{form.name}</h1>
+            {playerName(c, form) && <small className="player-name">{playerName(c, form)}</small>}
             <p>{form.aspects.find((a) => a.kind === 'highConcept')?.name || 'Your high concept goes here'}</p>
           </div>
           <div className="actions no-print">

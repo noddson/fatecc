@@ -13,6 +13,7 @@ import {
   Swords,
   Target,
 } from 'lucide-react';
+import { controlledCharacters, playerName } from '../domain/player-view';
 import { activeRolls } from '../domain/commands';
 import { deriveCharacter, initiative, resolveMobHit, validateHarm } from '../domain/rules';
 import { id } from '../domain/defaults';
@@ -36,10 +37,23 @@ const actions: [Action, string][] = [
   ['defend', 'Defend'],
 ];
 const actionGlyphs: Record<Action, string> = { overcome: 'O', advantage: 'C', attack: 'A', defend: 'D' };
-export function SessionTable({ campaign: c, update, dispatch, notify, readOnly }: EditorProps) {
-  const [characterId, setCharacterId] = useState(
-    c.characters.find((ch) => ch.kind === 'pc')?.id || c.characters[0]?.id || '',
-  );
+export function SessionTable({
+  campaign: c,
+  update,
+  dispatch,
+  notify,
+  readOnly,
+  playerActor,
+  playDisabled,
+}: EditorProps) {
+  const controlled = controlledCharacters(c, readOnly, playerActor);
+  const [chosenCharacterId, setCharacterId] = useState('');
+  const characterId =
+    controlled.find((ch) => ch.id === chosenCharacterId)?.id ||
+    controlled.find((ch) => ch.kind === 'pc')?.id ||
+    controlled[0]?.id ||
+    '';
+  const canAct = (id: string) => !playDisabled && controlled.some((ch) => ch.id === id);
   const [skillId, setSkillId] = useState(c.rules.skills[0]?.id || '');
   const [action, setAction] = useState<Action>('overcome');
   const [opposition, setOpposition] = useState(2);
@@ -87,9 +101,14 @@ export function SessionTable({ campaign: c, update, dispatch, notify, readOnly }
   const [taskName, setTaskName] = useState('');
   const [showHistory, setShowHistory] = useState(true);
   const [correction, setCorrection] = useState<string>();
+  const [undo, setUndo] = useState<RollRecord>();
+  const [undoReason, setUndoReason] = useState('Accidental roll');
   const current = c.characters.find((ch) => ch.id === characterId);
   const rolls = activeRolls(c);
-  const roll = rolls.find((r) => r.id === selectedRollId) || rolls.at(-1);
+  const reviewRolls = readOnly
+    ? rolls.filter((r) => controlled.some((ch) => ch.id === r.characterId))
+    : rolls;
+  const roll = reviewRolls.find((r) => r.id === selectedRollId) || reviewRolls.at(-1);
   const aspects = [...c.issues, ...c.play.aspects, ...c.characters.flatMap((ch) => ch.aspects)].filter((a) =>
     a.name.trim(),
   );
@@ -245,117 +264,127 @@ export function SessionTable({ campaign: c, update, dispatch, notify, readOnly }
                 });
               }}
             >
-              <div className="form-grid">
-                <Field label="Character">
-                  <select value={characterId} onChange={(e) => setCharacterId(e.target.value)}>
-                    <option value="" disabled>
-                      Choose a character
-                    </option>
-                    {c.characters.map((ch) => (
-                      <option key={ch.id} value={ch.id}>
-                        {ch.name}
-                      </option>
-                    ))}
-                  </select>
-                </Field>
-                <Field label="Action">
-                  <select value={action} onChange={(e) => setAction(e.target.value as Action)}>
-                    {actions.map(([key, label]) => (
-                      <option value={key} key={key}>
-                        {label}
-                      </option>
-                    ))}
-                  </select>
-                </Field>
-                <Field label="Skill">
-                  <select value={skillId} onChange={(e) => setSkillId(e.target.value)}>
-                    {c.rules.skills.map((s) => (
-                      <option value={s.id} key={s.id}>
-                        {s.name} ({signed(current?.skills[s.id] || 0)})
-                      </option>
-                    ))}
-                  </select>
-                </Field>
-                <Field
-                  label="Opposition"
-                  hint="The number after “vs”: set the difficulty or opposing roll’s total before rolling."
-                >
-                  <input
-                    type="number"
-                    min="-20"
-                    max="30"
-                    value={opposition}
-                    onChange={(e) => setOpposition(Number(e.target.value))}
-                  />
-                </Field>
-              </div>
-              <details className="roll-options">
-                <summary>Modifiers, teamwork & targets</summary>
+              <fieldset className="unframed" disabled={playDisabled || !controlled.length}>
                 <div className="form-grid">
-                  <Field label="Stunt / situational modifier">
+                  <Field label="Character">
+                    <select value={characterId} onChange={(e) => setCharacterId(e.target.value)}>
+                      <option value="" disabled>
+                        Choose a character
+                      </option>
+                      {controlled.map((ch) => (
+                        <option key={ch.id} value={ch.id}>
+                          {ch.name}
+                        </option>
+                      ))}
+                    </select>
+                  </Field>
+                  <Field label="Action">
+                    <select value={action} onChange={(e) => setAction(e.target.value as Action)}>
+                      {actions.map(([key, label]) => (
+                        <option value={key} key={key}>
+                          {label}
+                        </option>
+                      ))}
+                    </select>
+                  </Field>
+                  <Field label="Skill">
+                    <select value={skillId} onChange={(e) => setSkillId(e.target.value)}>
+                      {c.rules.skills.map((s) => (
+                        <option value={s.id} key={s.id}>
+                          {s.name} ({signed(current?.skills[s.id] || 0)})
+                        </option>
+                      ))}
+                    </select>
+                  </Field>
+                  <Field
+                    label="Opposition"
+                    hint="The number after “vs”: set the difficulty or opposing roll’s total before rolling."
+                  >
                     <input
                       type="number"
                       min="-20"
-                      max="20"
-                      value={modifier}
-                      onChange={(e) => setModifier(Number(e.target.value))}
+                      max="30"
+                      value={opposition}
+                      onChange={(e) => setOpposition(Number(e.target.value))}
                     />
                   </Field>
-                  <Field label="Target (for attacks)">
-                    <select value={targetId} onChange={(e) => setTargetId(e.target.value)}>
-                      <option value="">No specific target</option>
-                      {c.characters
-                        .filter((ch) => ch.id !== characterId)
-                        .map((ch) => (
-                          <option key={ch.id} value={ch.id}>
-                            {ch.name}
-                          </option>
-                        ))}
-                    </select>
-                  </Field>
-                  <Field label="Teamwork helpers" hint="Each helper needs at least +1 in the selected skill.">
-                    <select
-                      multiple
-                      value={helpers}
-                      onChange={(e) => setHelpers(Array.from(e.target.selectedOptions).map((o) => o.value))}
-                    >
-                      {c.characters
-                        .filter((ch) => ch.id !== characterId)
-                        .map((ch) => (
-                          <option value={ch.id} key={ch.id}>
-                            {ch.name}
-                          </option>
-                        ))}
-                    </select>
-                  </Field>
-                  {action === 'advantage' && (
-                    <label className="checkbox-label">
-                      <input
-                        type="checkbox"
-                        checked={existing}
-                        onChange={(e) => setExisting(e.target.checked)}
-                      />
-                      Use an existing aspect
-                    </label>
-                  )}
                 </div>
-              </details>
-              <button className="button-primary roll-button" disabled={!current}>
-                <Dices size={18} />
-                Roll the dice{' '}
-                <span>
-                  {signed(current?.skills[skillId] || 0)} {c.rules.skills.find((s) => s.id === skillId)?.name}
-                </span>
-              </button>
+                <details className="roll-options">
+                  <summary>Modifiers, teamwork & targets</summary>
+                  <div className="form-grid">
+                    <Field label="Stunt / situational modifier">
+                      <input
+                        type="number"
+                        min="-20"
+                        max="20"
+                        value={modifier}
+                        onChange={(e) => setModifier(Number(e.target.value))}
+                      />
+                    </Field>
+                    <Field label="Target (for attacks)">
+                      <select value={targetId} onChange={(e) => setTargetId(e.target.value)}>
+                        <option value="">No specific target</option>
+                        {c.characters
+                          .filter((ch) => ch.id !== characterId)
+                          .map((ch) => (
+                            <option key={ch.id} value={ch.id}>
+                              {ch.name}
+                            </option>
+                          ))}
+                      </select>
+                    </Field>
+                    <Field
+                      label="Teamwork helpers"
+                      hint="Each helper needs at least +1 in the selected skill."
+                    >
+                      <select
+                        multiple
+                        value={helpers}
+                        onChange={(e) => setHelpers(Array.from(e.target.selectedOptions).map((o) => o.value))}
+                      >
+                        {c.characters
+                          .filter((ch) => ch.id !== characterId)
+                          .map((ch) => (
+                            <option value={ch.id} key={ch.id}>
+                              {ch.name}
+                            </option>
+                          ))}
+                      </select>
+                    </Field>
+                    {action === 'advantage' && (
+                      <label className="checkbox-label">
+                        <input
+                          type="checkbox"
+                          checked={existing}
+                          onChange={(e) => setExisting(e.target.checked)}
+                        />
+                        Use an existing aspect
+                      </label>
+                    )}
+                  </div>
+                </details>
+                <button className="button-primary roll-button" disabled={!current}>
+                  <Dices size={18} />
+                  Roll the dice{' '}
+                  <span>
+                    {signed(current?.skills[skillId] || 0)}{' '}
+                    {c.rules.skills.find((s) => s.id === skillId)?.name}
+                  </span>
+                </button>
+              </fieldset>
+              {playDisabled && (
+                <p className="muted">Read-only while disconnected. Reconnect to the GM to make a move.</p>
+              )}
+              {!controlled.length && <p className="muted">The GM has not assigned a character to you yet.</p>}
             </form>
           </section>
-          {rolls.length > 1 && (
+          {reviewRolls.length > 1 && (
             <Field
               label="Roll to review"
               hint="Open rolls can still change. Finalized rolls are here for reference; attack harm may still need applying separately."
             >
               <select value={roll?.id || ''} onChange={(e) => setSelectedRollId(e.target.value)}>
-                {[...rolls].reverse().map((r) => (
+                {[...reviewRolls].reverse().map((r) => (
                   <option key={r.id} value={r.id}>
                     {r.characterName} · {r.action} {signed(r.total)} · {r.finalized ? 'finalized' : 'open'}
                   </option>
@@ -417,7 +446,7 @@ export function SessionTable({ campaign: c, update, dispatch, notify, readOnly }
                   ))}
                 </div>
               )}
-              {!roll.finalized && (
+              {!roll.finalized && canAct(roll.characterId) && (
                 <div className="actions">
                   <button
                     onClick={() => {
@@ -443,6 +472,16 @@ export function SessionTable({ campaign: c, update, dispatch, notify, readOnly }
                     Accept the outcome
                   </button>
                 </div>
+              )}
+              {!readOnly && (
+                <button
+                  onClick={() => {
+                    setUndo(roll);
+                    setUndoReason('Accidental roll');
+                  }}
+                >
+                  Undo roll
+                </button>
               )}
             </section>
           )}
@@ -472,6 +511,10 @@ export function SessionTable({ campaign: c, update, dispatch, notify, readOnly }
                             })}
                           </span>
                           <Badge>{event.type}</Badge>
+                          {event.roll &&
+                            c.events.some((e) => e.roll?.id === event.roll?.id && e.roll?.undone) && (
+                              <Badge>Undone</Badge>
+                            )}
                           {event.visibility === 'gm' && <small>GM only</small>}
                           {event.visibility === 'character' && <small>Character only</small>}
                           {!readOnly && (
@@ -598,6 +641,7 @@ export function SessionTable({ campaign: c, update, dispatch, notify, readOnly }
                     <span className="avatar small">{initials(ch.name)}</span>
                     <strong>
                       {ch.name}
+                      {playerName(c, ch) && <small className="player-name">{playerName(c, ch)}</small>}
                       <small>
                         {ch.conceded
                           ? 'Conceded'
@@ -630,7 +674,7 @@ export function SessionTable({ campaign: c, update, dispatch, notify, readOnly }
                       {con.value} · {con.name}
                     </div>
                   ))}
-                  <div className="roster-actions">
+                  <fieldset className="roster-actions unframed" disabled={!canAct(ch.id)}>
                     <button onClick={() => openHarm(ch)}>
                       <Heart size={13} />
                       Harm
@@ -648,13 +692,14 @@ export function SessionTable({ campaign: c, update, dispatch, notify, readOnly }
                         {!readOnly && <button onClick={() => openFate(ch, 'takenOut')}>Taken out</button>}
                       </>
                     )}
-                  </div>
+                  </fieldset>
                   {ch.stunts.length > 0 && (
                     <details>
                       <summary className="muted">Stunts</summary>
                       {ch.stunts.map((stunt) => (
                         <button
                           className="stunt-use"
+                          disabled={!canAct(ch.id)}
                           key={stunt.id}
                           onClick={() =>
                             void dispatch({ type: 'useStunt', characterId: ch.id, stuntId: stunt.id })
@@ -775,6 +820,39 @@ export function SessionTable({ campaign: c, update, dispatch, notify, readOnly }
           </section>
         </aside>
       </div>
+      {undo && (
+        <Modal title="Undo roll" close={() => setUndo(undefined)}>
+          <p>
+            Undo {undo.characterName}’s {undo.skillName} roll, including its recorded invocations, outcome,
+            and linked harm. Its current-exchange action becomes available again. The history stays visible as
+            undone.
+          </p>
+          <p className="muted">
+            If another action has used or changed its effects, undo that action first. Scene and recovery
+            boundaries prevent undo.
+          </p>
+          <Field label="Reason for undo">
+            <input value={undoReason} onChange={(e) => setUndoReason(e.target.value)} />
+          </Field>
+          <div className="modal-actions">
+            <button onClick={() => setUndo(undefined)}>Cancel</button>
+            <button
+              className="button-danger"
+              disabled={!undoReason.trim()}
+              onClick={() =>
+                void dispatch({ type: 'undoRoll', rollId: undo.id, reason: undoReason }).then((ok) => {
+                  if (ok) {
+                    setUndo(undefined);
+                    setSelectedRollId('');
+                  }
+                })
+              }
+            >
+              Confirm undo
+            </button>
+          </div>
+        </Modal>
+      )}
       {boundary && (
         <Modal
           title={`${boundaryPhase === 'start' ? 'Start' : 'End'} a ${boundary}`}
@@ -922,7 +1000,7 @@ export function SessionTable({ campaign: c, update, dispatch, notify, readOnly }
           </p>
           <div className="modal-actions">
             <button
-              disabled={!invokeAspect}
+              disabled={!invokeAspect || !canAct(invoke.characterId)}
               onClick={() => {
                 void dispatch({
                   type: 'invoke',
@@ -940,7 +1018,7 @@ export function SessionTable({ campaign: c, update, dispatch, notify, readOnly }
             </button>
             <button
               className="button-primary"
-              disabled={!invokeAspect}
+              disabled={!invokeAspect || !canAct(invoke.characterId)}
               onClick={() => {
                 void dispatch({
                   type: 'invoke',
@@ -996,6 +1074,7 @@ export function SessionTable({ campaign: c, update, dispatch, notify, readOnly }
             <button onClick={() => setFinalize(undefined)}>Keep the roll open</button>
             <button
               className="button-primary"
+              disabled={!canAct(finalize.characterId)}
               onClick={() => {
                 void dispatch({
                   type: 'finalizeRoll',
@@ -1159,7 +1238,7 @@ export function SessionTable({ campaign: c, update, dispatch, notify, readOnly }
             <button onClick={() => setHarm(undefined)}>Cancel</button>
             <button
               className="button-primary"
-              disabled={!!harmError}
+              disabled={!!harmError || !canAct(harm.id)}
               onClick={() => {
                 void dispatch({
                   type: 'harm',
@@ -1265,7 +1344,7 @@ export function SessionTable({ campaign: c, update, dispatch, notify, readOnly }
             <button onClick={() => setFateDialog(undefined)}>Cancel</button>
             {fateDialog.type === 'compel' && (
               <button
-                disabled={!reason.trim()}
+                disabled={!reason.trim() || !canAct(fateDialog.character.id)}
                 onClick={() => {
                   void dispatch({
                     type: 'compel',
@@ -1282,7 +1361,7 @@ export function SessionTable({ campaign: c, update, dispatch, notify, readOnly }
             )}
             <button
               className="button-primary"
-              disabled={!reason.trim()}
+              disabled={!reason.trim() || !canAct(fateDialog.character.id)}
               onClick={() => {
                 void (async () => {
                   const characterId = fateDialog.character.id;

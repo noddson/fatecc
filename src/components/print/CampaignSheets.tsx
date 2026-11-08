@@ -1,3 +1,4 @@
+import { playerName } from '../../domain/player-view';
 import type { Campaign } from '../../domain/types';
 import { deriveCharacter, LADDER } from '../../domain/rules';
 import { signed } from '../../ui';
@@ -51,6 +52,7 @@ export function GameWorksheet({ campaign: c }: { campaign: Campaign }) {
             <div className="fs-labelled-box" key={ch.id}>
               <span>Face{ch.visibility === 'gm' ? ' · GM only' : ''}</span>
               <h3>{ch.name}</h3>
+              {playerName(c, ch) && <small>{playerName(c, ch)}</small>}
               <TextValue>
                 {ch.aspects
                   .map((a) => a.name)
@@ -159,6 +161,7 @@ export function TableWorksheet({ campaign: c }: { campaign: Campaign }) {
               <tr key={ch.id}>
                 <th>
                   {ch.name}
+                  {playerName(c, ch) && <small>{playerName(c, ch)}</small>}
                   {ch.visibility === 'gm' && <small>GM only</small>}
                 </th>
                 <td>{ch.aspects.find((a) => a.kind === 'highConcept')?.name}</td>

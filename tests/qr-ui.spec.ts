@@ -93,32 +93,82 @@ test('QR image invitations and responses join without a broker, preserve permiss
     await expect(
       hostDialog.getByRole('heading', { name: 'QR player wants to join', exact: true }),
     ).toBeVisible();
-    await hostDialog.getByRole('checkbox', { name: 'Mara Voss', exact: true }).check();
+    await hostDialog.getByRole('checkbox', { name: 'Silas Reed', exact: true }).check();
     await hostDialog.getByRole('button', { name: 'Approve player', exact: true }).click();
     await expect(joinDialog.getByText('connected', { exact: true })).toBeVisible({ timeout: 20_000 });
+    await expect(hostDialog.getByRole('region', { name: 'Players and characters' })).toContainText(
+      'Silas Reed',
+    );
+    await expect(hostDialog.getByRole('region', { name: 'Players and characters' })).toContainText(
+      'QR player',
+    );
     await hostDialog.getByRole('button', { name: 'Done', exact: true }).click();
     await joinDialog.getByRole('button', { name: 'Done', exact: true }).click();
     await expect(player.getByText('Connected player view', { exact: true })).toBeVisible();
 
+    await navigate(player, 'Characters');
+    await expect(player.getByRole('heading', { name: 'Silas Reed', exact: true })).toBeVisible();
+    await expect(player.locator('.character-heading .player-name')).toHaveText('QR player');
     await navigate(player, 'Campaign journal');
     await expect(player.getByText('The first night', { exact: true })).toHaveCount(0);
     await expect(player.getByText('Bellweather Harbor', { exact: true }).first()).toBeVisible();
     await Promise.all([navigate(gm, 'At the table'), navigate(player, 'At the table')]);
-    await player
-      .getByRole('combobox', { name: 'Character', exact: true })
-      .selectOption({ label: 'Mara Voss' });
+    const characterPicker = player.getByRole('combobox', { name: 'Character', exact: true });
+    await expect(characterPicker.locator('option:not([disabled])')).toHaveText(['Silas Reed']);
+    await expect(characterPicker.locator('option:checked')).toHaveText('Silas Reed');
+    await expect(
+      player
+        .locator('.roster-character')
+        .filter({ hasText: 'Mara Voss' })
+        .getByRole('button', { name: 'Harm', exact: true }),
+    ).toBeDisabled();
     await player.getByRole('combobox', { name: 'Skill', exact: true }).selectOption('notice');
     await player.getByRole('button', { name: /Roll the dice/ }).click();
     await expect(player.locator('.roll-result')).toBeVisible();
     await expect(gm.locator('.roll-result')).toBeVisible();
-    await expect(player.locator('.activity-entry').filter({ hasText: 'Mara Voss · Notice' })).toHaveCount(1);
-    await expect(gm.locator('.activity-entry').filter({ hasText: 'Mara Voss · Notice' })).toHaveCount(1);
+    await expect(player.locator('.activity-entry').filter({ hasText: 'Silas Reed · Notice' })).toHaveCount(1);
+    await expect(gm.locator('.activity-entry').filter({ hasText: 'Silas Reed · Notice' })).toHaveCount(1);
     expect(await player.locator('.roll-total strong').innerText()).toBe(
       await gm.locator('.roll-total strong').innerText(),
     );
     expect(await player.locator('.roll-result .fate-die').allTextContents()).toEqual(
       await gm.locator('.roll-result .fate-die').allTextContents(),
     );
+    await expect(player.getByRole('button', { name: 'Undo roll', exact: true })).toHaveCount(0);
+    await gm.getByRole('button', { name: 'Accept the outcome', exact: true }).click();
+    await gm.getByRole('button', { name: 'Finalize result', exact: true }).click();
+    await expect(gm.locator('.roll-result')).toContainText('Finalized');
+    await gm.getByRole('button', { name: 'Undo roll', exact: true }).click();
+    await gm.getByRole('button', { name: 'Confirm undo', exact: true }).click();
+    await expect(player.locator('.roll-result')).toHaveCount(0);
+    await expect(player.locator('.activity-entry').filter({ hasText: 'roll undone by the GM' })).toHaveCount(
+      1,
+    );
+    await player.screenshot({ path: testInfo.outputPath('bound-player-mobile.png'), fullPage: true });
+    await navigate(player, 'Maps & zones');
+    await player.getByRole('button', { name: 'Token: Mara Voss', exact: true }).click();
+    await expect(player.getByLabel('Left %', { exact: true })).toBeDisabled();
+    await player.getByRole('button', { name: 'Token: Silas Reed', exact: true }).click();
+    await expect(player.getByLabel('Left %', { exact: true })).toBeEnabled();
+    await navigate(player, 'At the table');
+    // Disconnect without clearing pairing: the cached copy stays visible, with no playable controls.
+    await gm.getByRole('button', { name: 'Hosting', exact: true }).click();
+    await gm.getByRole('button', { name: 'Disconnect table', exact: true }).click();
+    await expect(player.getByRole('button', { name: /Roll the dice/ })).toBeDisabled({ timeout: 20000 });
+    await expect(player.locator('.remote-banner')).toContainText('Read-only player copy');
+    await navigate(player, 'Maps & zones');
+    await player.getByRole('button', { name: 'Token: Silas Reed', exact: true }).click();
+    await expect(player.getByLabel('Left %', { exact: true })).toBeDisabled();
+
+    await player.getByRole('button', { name: 'Return to my campaigns', exact: true }).click();
+    await expect(player.getByRole('heading', { name: 'Joined campaigns', exact: true })).toBeVisible();
+    await player.reload();
+    await player.getByRole('button', { name: 'Open joined campaign The Lantern Coast', exact: true }).click();
+    await navigate(player, 'At the table');
+    await expect(player.getByRole('button', { name: /Roll the dice/ })).toBeDisabled();
+    await expect(
+      player.getByRole('combobox', { name: 'Character', exact: true }).locator('option:checked'),
+    ).toHaveText('Silas Reed');
   } finally {
     await Promise.allSettled([gmContext.close(), playerContext.close()]);
   }
@@ -340,4 +390,37 @@ test('camera reads an invitation frame locally, fills the form, and releases the
     .toBe(1);
   await expect(dialog.locator('video')).toHaveCount(0);
   await expect(dialog.getByRole('img', { name: 'Response QR code', exact: true })).toHaveCount(0);
+});
+
+test('phone camera fills a broad portrait viewfinder even for a tall video stream', async ({
+  page,
+}, testInfo) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator.mediaDevices, 'getUserMedia', {
+      configurable: true,
+      value: async (constraints: MediaStreamConstraints) => {
+        Object.assign(window, { requestedCamera: constraints });
+        const canvas = document.createElement('canvas');
+        canvas.width = 720;
+        canvas.height = 1280;
+        canvas.getContext('2d')!.fillRect(0, 0, 720, 1280);
+        return canvas.captureStream(10);
+      },
+    });
+  });
+  const dialog = await openJoin(page);
+  await dialog.getByRole('button', { name: 'Scan invitation QR', exact: true }).click();
+  const video = dialog.getByLabel('QR scanner camera preview');
+  await expect(video).toBeVisible();
+  await expect.poll(() => video.evaluate((v: HTMLVideoElement) => v.videoWidth)).toBe(720);
+  const box = (await video.boundingBox())!;
+  expect(box.width).toBeGreaterThan(280);
+  expect(box.width / box.height).toBeCloseTo(3 / 4, 1);
+  expect(box.y).toBeGreaterThanOrEqual(0);
+  expect(box.y + box.height).toBeLessThan(844);
+  await expect(video).toHaveCSS('object-fit', 'cover');
+  await page.screenshot({ path: testInfo.outputPath('phone-camera-framing.png'), fullPage: true });
+  await dialog.getByRole('button', { name: 'Stop camera', exact: true }).click();
+  await expect(video).toHaveCount(0);
 });

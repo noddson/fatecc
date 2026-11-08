@@ -47,7 +47,7 @@ export function ConnectionPanel(props: ConnectionPanelProps) {
   const [settings, setSettings] = useState<ConnectionSettings>(() => ({ ...props.settingsRef.current }));
   const [drafts, setDrafts] = useState<CharacterDraft[]>(() => listDrafts(props.campaign?.id));
   const [draft, setDraft] = useState<CharacterDraft>();
-  const [selectedCharacter, setSelectedCharacter] = useState('');
+  const [chosenCharacter, setSelectedCharacter] = useState('');
   const mounted = useRef(true);
   const failure = (message: string) => props.notify(message, true);
   const reportStatus = (value: string) => {
@@ -177,9 +177,23 @@ export function ConnectionPanel(props: ConnectionPanelProps) {
   };
   const refreshDrafts = () => setDrafts(listDrafts(props.campaign?.id));
   const playerActor = props.playerActor || props.clientRef.current?.actor;
+  const assignedNames = (memberId: string, ids: string[]) =>
+    (props.campaign?.characters || [])
+      .filter(
+        (c) =>
+          c.ownerId === memberId &&
+          ids.includes(c.id) &&
+          props.campaign?.members.some((m) => m.id === memberId && m.characterIds.includes(c.id)),
+      )
+      .map((c) => c.name)
+      .join(', ') || 'No character assigned';
   const availableCharacters = (props.campaign?.characters ?? []).filter(
     (c) => c.kind === 'pc' && (!props.isPlayerView || !!playerActor?.characterIds.includes(c.id)),
   );
+
+  const selectedCharacter =
+    availableCharacters.find((c) => c.id === chosenCharacter)?.id ||
+    (props.isPlayerView ? availableCharacters[0]?.id || '' : '');
 
   return (
     <Modal title="Connect your table" close={props.close} wide>
@@ -338,6 +352,19 @@ export function ConnectionPanel(props: ConnectionPanelProps) {
               </div>
             </section>
           ))}
+          {(props.campaign?.members.filter((m) => m.role === 'player').length || 0) > 0 && (
+            <section className="player-assignments" aria-label="Players and characters">
+              <h3>Players & characters</h3>
+              {props.campaign?.members
+                .filter((m) => m.role === 'player')
+                .map((member) => (
+                  <p key={member.id}>
+                    <strong>{assignedNames(member.id, member.characterIds)}</strong>
+                    <small className="player-name">{member.name}</small>
+                  </p>
+                ))}
+            </section>
+          )}
           {peers.map((peer) => (
             <div
               className="list-row"
@@ -366,7 +393,7 @@ export function ConnectionPanel(props: ConnectionPanelProps) {
                 .map((grant) => (
                   <div className="actions" key={grant.memberId} style={{ marginTop: 8 }}>
                     <span>
-                      {grant.name} · {grant.characterIds.length} character(s)
+                      {grant.name} · {assignedNames(grant.memberId, grant.characterIds)}
                     </span>
                     <button
                       aria-label={`Reconnect ${grant.name}`}
@@ -449,6 +476,11 @@ export function ConnectionPanel(props: ConnectionPanelProps) {
             <h3>Bring your character to the table</h3>
             <Badge>{status}</Badge>
           </div>
+          {playerActor && props.isPlayerView && (
+            <p>
+              Playing as: <strong>{assignedNames(playerActor.id, playerActor.characterIds)}</strong>
+            </p>
+          )}
           {status === 'reconnecting' && (
             <p role="status">
               Checking the connection and refreshing the table. Keep this tab open; your saved approval is

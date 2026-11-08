@@ -75,7 +75,15 @@ function PercentField({
   );
 }
 
-export function Maps({ campaign, update, dispatch, notify, readOnly }: EditorProps) {
+export function Maps({
+  campaign,
+  update,
+  dispatch,
+  notify,
+  readOnly,
+  playerActor,
+  playDisabled,
+}: EditorProps) {
   const [mapId, setMapId] = useState(campaign.maps[0]?.id ?? '');
   const [viewId, setViewId] = useState('');
   const [zoom, setZoom] = useState(1);
@@ -115,6 +123,13 @@ export function Maps({ campaign, update, dispatch, notify, readOnly }: EditorPro
       ),
     );
   }, [revision]);
+  const canMove = (token: MapToken) =>
+    !playDisabled &&
+    ((!readOnly && revision?.id === map?.currentRevisionId) ||
+      (readOnly &&
+        !!token.characterId &&
+        !!playerActor?.characterIds.includes(token.characterId) &&
+        campaign.characters.some((c) => c.id === token.characterId && c.ownerId === playerActor.id)));
   const editable = !readOnly && revision?.id === map?.currentRevisionId;
   const selectedZone =
     selection?.kind === 'zone' ? revision?.zones.find((zone) => zone.id === selection.id) : undefined;
@@ -197,6 +212,7 @@ export function Maps({ campaign, update, dispatch, notify, readOnly }: EditorPro
     y = clampUnit(y);
     const destinationZone = zoneId === null ? undefined : (zoneId ?? zoneAtPoint(revision.zones, x, y));
     if (token.x === x && token.y === y && token.zoneId === destinationZone) return;
+    if (!canMove(token)) return;
     const position = { x, y };
     setPendingMoves((pending) => ({ ...pending, [token.id]: position }));
     const clearPending = () =>
@@ -233,7 +249,7 @@ export function Maps({ campaign, update, dispatch, notify, readOnly }: EditorPro
     if (!revision || !stage.current) return;
     const { x, y } = point(event);
     if (tool === 'select') {
-      if (selectedToken && (editable || readOnly)) void moveToken(selectedToken, x, y);
+      if (selectedToken && canMove(selectedToken)) void moveToken(selectedToken, x, y);
       return;
     }
     if (!editable) return;
@@ -502,7 +518,7 @@ export function Maps({ campaign, update, dispatch, notify, readOnly }: EditorPro
                       aria-label={`Zone: ${zone.name}`}
                       onClick={(event) => {
                         event.stopPropagation();
-                        if (selectedToken && (editable || readOnly))
+                        if (selectedToken && canMove(selectedToken))
                           void moveToken(
                             selectedToken,
                             zone.x + zone.width / 2,
@@ -558,7 +574,7 @@ export function Maps({ campaign, update, dispatch, notify, readOnly }: EditorPro
                         onPointerDown={(event) => {
                           event.stopPropagation();
                           if (event.button !== 0) return;
-                          if (!(editable || readOnly) || tool !== 'select') return;
+                          if (!canMove(token) || tool !== 'select') return;
                           setSelection({ kind: 'token', id: token.id });
                           event.currentTarget.setPointerCapture(event.pointerId);
                           const start = point(event);
@@ -810,7 +826,7 @@ export function Maps({ campaign, update, dispatch, notify, readOnly }: EditorPro
                             );
                           else void moveToken(selectedToken, selectedToken.x, selectedToken.y, null);
                         }}
-                        disabled={!editable && !readOnly}
+                        disabled={!canMove(selectedToken)}
                       >
                         <option value="">Between zones</option>
                         {revision.zones.map((z) => (
@@ -820,7 +836,7 @@ export function Maps({ campaign, update, dispatch, notify, readOnly }: EditorPro
                         ))}
                       </select>
                     </Field>
-                    <div className="map-position-grid">
+                    <fieldset className="map-position-grid unframed" disabled={!canMove(selectedToken)}>
                       <PercentField
                         label="Left %"
                         value={selectedToken.x}
@@ -831,7 +847,7 @@ export function Maps({ campaign, update, dispatch, notify, readOnly }: EditorPro
                         value={selectedToken.y}
                         onCommit={(y) => void moveToken(selectedToken, selectedToken.x, y)}
                       />
-                    </div>
+                    </fieldset>
                     {editable && (
                       <ConfirmButton
                         title={`Remove token ${selectedToken.label}?`}

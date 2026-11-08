@@ -10,6 +10,7 @@ export interface EditorProps {
   notify: (message: string, error?: boolean) => void;
   readOnly?: boolean;
   playerActor?: Actor;
+  playDisabled?: boolean;
 }
 export function Field({ label, hint, children }: { label: string; hint?: string; children: ReactNode }) {
   return (

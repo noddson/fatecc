@@ -1,3 +1,4 @@
+import { playerName } from '../../domain/player-view';
 import type { Campaign, Character, Consequence } from '../../domain/types';
 import { deriveCharacter, LADDER } from '../../domain/rules';
 import { SheetFooter, SheetHeader, SheetSection, TextValue, WriteLines } from './SheetParts';
@@ -67,7 +68,10 @@ export function CharacterSheet({
   return (
     <div className="character-print">
       <article className="fate-sheet fs-character-sheet">
-        <SheetHeader title={ch.name || 'Character sheet'} subtitle={`${campaign.name} · ${rules.name}`} />
+        <SheetHeader
+          title={ch.name || 'Character sheet'}
+          subtitle={`${playerName(campaign, ch) ? playerName(campaign, ch) + ' · ' : ''}${campaign.name} · ${rules.name}`}
+        />
         <div className="fs-identity">
           <div className="fs-identity-copy">
             <dl className="fs-identity-fields">

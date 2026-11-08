@@ -196,7 +196,29 @@ export interface RollRecord {
   advantageExisting: boolean;
   invocations: { aspectId: string; name: string; free: boolean; bonus: number; reroll?: number[] }[];
   finalized: boolean;
+  undone?: boolean;
+  exchange?: number;
 }
+/** Host-only evidence for reversing a roll without replacing unrelated campaign state. */
+export type RollUndoChange =
+  | {
+      kind: 'aspect';
+      location: 'issues' | 'scene' | 'character';
+      characterId?: string;
+      id: string;
+      before?: Aspect;
+      after?: Aspect;
+    }
+  | { kind: 'consequence'; characterId: string; id: string; before?: Consequence; after?: Consequence }
+  | {
+      kind: 'award';
+      id: string;
+      before?: PlayState['pendingAwards'][number];
+      after?: PlayState['pendingAwards'][number];
+    }
+  | { kind: 'stress'; characterId: string; track: string; box: number; before: boolean; after: boolean }
+  | { kind: 'flag'; characterId: string; field: 'takenOut' | 'extremeUsed'; before: boolean; after: boolean }
+  | { kind: 'fate'; characterId?: string; delta: number };
 export interface GameEvent {
   id: string;
   commandId: string;
@@ -210,6 +232,7 @@ export interface GameEvent {
   characterId?: string;
   roll?: RollRecord;
   detail?: string;
+  undoChanges?: RollUndoChange[];
 }
 export interface PlayState {
   scenarioId: string;

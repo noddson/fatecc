@@ -113,6 +113,7 @@ export function projectCampaign(
     })
     .map((event, index) => {
       delete event.detail;
+      delete event.undoChanges;
       return { ...event, sequence: index + 1 };
     });
   copy.processedCommandIds = [];

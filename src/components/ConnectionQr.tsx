@@ -189,6 +189,7 @@ export function ConnectionQrReader({
       return;
     }
     video.srcObject = streamRef.current;
+    video.scrollIntoView({ block: 'center' });
     const scan = () => {
       if (!mountedRef.current || operation !== operationRef.current) return;
       try {
@@ -236,7 +237,12 @@ export function ConnectionQrReader({
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: false,
-        video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } },
+        video: {
+          facingMode: { ideal: 'environment' },
+          width: { ideal: 1280 },
+          height: { ideal: 960 },
+          aspectRatio: { ideal: 4 / 3 },
+        },
       });
       if (
         !mountedRef.current ||

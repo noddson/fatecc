@@ -21,6 +21,7 @@ import {
 } from './rules';
 import type { MilestoneChoice } from './rules';
 import { createAspect, id } from './defaults';
+import { captureRollChanges, reverseRoll } from './roll-undo';
 
 interface BaseCommand {
   id: string;
@@ -108,6 +109,7 @@ export type GameCommand = BaseCommand &
     | { type: 'spendSkill'; characterId: string; skillId: string; raiseCap?: boolean }
     | { type: 'storyDetail'; characterId: string; description: string }
     | { type: 'correction'; eventId: string; reason: string }
+    | { type: 'undoRoll'; rollId: string; reason: string }
     | {
         type: 'applyDraft';
         characterId: string;
@@ -162,7 +164,7 @@ export function latestRoll(campaign: Campaign, rollId: string): RollRecord {
 export function activeRolls(campaign: Campaign): RollRecord[] {
   const rolls = new Map<string, RollRecord>();
   for (const event of campaign.events) if (event.roll) rolls.set(event.roll.id, event.roll);
-  return [...rolls.values()];
+  return [...rolls.values()].filter((roll) => !roll.undone);
 }
 
 function spend(campaign: Campaign, character: Character, amount: number): void {
@@ -196,6 +198,7 @@ const gmOnly = new Set<GameCommand['type']>([
   'milestoneChoice',
   'spendSkill',
   'correction',
+  'undoRoll',
   'takenOut',
   'applyDraft',
   'learnStunt',
@@ -298,6 +301,7 @@ export function applyCommand(original: Campaign, command: GameCommand, actor: Ac
         finalized: false,
         targetCharacterId: command.targetCharacterId,
         conflictId: campaign.play.conflictId,
+        exchange: campaign.play.exchange,
         harmResolved: command.action !== 'attack' || resolution.damage === 0,
       };
       if (campaign.play.conflictId && command.action !== 'defend') campaign.play.actedIds.push(c.id);
@@ -306,6 +310,22 @@ export function applyCommand(original: Campaign, command: GameCommand, actor: Ac
         roll,
         visibility: c.visibility === 'gm' ? 'gm' : (command.visibility ?? 'shared'),
         summary: `${c.name} · ${skill.name} ${total >= 0 ? '+' : ''}${total} · ${resolution.outcome}`,
+      };
+      break;
+    }
+    case 'undoRoll': {
+      const roll = latestRoll(campaign, command.rollId);
+      if (!command.reason.trim()) throw new Error('Explain why this roll is being undone.');
+      reverseRoll(campaign, roll);
+      const originalEvent = campaign.events.find((e) => e.roll?.id === roll.id)!;
+      // Publish the cancellation to the original audience, without private invocation details.
+      event = {
+        ...event,
+        roll: { ...originalEvent.roll!, undone: true, finalized: true, harmResolved: true },
+        characterId: originalEvent.characterId,
+        visibility: originalEvent.visibility,
+        summary: `${roll.characterName} · ${roll.skillName} roll undone by the GM`,
+        detail: command.reason,
       };
       break;
     }
@@ -954,6 +974,7 @@ export function applyCommand(original: Campaign, command: GameCommand, actor: Ac
     default:
       throw new Error('Unknown campaign command.');
   }
+  if (event.roll && command.type !== 'undoRoll') event.undoChanges = captureRollChanges(original, campaign);
   campaign.revision++;
   campaign.updatedAt = timestamp;
   campaign.processedCommandIds.push(command.id);

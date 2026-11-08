@@ -63,8 +63,9 @@ import {
 } from './ui';
 import { sampleCampaign } from './sample';
 
+type PlayerSnapshot = { id: string; campaign: Campaign; actor?: Actor };
 const cacheDb = new Dexie('fate-player-cache') as Dexie & {
-  snapshots: Table<{ id: string; campaign: Campaign; actor?: Actor }, string>;
+  snapshots: Table<PlayerSnapshot, string>;
 };
 cacheDb.version(1).stores({ snapshots: 'id' });
 const navigation = [
@@ -97,6 +98,17 @@ export default function App() {
   const [importMode, setImportMode] = useState<'copy' | 'restore'>('copy');
   const [online, setOnline] = useState(navigator.onLine);
   const [remote, setRemote] = useState<Campaign>();
+  const [playerCopies, setPlayerCopies] = useState<PlayerSnapshot[]>([]);
+  const reloadPlayerCopies = useCallback(async () => {
+    const records = await cacheDb.snapshots.toArray();
+    const copies = new globalThis.Map<string, PlayerSnapshot>();
+    for (const record of records) {
+      const previous = copies.get(record.campaign.id);
+      if (!previous || record.campaign.revision >= previous.campaign.revision)
+        copies.set(record.campaign.id, record);
+    }
+    setPlayerCopies([...copies.values()]);
+  }, []);
   const [remoteActor, setRemoteActor] = useState<Actor>();
   const [remoteStatus, setRemoteStatus] = useState('');
   const hostRef = useRef<FatePeerHost | null>(null);
@@ -119,6 +131,7 @@ export default function App() {
     setCampaigns(await listCampaigns());
   }, []);
   useEffect(() => {
+    void reloadPlayerCopies().catch(() => notify('Saved player campaigns could not be opened.', true));
     void reload()
       .then(() => {
         const id = localStorage.getItem('fate-selected');
@@ -134,7 +147,7 @@ export default function App() {
       window.removeEventListener('online', goOnline);
       window.removeEventListener('offline', goOffline);
     };
-  }, [reload, notify]);
+  }, [reload, reloadPlayerCopies, notify]);
   useEffect(() => {
     if (!toast) return;
     const t = setTimeout(() => setToast(undefined), toast.error ? 12000 : 5000);
@@ -272,10 +285,11 @@ export default function App() {
       if (actor) setRemoteActor(actor);
       setPage((p) => (p === 'rules' ? 'overview' : p));
       void cacheDb.snapshots
-        .put({ id: 'latest', campaign: c, actor: actor || clientRef.current?.actor })
+        .put({ id: c.id, campaign: c, actor: actor || clientRef.current?.actor })
+        .then(reloadPlayerCopies)
         .catch(() => notify('Player cache could not be saved. Keep a player export.', true));
     },
-    [notify],
+    [notify, reloadPlayerCopies],
   );
   const disconnect = () => {
     clientRef.current?.close();
@@ -283,6 +297,15 @@ export default function App() {
     setRemote(undefined);
     setRemoteActor(undefined);
     setRemoteStatus('');
+    setSelectedId(undefined);
+    localStorage.removeItem('fate-selected');
+  };
+  const openPlayerCopy = (cached: PlayerSnapshot) => {
+    stopConnections();
+    setRemote(cached.campaign);
+    setRemoteActor(cached.actor);
+    setPage('overview');
+    setRemoteStatus('Offline');
   };
   const restoreImport = async (data: Uint8Array, mode: 'copy' | 'restore', campaignId: string) => {
     stopConnections();
@@ -326,6 +349,7 @@ export default function App() {
         dispatch,
         notify,
         readOnly: !!remote,
+        playDisabled: !!remote && !clientRef.current?.connected,
         playerActor: remote ? remoteActor : undefined,
       }
     : undefined;
@@ -475,7 +499,7 @@ export default function App() {
                 ? 'Connected player view'
                 : remoteStatus === 'reconnecting'
                   ? 'Reconnecting to the table · your saved approval is retained'
-                  : 'Cached player view · shared play is paused'}
+                  : 'Read-only player copy · reconnect to the GM to play'}
             </span>
             <button onClick={() => setConnection(true)}>Connection & drafts</button>
             <button onClick={disconnect}>Return to my campaigns</button>
@@ -664,6 +688,32 @@ export default function App() {
                   </button>
                 </div>
               )}
+              {playerCopies.length > 0 && (
+                <section className="joined-campaigns">
+                  <h2>Joined campaigns</h2>
+                  <p className="muted">Saved player copies are read-only until you reconnect to their GM.</p>
+                  <div className="campaign-grid">
+                    {playerCopies.map((copy) => (
+                      <article className="card" key={copy.campaign.id} style={{ padding: 20 }}>
+                        <Badge>Read-only player copy</Badge>
+                        <h3>{copy.campaign.name}</h3>
+                        <p>
+                          {copy.campaign.characters
+                            .filter((ch) => copy.actor?.characterIds.includes(ch.id))
+                            .map((ch) => ch.name)
+                            .join(', ') || 'No character assigned'}
+                        </p>
+                        <button
+                          onClick={() => openPlayerCopy(copy)}
+                          aria-label={`Open joined campaign ${copy.campaign.name}`}
+                        >
+                          Open campaign
+                        </button>
+                      </article>
+                    ))}
+                  </div>
+                </section>
+              )}
               <div className="workspace-footer">
                 <span>
                   <ShieldIcon />
@@ -672,14 +722,13 @@ export default function App() {
                 <button
                   className="button-text"
                   onClick={() =>
-                    void cacheDb.snapshots.get('latest').then((cached) => {
-                      if (cached) {
-                        setRemote(cached.campaign);
-                        setRemoteActor(cached.actor);
-                        setPage('overview');
-                        setRemoteStatus('Offline');
-                      } else notify('No player campaign has been cached on this device yet.');
-                    })
+                    (() => {
+                      const cached = [...playerCopies].sort((a, b) =>
+                        b.campaign.updatedAt.localeCompare(a.campaign.updatedAt),
+                      )[0];
+                      if (cached) openPlayerCopy(cached);
+                      else notify('No player campaign has been cached on this device yet.');
+                    })()
                   }
                 >
                   Open last player cache
@@ -689,7 +738,9 @@ export default function App() {
           ) : props ? (
             <>
               {page === 'overview' && <Overview {...props} navigate={setPage} />}{' '}
-              {page === 'characters' && <Characters {...props} />}{' '}
+              {page === 'characters' && (
+                <Characters key={`${campaign.id}:${remoteActor?.id || 'gm'}`} {...props} />
+              )}{' '}
               {page === 'rules' && <RulesSettings key={campaign.id} {...props} />}{' '}
               {page === 'journal' && <World {...props} />} {page === 'inventory' && <Inventory {...props} />}{' '}
               {page === 'reference' && <ReferenceLibrary {...props} />}{' '}
@@ -701,7 +752,10 @@ export default function App() {
                   playerActor={remote ? remoteActor : undefined}
                 />
               )}{' '}
-              {page === 'session' && <SessionTable {...props} />} {page === 'maps' && <Maps {...props} />}
+              {page === 'session' && (
+                <SessionTable key={`${campaign.id}:${remoteActor?.id || 'gm'}`} {...props} />
+              )}{' '}
+              {page === 'maps' && <Maps {...props} />}
             </>
           ) : null}
         </main>

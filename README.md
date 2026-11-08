@@ -44,6 +44,12 @@ details everything included in the first commit and its verification limits.
 
 The initial release has implemented features across all development stages. Completion of a feature is distinguished from its release verification gate in [the delivery register](docs/delivery.md). Cross-network TURN, the full physical-device/browser matrix, and real-group playtesting remain outstanding.
 
+## Undo an accidental roll
+
+The GM can select an open or finalized roll under **At the table → Roll to review**, choose **Undo roll**, and confirm a reason. Undo restores that roll's recorded Fate-point spending, free invocations and consumed boosts, created/modified outcome aspects, and linked stress, consequences, or taken-out state. The character gets their proactive action back only if the same conflict exchange is still active. Unrelated later changes remain in place, and the original events remain marked **Undone** in the shared history. Repeated delivery of the original roll cannot recreate it.
+
+Undo checks the current state before restoring effects. If another action has consumed or changed them, undo the dependent roll first or correct the state manually. Scene/session/conflict and recovery boundaries, and subsequent concession, recovery, or milestone decisions prevent unsafe reversal. Older saved rolls can be undone only when still open and untouched; their finalized effects were not recorded for reversal. The existing correction pencil remains an audit note, not an undo.
+
 ## Campaign banners
 
 On **Overview**, choose **Add banner** (or **Change banner**) and upload a PNG, JPEG, or WebP image up to 10 MB. A landscape image works best. Adjust **Vertical position** to choose the visible crop, then **Save banner**. The image appears on the campaign overview and its card in **My campaigns**. **Remove banner**, followed by **Save banner**, restores the default artwork; **Cancel** discards unsaved image and crop changes.

@@ -76,6 +76,22 @@ export const rulesSchema: z.ZodType<RuleSetDefinition> = z
         });
     }
   });
+const consequence = z.object({
+  id,
+  value: z.number().int().min(1).max(100),
+  name: label,
+  trackId: id.optional(),
+  recovering: z.boolean(),
+  recoveryStartedAt: label.optional(),
+  incurredConflictId: id.optional(),
+});
+const pendingAward = z.object({
+  id,
+  characterId: id,
+  amount: integer,
+  boundary: z.enum(['scene', 'conflict']),
+  reason: text,
+});
 export const characterSchema: z.ZodType<Character> = z.object({
   id,
   revision: integer,
@@ -95,19 +111,7 @@ export const characterSchema: z.ZodType<Character> = z.object({
   refreshAdjustment: z.number().int().min(-100).max(100),
   fatePoints: integer,
   stress: z.record(z.string(), z.array(z.number().int().min(1).max(100)).max(20)),
-  consequences: z
-    .array(
-      z.object({
-        id,
-        value: z.number().int().min(1).max(100),
-        name: label,
-        trackId: id.optional(),
-        recovering: z.boolean(),
-        recoveryStartedAt: label.optional(),
-        incurredConflictId: id.optional(),
-      }),
-    )
-    .max(30),
+  consequences: z.array(consequence).max(30),
   milestones: z
     .array(
       z.object({
@@ -194,7 +198,43 @@ const roll = z.object({
     )
     .max(200),
   finalized: z.boolean(),
+  undone: z.boolean().optional(),
+  exchange: integer.optional(),
 });
+const undoChange = z.discriminatedUnion('kind', [
+  z.object({
+    kind: z.literal('aspect'),
+    location: z.enum(['issues', 'scene', 'character']),
+    characterId: id.optional(),
+    id,
+    before: aspect.optional(),
+    after: aspect.optional(),
+  }),
+  z.object({
+    kind: z.literal('consequence'),
+    characterId: id,
+    id,
+    before: consequence.optional(),
+    after: consequence.optional(),
+  }),
+  z.object({ kind: z.literal('award'), id, before: pendingAward.optional(), after: pendingAward.optional() }),
+  z.object({
+    kind: z.literal('stress'),
+    characterId: id,
+    track: id,
+    box: integer,
+    before: z.boolean(),
+    after: z.boolean(),
+  }),
+  z.object({
+    kind: z.literal('flag'),
+    characterId: id,
+    field: z.enum(['takenOut', 'extremeUsed']),
+    before: z.boolean(),
+    after: z.boolean(),
+  }),
+  z.object({ kind: z.literal('fate'), characterId: id.optional(), delta: number }),
+]);
 export const campaignSchema: z.ZodType<Campaign> = z
   .object({
     id,
@@ -306,6 +346,7 @@ export const campaignSchema: z.ZodType<Campaign> = z
           characterId: id.optional(),
           roll: roll.optional(),
           detail: text.optional(),
+          undoChanges: z.array(undoChange).max(10000).optional(),
         }),
       )
       .max(50_000),
