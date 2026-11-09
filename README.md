@@ -124,4 +124,6 @@ The book uses **Gotham** and **Adobe Garamond Pro**. The app prefers installed c
 
 Images support PNG, JPEG, and WebP up to 10 MB each. Full imports and expanded ZIP packages are limited to 64 MB. Exports that exceed the supported restore limit fail explicitly. Imported assets have content hashes checked, unexpected archive files are rejected, and failed imports leave existing campaigns unchanged.
 
-Browser storage can be cleared or exhausted. The Backup dialog offers a persistence request; even when granted, keep external backups. A player-safe export is not a complete GM recovery backup. Connection credentials are deliberately excluded from every export. Already disclosed information cannot be recalled from another participant's device.
+Browser storage can be cleared or exhausted. Keep external backups using the Backup dialog. A player-safe export is not a complete GM recovery backup. Connection credentials are deliberately excluded from every export. Already disclosed information cannot be recalled from another participant's device.
+
+Campaign cards show **Last played** at the bottom left, relative to the latest recorded gameplay event (days, weeks, months, or years; **today** for the current local date). A campaign without recorded play says **Not played yet**. Preparation edits, player assignments, sheet corrections, and archiving do not reset this date. Longer intervals use approximate 30-day months and 365-day years; the date tooltip gives the exact timestamp.

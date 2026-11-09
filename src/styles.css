@@ -384,10 +384,6 @@ fieldset[disabled] {
 .save-label svg {
   color: #768897;
 }
-.connectivity {
-  color: #8794a0;
-  display: flex;
-}
 .status-dot {
   display: inline-block;
   width: 6px;
@@ -784,6 +780,13 @@ main {
   background: transparent;
   border: 0;
   color: #8f99a2;
+}
+.campaign-last-played {
+  margin-right: auto;
+  align-self: center;
+  color: #6b7782;
+  font-size: 10px;
+  line-height: 1.5;
 }
 .new-campaign-card {
   min-height: 277px;
@@ -2976,9 +2979,6 @@ td small {
   .topbar-actions .button-small {
     font-size: 10px;
     padding: 6px 9px;
-  }
-  .topbar-actions .connectivity {
-    display: none;
   }
 }
 .muted,

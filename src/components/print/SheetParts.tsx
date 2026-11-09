@@ -53,10 +53,14 @@ export function SheetFooter() {
     <footer className="fs-footer">
       <p>
         ©2013 Evil Hat Productions, LLC. This work is based on Fate Core System and Fate Accelerated Edition
-        (found at http://www.faterpg.com/), products of Evil Hat Productions, LLC, developed, authored, and
-        edited by Leonard Balsera, Brian Engard, Jeremy Keller, Ryan Macklin, Mike Olson, Clark Valentine,
-        Amanda Valentine, Fred Hicks, and Rob Donoghue, and licensed for our use under the Creative Commons
-        Attribution 3.0 Unported license (http://creativecommons.org/licenses/by/3.0/).
+        (found at <a href="https://www.faterpg.com/">FateRPG.com</a>), products of Evil Hat Productions, LLC,
+        developed, authored, and edited by Leonard Balsera, Brian Engard, Jeremy Keller, Ryan Macklin, Mike
+        Olson, Clark Valentine, Amanda Valentine, Fred Hicks, and Rob Donoghue, and licensed for our use under
+        the{' '}
+        <a href="https://creativecommons.org/licenses/by/3.0/">
+          Creative Commons Attribution 3.0 Unported license
+        </a>
+        .
       </p>
       Fate™ is a trademark of Evil Hat Productions, LLC. The Powered by Fate logo is © Evil Hat Productions,
       LLC and is used with permission.

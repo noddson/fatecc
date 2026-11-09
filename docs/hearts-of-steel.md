@@ -12,6 +12,8 @@ The fifth Cynere aspect, **I choose my own contracts**, the fifth Zird aspect, *
 
 No retail-PDF text, retail-sheet distributions, Tower of the Serpents additions, community lore, or book artwork is an input. No geographic map is asserted by this starter. Future additions need their own evidence in the pinned SRD or an explicit companion-origin label.
 
+The overview and library card now use an original generated Riverton river-trading-city banner instead of the generic lighthouse artwork. It is a decorative interpretation, not an official illustration or a canonical map. Existing campaigns with the starter's source-credit entry receive the same default without rewriting saved data, and custom uploaded banners retain priority. See [design-sources.md](design-sources.md) for the asset hash and exact generation prompt.
+
 The SRD-derived parts use Creative Commons Attribution 3.0 Unported. Complete attribution is in the campaign journal and `public/LICENSE-SRD.txt`; source and transformation details are in `docs/content-sources.md`. No additional permissions for the separately published adventure are assumed.
 
 Verification: `npm test`, `npm run check`, `npm run build`, and `npx playwright test tests/hearts-of-steel.spec.ts tests/lantern-map.spec.ts`.

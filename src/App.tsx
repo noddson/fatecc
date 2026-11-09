@@ -21,8 +21,6 @@ import {
   Sparkles,
   Upload,
   Users,
-  Wifi,
-  WifiOff,
   X,
 } from 'lucide-react';
 import { useRegisterSW } from 'virtual:pwa-register/react';
@@ -50,6 +48,8 @@ import { ConnectionPanel } from './components/ConnectionPanel';
 import { PrintSheets } from './components/PrintSheets';
 import { AppVersion } from './components/AppVersion';
 import { RulesAttribution, logoCredit, fontCredit } from './components/RulesAttribution';
+import { campaignBanner } from './campaign-banner';
+import { lastPlayedAt, relativePlayDate } from './domain/campaign-activity';
 import {
   Badge,
   ConfirmButton,
@@ -98,7 +98,6 @@ export default function App() {
   const [backup, setBackup] = useState(false);
   const [pendingImport, setPendingImport] = useState<{ data: Uint8Array; parsed: CampaignExport }>();
   const [importMode, setImportMode] = useState<'copy' | 'restore'>('copy');
-  const [online, setOnline] = useState(navigator.onLine);
   const [remote, setRemote] = useState<Campaign>();
   const [playerCopies, setPlayerCopies] = useState<PlayerSnapshot[]>([]);
   const reloadPlayerCopies = useCallback(async () => {
@@ -141,14 +140,6 @@ export default function App() {
       })
       .catch((e) => notify(e.message, true))
       .finally(() => setLoaded(true));
-    const goOnline = () => setOnline(true),
-      goOffline = () => setOnline(false);
-    window.addEventListener('online', goOnline);
-    window.addEventListener('offline', goOffline);
-    return () => {
-      window.removeEventListener('online', goOnline);
-      window.removeEventListener('offline', goOffline);
-    };
   }, [reload, reloadPlayerCopies, notify]);
   useEffect(() => {
     if (!toast) return;
@@ -456,9 +447,9 @@ export default function App() {
             >
               <Menu size={20} />
             </button>
-            <span>{campaign ? 'My campaigns' : 'Your workspace'}</span>
             {campaign && (
               <>
+                <span>My campaigns</span>
                 <span>/</span>
                 <strong>{navigation.find(([key]) => key === page)?.[1] || 'Overview'}</strong>
               </>
@@ -471,12 +462,6 @@ export default function App() {
                 Saving…
               </span>
             )}
-            <span
-              className="connectivity"
-              title={online ? 'Internet available; campaign data is stored locally' : 'Offline mode'}
-            >
-              {online ? <Wifi size={16} /> : <WifiOff size={16} />}
-            </span>
             {campaign && (
               <>
                 <button className="button-small" onClick={() => setBackup(true)}>
@@ -587,85 +572,97 @@ export default function App() {
                     />
                     Show archived
                   </label>
-                  <button className="button-text" onClick={() => setCreating(true)}>
-                    <Plus size={16} />
-                    New campaign
-                  </button>
                 </div>
               </div>
               <div className="campaign-grid">
                 {campaigns
                   .filter((c) => showArchived || !c.archived)
-                  .map((c, i) => (
-                    <article className={`campaign-card campaign-color-${i % 3}`} key={c.id}>
-                      <button className="campaign-card-open" onClick={() => select(c)}>
-                        <div className="campaign-card-art">
-                          {c.assets.some((asset) => asset.id === c.bannerAssetId) ? (
-                            <img
-                              src={c.assets.find((asset) => asset.id === c.bannerAssetId)!.dataUrl}
-                              alt=""
-                              style={{ objectPosition: `center ${c.bannerPosition ?? 50}%` }}
-                            />
-                          ) : (
-                            <Compass size={70} strokeWidth={0.7} />
-                          )}
-                          <Badge>
-                            {c.archived ? 'Archived' : c.kind === 'one-shot' ? 'One-shot' : 'Campaign'}
-                          </Badge>
-                        </div>
-                        <div className="campaign-card-body">
-                          <h3>{c.name}</h3>
-                          <p>{c.tagline || c.setting || 'A world waiting to be discovered.'}</p>
-                          <div className="character-meta">
-                            <span>
-                              <Users size={14} />
-                              {c.characters.filter((ch) => ch.kind === 'pc').length} characters
-                            </span>
-                            <span>
-                              {new Date(c.updatedAt).toLocaleDateString(undefined, {
-                                month: 'short',
-                                day: 'numeric',
-                              })}
-                            </span>
+                  .map((c, i) => {
+                    const banner = campaignBanner(c);
+                    const lastPlayed = lastPlayedAt(c);
+                    return (
+                      <article className={`campaign-card campaign-color-${i % 3}`} key={c.id}>
+                        <button className="campaign-card-open" onClick={() => select(c)}>
+                          <div className="campaign-card-art">
+                            {banner ? (
+                              <img
+                                src={banner.src}
+                                alt=""
+                                style={{ objectPosition: `center ${banner.position}%` }}
+                              />
+                            ) : (
+                              <Compass size={70} strokeWidth={0.7} />
+                            )}
+                            <Badge>
+                              {c.archived ? 'Archived' : c.kind === 'one-shot' ? 'One-shot' : 'Campaign'}
+                            </Badge>
                           </div>
+                          <div className="campaign-card-body">
+                            <h3>{c.name}</h3>
+                            <p>{c.tagline || c.setting || 'A world waiting to be discovered.'}</p>
+                            <div className="character-meta">
+                              <span>
+                                <Users size={14} />
+                                {c.characters.filter((ch) => ch.kind === 'pc').length} characters
+                              </span>
+                              <span>
+                                {new Date(c.updatedAt).toLocaleDateString(undefined, {
+                                  month: 'short',
+                                  day: 'numeric',
+                                })}
+                              </span>
+                            </div>
+                          </div>
+                        </button>
+                        <div className="campaign-card-tools">
+                          <span className="campaign-last-played">
+                            {lastPlayed ? (
+                              <>
+                                Last played{' '}
+                                <time dateTime={lastPlayed} title={new Date(lastPlayed).toLocaleString()}>
+                                  {relativePlayDate(lastPlayed)}
+                                </time>
+                              </>
+                            ) : (
+                              'Not played yet'
+                            )}
+                          </span>
+                          <button
+                            title="Duplicate campaign"
+                            aria-label={`Duplicate ${c.name}`}
+                            onClick={() => void add(cloneCampaign(c))}
+                          >
+                            <Copy size={15} />
+                          </button>
+                          <button
+                            title={c.archived ? 'Unarchive' : 'Archive'}
+                            aria-label={`${c.archived ? 'Unarchive' : 'Archive'} ${c.name}`}
+                            onClick={() =>
+                              void saveCampaign(
+                                { ...c, archived: !c.archived, revision: c.revision + 1 },
+                                c.revision,
+                              )
+                                .then(reload)
+                                .catch((e) => notify(e.message, true))
+                            }
+                          >
+                            <Archive size={15} />
+                          </button>
+                          <ConfirmButton
+                            title={`Delete ${c.name}?`}
+                            tooltip="Delete"
+                            message="Permanently delete this campaign and its saved data from this browser? This cannot be undone. Export a backup first if you may want to restore it."
+                            onConfirm={() =>
+                              void queue.current
+                                .then(() => deleteCampaign(c.id))
+                                .then(reload)
+                                .catch((e) => notify(e.message, true))
+                            }
+                          />
                         </div>
-                      </button>
-                      <div className="campaign-card-tools">
-                        <button
-                          title="Duplicate campaign"
-                          aria-label={`Duplicate ${c.name}`}
-                          onClick={() => void add(cloneCampaign(c))}
-                        >
-                          <Copy size={15} />
-                        </button>
-                        <button
-                          title={c.archived ? 'Unarchive' : 'Archive'}
-                          aria-label={`${c.archived ? 'Unarchive' : 'Archive'} ${c.name}`}
-                          onClick={() =>
-                            void saveCampaign(
-                              { ...c, archived: !c.archived, revision: c.revision + 1 },
-                              c.revision,
-                            )
-                              .then(reload)
-                              .catch((e) => notify(e.message, true))
-                          }
-                        >
-                          <Archive size={15} />
-                        </button>
-                        <ConfirmButton
-                          title={`Delete ${c.name}?`}
-                          tooltip="Delete"
-                          message="Permanently delete this campaign and its saved data from this browser? This cannot be undone. Export a backup first if you may want to restore it."
-                          onConfirm={() =>
-                            void queue.current
-                              .then(() => deleteCampaign(c.id))
-                              .then(reload)
-                              .catch((e) => notify(e.message, true))
-                          }
-                        />
-                      </div>
-                    </article>
-                  ))}
+                      </article>
+                    );
+                  })}
                 <button className="new-campaign-card" onClick={() => setCreating(true)}>
                   <span>
                     <Plus size={26} />
@@ -727,20 +724,6 @@ export default function App() {
                   <ShieldIcon />
                   No account required. Works offline. Connect if desired.
                 </span>
-                <button
-                  className="button-text"
-                  onClick={() =>
-                    (() => {
-                      const cached = [...playerCopies].sort((a, b) =>
-                        b.campaign.updatedAt.localeCompare(a.campaign.updatedAt),
-                      )[0];
-                      if (cached) openPlayerCopy(cached);
-                      else notify('No player campaign has been cached on this device yet.');
-                    })()
-                  }
-                >
-                  Open last player cache
-                </button>
               </div>
             </>
           ) : props ? (
@@ -769,7 +752,7 @@ export default function App() {
         </main>
         <footer className="app-footer">
           <AppVersion />
-          <span>Tools to support games using the world's best TTRPG, Fate Core</span>
+          <span>Tools by Nick Oddson to support games using the world's best TTRPG, Fate Core</span>
         </footer>
       </div>
       {toast && (
@@ -865,21 +848,6 @@ export default function App() {
                 }}
               />
             </label>
-            <button
-              onClick={() =>
-                void navigator.storage
-                  ?.persist?.()
-                  .then((ok) =>
-                    notify(
-                      ok
-                        ? 'Persistent storage granted. Keep making external backups.'
-                        : 'The browser did not grant persistence. External backups remain available.',
-                    ),
-                  )
-              }
-            >
-              Request persistent browser storage
-            </button>
           </div>
         </Modal>
       )}

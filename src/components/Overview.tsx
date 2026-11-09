@@ -3,6 +3,7 @@ import { ArrowUpRight, BookOpen, Compass, Flag, ImagePlus, Plus, Sparkles, Users
 import { id } from '../domain/defaults';
 import { Badge, ConfirmButton, Empty, Field, Modal, PageTitle, type EditorProps } from '../ui';
 import { CampaignBannerEditor } from './CampaignBanner';
+import { campaignBanner } from '../campaign-banner';
 export function Overview({
   campaign: c,
   update,
@@ -13,7 +14,7 @@ export function Overview({
 }: EditorProps & { navigate: (page: string) => void }) {
   const [editing, setEditing] = useState(false);
   const [editingBanner, setEditingBanner] = useState(false);
-  const banner = c.assets.find((asset) => asset.id === c.bannerAssetId);
+  const banner = campaignBanner(c);
   const [form, setForm] = useState({ name: c.name, tagline: c.tagline, setting: c.setting, scale: c.scale });
   const [issue, setIssue] = useState('');
   const [baseDetails, setBaseDetails] = useState({
@@ -34,7 +35,7 @@ export function Overview({
             <>
               <button onClick={() => setEditingBanner(true)}>
                 <ImagePlus size={16} />
-                {banner ? 'Change banner' : 'Add banner'}
+                {c.bannerAssetId ? 'Change banner' : 'Add banner'}
               </button>
               <button
                 onClick={() => {
@@ -53,9 +54,9 @@ export function Overview({
         {banner && (
           <img
             className="campaign-banner-image"
-            src={banner.dataUrl}
+            src={banner.src}
             alt=""
-            style={{ objectPosition: `center ${c.bannerPosition ?? 50}%` }}
+            style={{ objectPosition: `center ${banner.position}%` }}
           />
         )}
         <div className="story-banner-copy">
@@ -116,6 +117,30 @@ export function Overview({
         </button>
       </div>
       <div className="two-columns">
+        <section className="panel">
+          <div className="section-heading">
+            <h2>
+              <Compass size={18} /> A sense of place
+            </h2>
+          </div>
+          {c.setting ? (
+            <p className="prose">{c.setting}</p>
+          ) : (
+            <Empty
+              icon={<Compass />}
+              title="Give your story a home"
+              text="Define a setting together: a city, a distant world, or somewhere in between."
+            />
+          )}
+          <div className="detail-line">
+            <span>Scale</span>
+            <strong>{c.scale || 'Still to be discovered'}</strong>
+          </div>
+          <div className="detail-line">
+            <span>Format</span>
+            <strong>{c.kind === 'one-shot' ? 'One-shot' : 'Ongoing campaign'}</strong>
+          </div>
+        </section>
         <section className="panel">
           <div className="section-heading">
             <h2>
@@ -187,30 +212,6 @@ export function Overview({
               </button>
             </form>
           )}
-        </section>
-        <section className="panel">
-          <div className="section-heading">
-            <h2>
-              <Compass size={18} /> A sense of place
-            </h2>
-          </div>
-          {c.setting ? (
-            <p className="prose">{c.setting}</p>
-          ) : (
-            <Empty
-              icon={<Compass />}
-              title="Give your story a home"
-              text="Define a setting together: a city, a distant world, or somewhere in between."
-            />
-          )}
-          <div className="detail-line">
-            <span>Scale</span>
-            <strong>{c.scale || 'Still to be discovered'}</strong>
-          </div>
-          <div className="detail-line">
-            <span>Format</span>
-            <strong>{c.kind === 'one-shot' ? 'One-shot' : 'Ongoing campaign'}</strong>
-          </div>
         </section>
       </div>
       {editing && (

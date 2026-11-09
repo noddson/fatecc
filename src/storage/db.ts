@@ -122,6 +122,3 @@ export async function storageStatus(): Promise<{ usage: number; quota: number; p
     persistent: (await navigator.storage?.persisted?.()) ?? false,
   };
 }
-export async function requestPersistence(): Promise<boolean> {
-  return (await navigator.storage?.persist?.()) ?? false;
-}

@@ -24,6 +24,12 @@ The default **Shared handout** uses the player-safe campaign projection before r
 
 The app bundles the image for offline caching, then stores its bytes inside the campaign. Five connected travel zones and initial character tokens are editable overlays, separate from the image. The regional zone scale is for exploring this sample coast; the GM can replace or refine it for a close-range conflict.
 
+## Hearts of Steel overview banner
+
+`public/illustrations/hearts-of-steel-riverton.png` is an original 2172 × 724 illustration generated with the built-in ImageGen tool on 2026-11-09. It interprets the starter's description of Riverton as a medieval trading city at two rivers: working quays, merchant houses, market awnings, barges, and a stone bridge at dusk. It is atmospheric companion artwork, not official Fate artwork or a canonical map of Riverton. The exact generation prompt is preserved in [riverton-banner-prompt.txt](riverton-banner-prompt.txt). The unchanged PNG has SHA-256 `8e92af6531d52a8515fbd7b35d87b43cf49bdc3320fb7fb40602768de5a95b5f`.
+
+The app bundles and precaches the banner. The overview and campaign card use it by default for campaigns containing the Hearts of Steel source-credit entry, including existing, renamed, and duplicated copies. An uploaded campaign banner takes priority; removing it returns to the Riverton default. No saved campaign migration is required. Other campaigns retain their existing default artwork.
+
 ## Font identification
 
 The PDF's page font-resource dictionaries identify **Gotham** for headings, labels, and examples, and **Adobe Garamond Pro** for most prose. The following counts are the number of pages with each font listed in their resources, after removing subset prefixes. They are not glyph counts or a measurement of how much text each face sets.

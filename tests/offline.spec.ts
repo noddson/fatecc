@@ -1,5 +1,26 @@
 import { expect, test } from '@playwright/test';
 
+test('Hearts of Steel Riverton banner is precached before the starter is first opened offline', async ({
+  page,
+  context,
+}) => {
+  test.skip(!process.env.FATE_TEST_URL, 'Requires the built PWA.');
+  await page.goto('./');
+  await page.evaluate(async () => {
+    await navigator.serviceWorker.ready;
+  });
+  await page.reload();
+  await expect.poll(() => page.evaluate(() => !!navigator.serviceWorker.controller)).toBe(true);
+  await context.setOffline(true);
+  await page.getByRole('button', { name: 'Explore Hearts of Steel', exact: true }).click();
+  const banner = page.locator('.story-banner .campaign-banner-image');
+  await expect(banner).toHaveAttribute('src', /hearts-of-steel-riverton\.png$/);
+  await expect.poll(() => banner.evaluate((img: HTMLImageElement) => img.naturalWidth)).toBe(2172);
+  await page.reload();
+  await expect.poll(() => banner.evaluate((img: HTMLImageElement) => img.naturalWidth)).toBe(2172);
+  await context.setOffline(false);
+});
+
 test('Lantern Coast can be created with its bundled map while offline', async ({ page, context }) => {
   test.skip(!process.env.FATE_TEST_URL, 'Requires the built PWA.');
   await page.goto('./');
