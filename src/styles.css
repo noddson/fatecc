@@ -224,9 +224,6 @@ fieldset[disabled] {
   padding: 12px;
   margin-bottom: 26px;
 }
-.library-link > svg:last-child {
-  margin-left: auto;
-}
 .library-link:hover {
   background: #ffffff11;
 }

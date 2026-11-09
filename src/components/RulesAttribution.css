@@ -1,0 +1,89 @@
+.sidebar-attribution {
+  margin-top: 10px;
+  padding-top: 12px;
+  border-top: 1px solid #ffffff26;
+}
+.sidebar-attribution button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 36px;
+  padding: 6px 0;
+  border: 0;
+  background: transparent;
+  color: #e4edf5;
+  font-size: 11px;
+  font-weight: 600;
+}
+.sidebar-attribution p {
+  margin: 8px 0 0;
+  color: #adcadf;
+  font-size: 10px;
+  line-height: 1.6;
+}
+.app-footer .attribution-link {
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #7a8691;
+  font-size: inherit;
+  text-decoration: underline;
+}
+.rules-attribution {
+  color: #465764;
+  font-size: 13px;
+  line-height: 1.7;
+}
+.rules-attribution h3 {
+  margin: 0 0 10px;
+  color: #203c50;
+  font-size: 15px;
+}
+.rules-attribution a {
+  color: #175c8b;
+  text-underline-offset: 3px;
+  overflow-wrap: anywhere;
+}
+.attribution-intro {
+  margin: 0 0 22px;
+}
+.attribution-credits {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  padding: 22px;
+  margin-bottom: 28px;
+  background: #f2f6f9;
+  border: 1px solid #dce6ed;
+  border-radius: 8px;
+}
+.attribution-credits img {
+  display: block;
+  width: 130px;
+  height: auto;
+  margin-bottom: 16px;
+}
+.attribution-credits p {
+  margin: 0;
+}
+.attribution-paragraph {
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+  margin: 0 0 16px;
+}
+.attribution-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+  border-top: 1px solid #dce6ed;
+  padding-top: 18px;
+}
+@media (max-width: 600px) {
+  .attribution-credits {
+    grid-template-columns: 1fr;
+    gap: 22px;
+    padding: 18px;
+  }
+}

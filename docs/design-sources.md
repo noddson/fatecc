@@ -72,6 +72,8 @@ The [official Fate licensing page](https://fate-srd.com/official-licensing-fate)
 
 `public/fonts/Fate-Core-Font.ttf` is the unmodified font from the official glyph-font ZIP. It supplies the Fate dice faces, four action symbols, and numbered stress boxes; it is **not** the book's prose font. Its required credit is preserved in `public/fonts/LICENSE-Fate-Core-Font.txt`. The application attribution includes both official credits.
 
+Both required credits appear beneath **Rules Attribution** in the left navigation, below **About Fate Core**. That control and the footer's **Rules Attribution** control open a formatted, offline-available dialog with logo and font credits, linked sources, and the complete license notice. The dialog and sidebar read the existing `src/content/LICENSE.txt` notice; `public/LICENSE-SRD.txt` remains available as a plain-text download.
+
 Exact download URLs, archive member names, byte sizes, and SHA-256 checksums are recorded in [design-assets.json](design-assets.json). The logo and glyph font bytes were compared with their original archive members; all four text fonts were checked for valid WOFF2 signatures. Assets and licenses were retrieved on 2026-11-06.
 
 ## PWA installation icons

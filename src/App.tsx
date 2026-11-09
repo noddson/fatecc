@@ -5,7 +5,6 @@ import {
   ArrowRight,
   BookOpen,
   Check,
-  ChevronDown,
   CircleHelp,
   Compass,
   Copy,
@@ -50,6 +49,7 @@ import { Maps } from './components/Maps';
 import { ConnectionPanel } from './components/ConnectionPanel';
 import { PrintSheets } from './components/PrintSheets';
 import { AppVersion } from './components/AppVersion';
+import { RulesAttribution, logoCredit, fontCredit } from './components/RulesAttribution';
 import {
   Badge,
   ConfirmButton,
@@ -94,6 +94,7 @@ export default function App() {
   const [showArchived, setShowArchived] = useState(false);
   const [menu, setMenu] = useState(false);
   const [connection, setConnection] = useState(false);
+  const [attribution, setAttribution] = useState(false);
   const [backup, setBackup] = useState(false);
   const [pendingImport, setPendingImport] = useState<{ data: Uint8Array; parsed: CampaignExport }>();
   const [importMode, setImportMode] = useState<'copy' | 'restore'>('copy');
@@ -382,7 +383,6 @@ export default function App() {
         >
           <FolderOpen size={17} />
           My campaigns
-          <ChevronDown size={14} />
         </button>
         {campaign ? (
           <>
@@ -436,6 +436,14 @@ export default function App() {
             About Fate Core
             <ArrowRight size={14} />
           </a>
+          <div className="sidebar-attribution">
+            <button onClick={() => setAttribution(true)} aria-haspopup="dialog">
+              Rules Attribution
+              <ArrowRight size={14} />
+            </button>
+            <p>{logoCredit}</p>
+            <p>{fontCredit}</p>
+          </div>
         </div>
       </aside>
       <div className="workspace">
@@ -457,19 +465,12 @@ export default function App() {
             )}
           </div>
           <div className="topbar-actions">
-            <span className="save-label">
-              {saving ? (
-                <>
-                  <span className="status-dot amber" />
-                  Saving…
-                </>
-              ) : (
-                <>
-                  <Check size={14} />
-                  Saved locally
-                </>
-              )}
-            </span>
+            {saving && (
+              <span className="save-label" role="status">
+                <span className="status-dot amber" />
+                Saving…
+              </span>
+            )}
             <span
               className="connectivity"
               title={online ? 'Internet available; campaign data is stored locally' : 'Offline mode'}
@@ -769,9 +770,9 @@ export default function App() {
         <footer className="app-footer">
           <AppVersion />
           <span>Independent companion · Your stories. Your table.</span>
-          <a href={`${import.meta.env.BASE_URL}LICENSE-SRD.txt`} target="_blank" rel="noreferrer">
-            Rules & attribution
-          </a>
+          <button className="attribution-link" onClick={() => setAttribution(true)} aria-haspopup="dialog">
+            Rules Attribution
+          </button>
         </footer>
       </div>
       {toast && (
@@ -782,6 +783,7 @@ export default function App() {
           </button>
         </div>
       )}
+      {attribution && <RulesAttribution close={() => setAttribution(false)} />}
       {creating && (
         <Modal title="Give your story a name" close={() => setCreating(false)}>
           <form

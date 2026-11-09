@@ -114,7 +114,6 @@ test('Lantern Coast example includes its map, zones and editable party tokens', 
         .evaluate((element) => element.style.left),
     )
     .toBe('38.5%');
-  await expect(page.getByText('Saved locally', { exact: true })).toBeVisible();
   await page.reload();
   await page
     .getByRole('navigation', { name: 'Campaign' })
