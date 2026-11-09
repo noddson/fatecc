@@ -725,7 +725,7 @@ export default function App() {
               <div className="workspace-footer">
                 <span>
                   <ShieldIcon />
-                  No account required. Works offline. Yours to export.
+                  No account required. Works offline. Connect if desired.
                 </span>
                 <button
                   className="button-text"
@@ -769,10 +769,7 @@ export default function App() {
         </main>
         <footer className="app-footer">
           <AppVersion />
-          <span>Independent companion · Your stories. Your table.</span>
-          <button className="attribution-link" onClick={() => setAttribution(true)} aria-haspopup="dialog">
-            Rules Attribution
-          </button>
+          <span>Tools to support games using the world's best TTRPG, Fate Core</span>
         </footer>
       </div>
       {toast && (
