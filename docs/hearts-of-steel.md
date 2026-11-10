@@ -10,10 +10,12 @@ Landon and Cynere have independently completed skill pyramids. Zird's pyramid fo
 
 The fifth Cynere aspect, **I choose my own contracts**, the fifth Zird aspect, **Answers before payment**, Old Finn's **Landon’s mentor** aspect, NPC skill allocations, tagline, and opening/follow-up prompts are original companion additions or adaptations, identified in the campaign itself. The original opening develops the SRD's shopkeeper/extortion situation without deciding outcomes or inventing a settled connection between the Triad and the cult.
 
-No retail-PDF text, retail-sheet distributions, Tower of the Serpents additions, community lore, or book artwork is an input. No geographic map is asserted by this starter. Future additions need their own evidence in the pinned SRD or an explicit companion-origin label.
+No retail-PDF text, retail-sheet distributions, Tower of the Serpents additions, community lore, or book artwork is an input. The bundled Riverton map is an original companion interpretation, not official SRD geography. Its street layout, market, eastern bridge, and placement of Kale’s shop are companion additions based on the established overview banner. Future additions need their own evidence in the pinned SRD or an explicit companion-origin label.
 
 The overview and library card now use an original generated Riverton river-trading-city banner instead of the generic lighthouse artwork. It is a decorative interpretation, not an official illustration or a canonical map. Existing campaigns with the starter's source-credit entry receive the same default without rewriting saved data, and custom uploaded banners retain priority. See [design-sources.md](design-sources.md) for the asset hash and exact generation prompt.
 
 The SRD-derived parts use Creative Commons Attribution 3.0 Unported. Complete attribution is in the campaign journal and `public/LICENSE-SRD.txt`; source and transformation details are in `docs/content-sources.md`. No additional permissions for the separately published adventure are assumed.
 
 Verification: `npm test`, `npm run check`, `npm run build`, and `npx playwright test tests/hearts-of-steel.spec.ts tests/lantern-map.spec.ts`.
+
+New Hearts of Steel campaigns include the Riverton town map in Maps & zones, shared with players by default. The image is precached for offline creation, verified by SHA-256, and embedded in campaign data for JSON/ZIP backups and player transfers. Overlays begin empty so each table can define zones and tokens. Existing campaigns are preserved; upload `public/sample/hearts-of-steel-riverton-map.png` to add the revised map to one.

@@ -59,7 +59,9 @@ test('room code and QR join, saved approval, automatic transport replacement, pl
     await join(player, code, 'Room player');
     await approve(gm, 'Room player');
     await expect(dialog(player).getByText('connected', { exact: true })).toBeVisible({ timeout: 30_000 });
-    await expect(player.getByText('Connected player view', { exact: true })).toBeVisible();
+    await expect(
+      player.locator('.topbar-actions').getByRole('button', { name: /^(connected|syncing-assets)$/ }),
+    ).toBeVisible();
     // The QR image is generated and decoded locally, then the same room serves another player.
     await qr.goto('./');
     await qr.getByRole('button', { name: 'Connect to a table', exact: true }).click();
@@ -90,25 +92,30 @@ test('room code and QR join, saved approval, automatic transport replacement, pl
     await expect
       .poll(() => player.evaluate(() => (window as any).roomNativePeers.length))
       .toBeGreaterThan(previousCount);
-    await expect(player.getByText('Connected player view', { exact: true })).toBeVisible();
+    await expect(
+      player.locator('.topbar-actions').getByRole('button', { name: /^(connected|syncing-assets)$/ }),
+    ).toBeVisible();
     await expect(dialog(gm).getByRole('button', { name: 'Approve player', exact: true })).toHaveCount(0);
     // Reload also destroys every transport, while leaving device credentials and saved room details.
     await player.reload();
     await player.getByRole('button', { name: /Open joined campaign The Lantern Coast/ }).click();
-    await player
-      .locator('.remote-banner')
-      .getByRole('button', { name: 'Connection & drafts', exact: true })
-      .click();
+    await player.locator('.topbar-actions').getByRole('button', { name: 'Offline', exact: true }).click();
     await dialog(player).getByRole('button', { name: 'Reconnect', exact: true }).click();
-    await expect(player.getByText('Connected player view', { exact: true })).toBeVisible();
+    await expect(
+      player.locator('.topbar-actions').getByRole('button', { name: /^(connected|syncing-assets)$/ }),
+    ).toBeVisible();
     await expect(dialog(gm).getByRole('button', { name: 'Approve player', exact: true })).toHaveCount(0);
     // Restart the host with persisted room and signing identity. Existing clients retry without new codes.
     await gm.reload();
     await gm.getByRole('button', { name: 'Connect', exact: true }).click();
     await dialog(gm).getByRole('button', { name: 'Start hosting', exact: true }).click();
     await expect(dialog(gm).getByLabel('Room code', { exact: true })).toHaveValue(code);
-    await expect(player.getByText('Connected player view', { exact: true })).toBeVisible({ timeout: 30_000 });
-    await expect(qr.getByText('Connected player view', { exact: true })).toBeVisible({ timeout: 30_000 });
+    await expect(
+      player.locator('.topbar-actions').getByRole('button', { name: /^(connected|syncing-assets)$/ }),
+    ).toBeVisible({ timeout: 30_000 });
+    await expect(
+      qr.locator('.topbar-actions').getByRole('button', { name: /^(connected|syncing-assets)$/ }),
+    ).toBeVisible({ timeout: 30_000 });
     await expect(dialog(gm).getByRole('button', { name: 'Approve player', exact: true })).toHaveCount(0);
     await gm.screenshot({ path: info.outputPath('peerjs-host.png'), fullPage: true });
     await player.setViewportSize({ width: 390, height: 844 });
@@ -178,7 +185,9 @@ test('a different host claiming the saved room cannot receive a reconnect creden
     const code = await openHost(host);
     await join(player, code, 'Returning player');
     await approve(host, 'Returning player');
-    await expect(player.getByText('Connected player view', { exact: true })).toBeVisible();
+    await expect(
+      player.locator('.topbar-actions').getByRole('button', { name: /^(connected|syncing-assets)$/ }),
+    ).toBeVisible();
     const before = await player.evaluate(() => (window as any).roomHellos.length);
     await dialog(host).getByRole('button', { name: 'Disconnect table', exact: true }).click();
     await impostor.goto('./');

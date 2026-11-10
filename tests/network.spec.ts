@@ -5,7 +5,11 @@ test('real peer table approves, filters secrets, rejects forged authority, dedup
 }) => {
   test.setTimeout(90_000);
   const gmContext = await browser.newContext();
-  const playerContext = await browser.newContext();
+  const playerContext = await browser.newContext({
+    viewport: { width: 390, height: 844 },
+    isMobile: true,
+    hasTouch: true,
+  });
   const gm = await gmContext.newPage();
   const player = await playerContext.newPage();
   await Promise.all([gm.goto('./'), player.goto('./')]);
@@ -179,6 +183,59 @@ test('real peer table approves, filters secrets, rejects forged authority, dedup
     }),
   ]);
   await expect.poll(() => player.evaluate(() => (window as any).client.connected)).toBe(true);
+
+  // A mobile client evicts hidden images. Re-sharing must transfer their bytes again,
+  // both for journal images and for maps using the same asset.
+  for (const kind of ['image', 'map']) {
+    await gm.evaluate(async (kind) => {
+      const state = window as any;
+      const entry = state.campaign.world.find((entry: any) => entry.id === 'public-image');
+      entry.visibility = kind === 'image' ? 'shared' : 'gm';
+      state.campaign.maps =
+        kind === 'map'
+          ? [
+              {
+                id: 'shared-map',
+                name: 'Shared map',
+                visibility: 'shared',
+                currentRevisionId: 'map-revision',
+                sharedRevisionId: 'map-revision',
+                revisions: [
+                  {
+                    id: 'map-revision',
+                    assetId: state.campaign.assets[0].id,
+                    createdAt: new Date().toISOString(),
+                    zones: [],
+                    tokens: [],
+                    annotations: [],
+                  },
+                ],
+              },
+            ]
+          : [];
+      await state.host.broadcast();
+    }, kind);
+    for (let cycle = 0; cycle < 2; cycle++) {
+      await gm.evaluate(async (kind) => {
+        const state = window as any;
+        if (kind === 'map') state.campaign.maps[0].visibility = 'gm';
+        else state.campaign.world.find((entry: any) => entry.id === 'public-image').visibility = 'gm';
+        await state.host.broadcast();
+      }, kind);
+      await expect.poll(() => player.evaluate(() => (window as any).received.assets.length)).toBe(0);
+      await expect.poll(() => player.evaluate(() => (window as any).client.assetCache.size)).toBe(0);
+      await gm.evaluate(async (kind) => {
+        const state = window as any;
+        if (kind === 'map') state.campaign.maps[0].visibility = 'shared';
+        else state.campaign.world.find((entry: any) => entry.id === 'public-image').visibility = 'shared';
+        await state.host.broadcast();
+      }, kind);
+      await expect.poll(() => player.evaluate(() => (window as any).status)).toBe('connected');
+      await expect.poll(() => player.evaluate(() => (window as any).received.assets.length)).toBe(1);
+      if (kind === 'map')
+        await expect.poll(() => player.evaluate(() => (window as any).received.maps.length)).toBe(1);
+    }
+  }
 
   // A forged actor/role in the payload does not override the actor bound to the approved connection.
   const forged = await player.evaluate(async () => {

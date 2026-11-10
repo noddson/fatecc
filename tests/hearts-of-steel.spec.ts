@@ -1,14 +1,23 @@
 import { expect, test } from '@playwright/test';
 
-test('creates the SRD starter offline and keeps both examples available', async ({
+test('creates the SRD starter with its Riverton map and keeps both examples available', async ({
   page,
   context,
 }, testInfo) => {
   await page.goto('./');
   await expect(page.getByRole('button', { name: 'Explore Hearts of Steel', exact: true })).toBeVisible();
-  await context.setOffline(true);
+  // First-creation offline support is covered against the built PWA in offline.spec.ts.
   await page.getByRole('button', { name: 'Explore Hearts of Steel', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Hearts of Steel', exact: true, level: 1 })).toBeVisible();
+  await page
+    .getByRole('navigation', { name: 'Campaign' })
+    .getByRole('button', { name: 'Maps & zones', exact: true })
+    .click();
+  const map = page.locator('.map-image');
+  await expect
+    .poll(() => map.evaluate((img: HTMLImageElement) => [img.naturalWidth, img.naturalHeight]))
+    .toEqual([1536, 1024]);
+  await context.setOffline(true);
   await page
     .getByRole('navigation', { name: 'Campaign' })
     .getByRole('button', { name: 'Campaign journal', exact: true })

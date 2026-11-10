@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-test('Hearts of Steel Riverton banner is precached before the starter is first opened offline', async ({
+test('Hearts of Steel Riverton banner and map are precached before the starter is first opened offline', async ({
   page,
   context,
 }) => {
@@ -16,7 +16,20 @@ test('Hearts of Steel Riverton banner is precached before the starter is first o
   const banner = page.locator('.story-banner .campaign-banner-image');
   await expect(banner).toHaveAttribute('src', /hearts-of-steel-riverton\.png$/);
   await expect.poll(() => banner.evaluate((img: HTMLImageElement) => img.naturalWidth)).toBe(2172);
+  await page
+    .getByRole('navigation', { name: 'Campaign' })
+    .getByRole('button', { name: 'Maps & zones', exact: true })
+    .click();
+  const map = page.locator('.map-image');
+  await expect
+    .poll(() => map.evaluate((img: HTMLImageElement) => [img.naturalWidth, img.naturalHeight]))
+    .toEqual([1536, 1024]);
+
   await page.reload();
+  await page
+    .getByRole('navigation', { name: 'Campaign' })
+    .getByRole('button', { name: 'Overview', exact: true })
+    .click();
   await expect.poll(() => banner.evaluate((img: HTMLImageElement) => img.naturalWidth)).toBe(2172);
   await context.setOffline(false);
 });

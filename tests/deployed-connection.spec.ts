@@ -86,7 +86,9 @@ for (const service of ['none', 'cloudflare', 'google'] as const) {
       await player.screenshot({ path: testInfo.outputPath('player-connected.png') });
       await hostDialog.getByRole('button', { name: 'Done', exact: true }).click();
       await joinDialog.getByRole('button', { name: 'Done', exact: true }).click();
-      await expect(player.getByText('Connected player view', { exact: true })).toBeVisible();
+      await expect(
+        player.locator('.topbar-actions').getByRole('button', { name: /^(connected|syncing-assets)$/ }),
+      ).toBeVisible();
 
       // Check the authorized snapshot, then both directions of the live channel.
       await player

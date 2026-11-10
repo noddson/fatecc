@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import references from './content/reference.json';
 import metadata from './content/source-metadata.json';
 import { deriveCharacter, validateCharacter } from './domain/rules';
@@ -8,6 +8,20 @@ import { HEARTS_SOURCES, heartsOfSteelCampaign } from './hearts-of-steel';
 import { projectCampaign } from './network/projection';
 import { exportCampaign, exportCampaignZip, parseCampaignExport } from './storage/backup';
 import { assertReferences, campaignSchema } from './storage/schema';
+
+const image = await readFile(new URL('../public/sample/hearts-of-steel-riverton-map.png', import.meta.url));
+beforeEach(() => {
+  vi.stubGlobal(
+    'fetch',
+    vi.fn(
+      async () =>
+        new Response(image, {
+          headers: { 'Content-Type': 'image/png' },
+        }),
+    ),
+  );
+});
+afterEach(() => vi.unstubAllGlobals());
 
 describe('Hearts of Steel SRD starter', () => {
   it('anchors the provenance register and retained aspect/stunt names to the pinned licensed source', async () => {
@@ -23,7 +37,7 @@ describe('Hearts of Steel SRD starter', () => {
       (source) => references.find((entry) => entry.sourceLine === source.line)!.body,
     ).join('\n');
     const originalAspects = ['I choose my own contracts', 'Answers before payment', 'Landon’s mentor'];
-    const c = heartsOfSteelCampaign();
+    const c = await heartsOfSteelCampaign();
     for (const ch of c.characters) {
       for (const aspect of ch.aspects) {
         if (originalAspects.includes(aspect.name)) continue;
@@ -39,8 +53,8 @@ describe('Hearts of Steel SRD starter', () => {
       expect(credits.body).toContain(`${metadata.sourceUrl}#L${source.line}`);
   });
 
-  it('creates playable characters with valid allocations and SRD stunt costs', () => {
-    const c = heartsOfSteelCampaign();
+  it('creates playable characters with valid allocations and SRD stunt costs', async () => {
+    const c = await heartsOfSteelCampaign();
     expect(campaignSchema.parse(c)).toEqual(c);
     expect(() => assertReferences(c)).not.toThrow();
     expect(c.characters.filter((ch) => ch.kind === 'pc').map((ch) => ch.name)).toEqual([
@@ -65,11 +79,19 @@ describe('Hearts of Steel SRD starter', () => {
     });
     expect(c.characters[2].extras).toContain('Collegia Arcana Magic');
     expect(c.events).toEqual([]);
+    expect(fetch).toHaveBeenCalledWith(`${import.meta.env.BASE_URL}sample/hearts-of-steel-riverton-map.png`);
+    expect(c.maps).toHaveLength(1);
+    expect(c.assets).toHaveLength(1);
+    expect(c.maps[0].name).toBe('Riverton');
+    expect(c.maps[0].revisions[0].assetId).toBe(c.assets[0].id);
+    expect(c.world.find((entry) => entry.title === 'Riverton')?.body).toContain('companion additions');
   });
 
   it('keeps preparation private and preserves attribution in both GM and player backups', async () => {
-    const c = heartsOfSteelCampaign();
+    const c = await heartsOfSteelCampaign();
     const publicCopy = projectCampaign(c);
+    expect(publicCopy.maps).toEqual(c.maps);
+    expect(publicCopy.assets).toEqual(c.assets);
     expect(publicCopy.characters.every((ch) => ch.kind === 'pc')).toBe(true);
     expect(publicCopy.world.some((entry) => entry.title === 'Opening: a favor for Kale')).toBe(false);
     expect(publicCopy.world.some((entry) => entry.title === 'Future threads')).toBe(false);
@@ -85,10 +107,21 @@ describe('Hearts of Steel SRD starter', () => {
           audience === 'gm',
         );
         expect(() => assertReferences(restored.campaign)).not.toThrow();
+        expect(restored.campaign.maps).toEqual(c.maps);
+        expect(restored.campaign.assets).toEqual(c.assets);
       }
     }
-    const another = heartsOfSteelCampaign();
+    const another = await heartsOfSteelCampaign();
     expect(another.id).not.toBe(c.id);
     expect(another.characters[0].id).not.toBe(c.characters[0].id);
+  }, 20000);
+
+  it('rejects a missing or altered bundled map', async () => {
+    vi.mocked(fetch).mockResolvedValueOnce(new Response('', { status: 404 }));
+    await expect(heartsOfSteelCampaign()).rejects.toThrow('could not be loaded');
+    const changed = new Uint8Array(image);
+    changed[changed.length - 1] ^= 1;
+    vi.mocked(fetch).mockResolvedValueOnce(new Response(changed));
+    await expect(heartsOfSteelCampaign()).rejects.toThrow('integrity check');
   });
 });

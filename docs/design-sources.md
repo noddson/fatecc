@@ -30,6 +30,12 @@ The app bundles the image for offline caching, then stores its bytes inside the 
 
 The app bundles and precaches the banner. The overview and campaign card use it by default for campaigns containing the Hearts of Steel source-credit entry, including existing, renamed, and duplicated copies. An uploaded campaign banner takes priority; removing it returns to the Riverton default. No saved campaign migration is required. Other campaigns retain their existing default artwork.
 
+## Riverton town map
+
+`public/sample/hearts-of-steel-riverton-map.png` is an original 1536 × 1024 AI-generated map created with the built-in ImageGen tool on 2026-11-09. It revises the initial town map using `public/illustrations/hearts-of-steel-riverton.png` as the visual reference: wooded western riverbank, projecting stone quays and merchant quarter, main stone bridge over the eastern branch, eastern waterfront, and dense slate-roof town extending inland. It is an elevated illustrated town map and an original companion interpretation, not official Fate geography. Market Square, Old Bridge, and the shop’s placement are companion additions. The exact revision prompt and reference-image roles are in [riverton-map-prompt.txt](riverton-map-prompt.txt).
+
+The unchanged PNG has SHA-256 `24795fe2d40896f541419ca4affdd59a871b48f3f125f73388476498943fb751`. New Hearts of Steel starters load and verify the precached image, then embed it as a shared map asset with an initial revision and no overlays. The map travels in both GM and player JSON/ZIP backups. Existing campaigns can upload the bundled PNG without replacing their maps or campaign data.
+
 ## Font identification
 
 The PDF's page font-resource dictionaries identify **Gotham** for headings, labels, and examples, and **Adobe Garamond Pro** for most prose. The following counts are the number of pages with each font listed in their resources, after removing subset prefixes. They are not glyph counts or a measurement of how much text each face sets.

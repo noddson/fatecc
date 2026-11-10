@@ -87,7 +87,9 @@ test('repeated dead-session replacement preserves identity and repairs stale pai
     join = await exchange(join);
     await expect(host.getByText('The saved pairing could not be verified.', { exact: false })).toBeVisible();
     await expect(join.getByText('awaiting-approval', { exact: true })).toBeVisible();
-    await expect(player.getByText('Connected player view', { exact: true })).toHaveCount(0);
+    await expect(
+      player.locator('.topbar-actions').getByRole('button', { name: /^(connected|syncing-assets)$/ }),
+    ).toHaveCount(0);
     await host.getByRole('button', { name: 'Done', exact: true }).click();
     await gm.getByRole('button', { name: 'Hosting', exact: true }).click();
     await expect(host.getByRole('checkbox', { name: 'Mara Voss', exact: true })).toBeChecked();

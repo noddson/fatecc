@@ -226,6 +226,7 @@ describe('character-private inventory', () => {
       control: { channel: { readyState: 'open' }, send },
       info: {},
       snapshotQueue: Promise.resolve(),
+      sentAssets: new Set<string>(),
     };
     const lastSnapshot = () =>
       send.mock.calls.filter(([value]) => value.type === 'snapshot').at(-1)?.[0].campaign as Campaign;

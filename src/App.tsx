@@ -266,7 +266,7 @@ export default function App() {
     if (loadingSample) return;
     setLoadingSample(sample);
     try {
-      await add(sample === 'hearts' ? heartsOfSteelCampaign() : await sampleCampaign());
+      await add(sample === 'hearts' ? await heartsOfSteelCampaign() : await sampleCampaign());
     } catch (error) {
       notify(error instanceof Error ? error.message : 'The example campaign could not be loaded.', true);
     } finally {
@@ -479,18 +479,14 @@ export default function App() {
             )}
           </div>
         </header>
-        {remote && (
-          <div className="remote-banner">
+        {remote && !clientRef.current?.connected && (
+          <div className="remote-banner" role="status">
             <Radio size={15} />
             <span>
-              {clientRef.current?.connected
-                ? 'Connected player view'
-                : remoteStatus === 'reconnecting'
-                  ? 'Reconnecting to the table · your saved approval is retained'
-                  : 'Read-only player copy · reconnect to the GM to play'}
+              {remoteStatus === 'reconnecting'
+                ? 'Reconnecting to the table · your saved approval is retained'
+                : 'Read-only player copy · reconnect to the GM to play'}
             </span>
-            <button onClick={() => setConnection(true)}>Connection & drafts</button>
-            <button onClick={disconnect}>Return to my campaigns</button>
           </div>
         )}
         {needRefresh && (

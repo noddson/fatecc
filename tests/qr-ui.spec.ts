@@ -104,7 +104,11 @@ test('QR image invitations and responses join without a broker, preserve permiss
     );
     await hostDialog.getByRole('button', { name: 'Done', exact: true }).click();
     await joinDialog.getByRole('button', { name: 'Done', exact: true }).click();
-    await expect(player.getByText('Connected player view', { exact: true })).toBeVisible();
+    await expect(
+      player.locator('.topbar-actions').getByRole('button', { name: /^(connected|syncing-assets)$/ }),
+    ).toBeVisible();
+    await expect(player.locator('.remote-banner')).toHaveCount(0);
+    await expect(player.getByRole('button', { name: 'Return to my campaigns', exact: true })).toHaveCount(0);
 
     await navigate(player, 'Characters');
     await expect(player.getByRole('heading', { name: 'Silas Reed', exact: true })).toBeVisible();
@@ -137,6 +141,21 @@ test('QR image invitations and responses join without a broker, preserve permiss
       await gm.locator('.roll-result .fate-die').allTextContents(),
     );
     await expect(player.getByRole('button', { name: 'Undo roll', exact: true })).toHaveCount(0);
+    await player.getByRole('button', { name: 'Invoke an aspect', exact: true }).click();
+    const invokeDialog = player.getByRole('dialog', { name: 'Make an aspect matter', exact: true });
+    const aspectPicker = invokeDialog.getByRole('combobox', { name: 'Aspect', exact: true });
+    const groupLabels = await aspectPicker
+      .locator('optgroup')
+      .evaluateAll((groups: HTMLOptGroupElement[]) => groups.map((group) => group.label));
+    expect(groupLabels.slice(0, 2)).toEqual(['Silas Reed — your character', 'Game aspects']);
+    expect(groupLabels).toContain('Mara Voss — other character');
+    const otherAspectId = await aspectPicker
+      .locator('optgroup[label="Mara Voss — other character"] option')
+      .first()
+      .getAttribute('value');
+    await aspectPicker.selectOption(otherAspectId!);
+    await expect(invokeDialog.getByRole('button', { name: 'Add +2', exact: true })).toBeEnabled();
+    await player.keyboard.press('Escape');
     await gm.getByRole('button', { name: 'Accept the outcome', exact: true }).click();
     await gm.getByRole('button', { name: 'Finalize result', exact: true }).click();
     await expect(gm.locator('.roll-result')).toContainText('Finalized');
@@ -162,7 +181,9 @@ test('QR image invitations and responses join without a broker, preserve permiss
     await player.getByRole('button', { name: 'Token: Silas Reed', exact: true }).click();
     await expect(player.getByLabel('Left %', { exact: true })).toBeDisabled();
 
-    await player.getByRole('button', { name: 'Return to my campaigns', exact: true }).click();
+    if (await player.getByRole('button', { name: 'Open navigation', exact: true }).isVisible())
+      await player.getByRole('button', { name: 'Open navigation', exact: true }).click();
+    await player.getByRole('button', { name: 'My campaigns', exact: true }).click();
     await expect(player.getByRole('heading', { name: 'Joined campaigns', exact: true })).toBeVisible();
     await player.reload();
     await player.getByRole('button', { name: 'Open joined campaign The Lantern Coast', exact: true }).click();

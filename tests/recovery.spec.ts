@@ -79,13 +79,15 @@ test('a surviving table recovers approval and state after interruption and tab s
       player.getByText('Reconnecting to the table · your saved approval is retained', { exact: true }),
     ).toBeVisible();
     await player
-      .locator('.remote-banner')
-      .getByRole('button', { name: 'Connection & drafts', exact: true })
+      .locator('.topbar-actions')
+      .getByRole('button', { name: 'reconnecting', exact: true })
       .click();
     await expect(joinDialog.getByText('reconnecting', { exact: true })).toBeVisible();
     await joinDialog.getByRole('button', { name: 'Done', exact: true }).click();
     await Promise.all(pages.map(restore));
-    await expect(player.getByText('Connected player view', { exact: true })).toBeVisible();
+    await expect(
+      player.locator('.topbar-actions').getByRole('button', { name: /^(connected|syncing-assets)$/ }),
+    ).toBeVisible();
 
     // A native connected state must not hide a control path that silently drops messages.
     await player.evaluate(() => {
@@ -99,11 +101,15 @@ test('a surviving table recovers approval and state after interruption and tab s
       .poll(() => player.evaluate(() => (window as any).recoveryTraffic.dropped))
       .toBeGreaterThan(1);
     expect(await player.evaluate(() => (window as any).recoveryPeers[0].connectionState)).toBe('connected');
-    await expect(player.getByText('Connected player view', { exact: true })).toHaveCount(0);
+    await expect(
+      player.locator('.topbar-actions').getByRole('button', { name: /^(connected|syncing-assets)$/ }),
+    ).toHaveCount(0);
     await player.evaluate(() => {
       (window as any).recoveryTraffic.drop = false;
     });
-    await expect(player.getByText('Connected player view', { exact: true })).toBeVisible({ timeout: 10_000 });
+    await expect(
+      player.locator('.topbar-actions').getByRole('button', { name: /^(connected|syncing-assets)$/ }),
+    ).toBeVisible({ timeout: 10_000 });
 
     for (const page of pages) {
       await page

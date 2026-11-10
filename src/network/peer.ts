@@ -655,6 +655,11 @@ export class FatePeerHost {
       const actor = this.currentActor(grant);
       const projected = projectCampaign(this.campaign(), actor);
       const assets = projected.assets;
+      // The client evicts bytes omitted by this snapshot. Forget their delivery
+      // here too, so sharing the same map or image again can transfer it afresh.
+      const visibleAssets = new Set(assets.map((asset) => `${asset.id}:${asset.hash}`));
+      for (const signature of peer.sentAssets)
+        if (!visibleAssets.has(signature)) peer.sentAssets.delete(signature);
       projected.assets = assets.map((a) => ({ ...a, dataUrl: '' }));
       peer.info.characterIds = actor.characterIds;
       await peer.control.send({ type: 'permissions', characterIds: actor.characterIds });

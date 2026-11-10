@@ -1,6 +1,7 @@
 import sourceMetadata from './content/source-metadata.json';
 import { createAspect, createCampaign, createCharacter, id } from './domain/defaults';
 import type { Character, Stunt, WorldEntry } from './domain/types';
+import { loadRivertonMap } from './hearts-of-steel-map';
 
 /** Each adaptation points to the pinned SRD section that supplies its fictional facts. */
 export interface SampleSource {
@@ -223,7 +224,7 @@ function stunt(name: string, description: string, fateCost = 0, limit: Stunt['li
 }
 
 /** Offline starter derived solely from the vendored CC-BY Core SRD and labeled companion additions. */
-export function heartsOfSteelCampaign() {
+export async function heartsOfSteelCampaign() {
   const c = createCampaign('Hearts of Steel');
   c.tagline = 'Three troubleshooters. Two threats. A city that needs help.';
   c.setting =
@@ -397,7 +398,7 @@ export function heartsOfSteelCampaign() {
     entry(
       'location',
       'Riverton',
-      'A trading city at two rivers. Hugo the Charitable is a Scar Triad lieutenant here, and shopkeeper Kale Westal refuses his extortion.\n\nStart with these people and pressures; establish districts, routes, and other geography together during play.',
+      'A trading city at two rivers. Hugo the Charitable is a Scar Triad lieutenant here, and shopkeeper Kale Westal refuses his extortion.\n\nThe bundled Riverton map is an original companion interpretation, revised to match the overview banner’s riverfront, stone quays, eastern bridge, and merchant quarter. Its street layout, Market Square, Old Bridge, and placement of Kale’s shop are companion additions, not official SRD geography. Adapt districts and routes together during play.',
       'shared',
       ['home', 'trade'],
     ),
@@ -469,5 +470,8 @@ export function heartsOfSteelCampaign() {
   c.play.scenarioName = 'A favor for Kale';
   c.play.sceneName = 'Kale’s shop';
   c.play.npcFatePoints = 3;
+  const { asset, map } = await loadRivertonMap();
+  c.assets.push(asset);
+  c.maps.push(map);
   return c;
 }

@@ -19,6 +19,7 @@ import { deriveCharacter, initiative, resolveMobHit, validateHarm } from '../dom
 import { id } from '../domain/defaults';
 import type { Action, Character, RollRecord } from '../domain/types';
 import { StressHelp } from './StressHelp';
+import { invocationAspectGroups } from './invocation-aspects';
 import {
   Badge,
   ConfirmButton,
@@ -112,6 +113,7 @@ export function SessionTable({
   const aspects = [...c.issues, ...c.play.aspects, ...c.characters.flatMap((ch) => ch.aspects)].filter((a) =>
     a.name.trim(),
   );
+  const invokeGroups = invoke ? invocationAspectGroups(c, invoke.characterId, !!readOnly) : [];
   const sourceHit = sourceRollId ? rolls.find((r) => r.id === sourceRollId) : undefined;
   const harmConsequences = Object.entries(consequences)
     .filter(([, name]) => name.trim())
@@ -968,11 +970,15 @@ export function SessionTable({
               }}
             >
               <option value="">Choose an aspect…</option>
-              {aspects.map((a) => (
-                <option key={a.id} value={a.id}>
-                  {a.name}
-                  {a.freeInvokes ? ` · ${a.freeInvokes} free` : ''}
-                </option>
+              {invokeGroups.map((group) => (
+                <optgroup key={group.label} label={group.label}>
+                  {group.aspects.map((a) => (
+                    <option key={a.id} value={a.id}>
+                      {a.name}
+                      {a.freeInvokes ? ` · ${a.freeInvokes} free` : ''}
+                    </option>
+                  ))}
+                </optgroup>
               ))}
             </select>
           </Field>

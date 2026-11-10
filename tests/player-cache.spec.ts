@@ -50,6 +50,8 @@ test('lists multiple joined campaigns, retains the legacy cache, and opens each 
       page.getByRole('combobox', { name: 'Character', exact: true }).locator('option:checked'),
     ).toHaveText(hero);
     await expect(page.getByRole('button', { name: /Roll the dice/ })).toBeDisabled();
-    await page.getByRole('button', { name: 'Return to my campaigns', exact: true }).click();
+    if (await page.getByRole('button', { name: 'Open navigation', exact: true }).isVisible())
+      await page.getByRole('button', { name: 'Open navigation', exact: true }).click();
+    await page.getByRole('button', { name: 'My campaigns', exact: true }).click();
   }
 });
