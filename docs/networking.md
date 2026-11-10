@@ -1,10 +1,37 @@
 # Peer-to-peer table
 
-The GM's open browser is the authority. Players connect to that browser with WebRTC using QR or text invitation/response exchange. The first multiplayer version supports one GM and seven players. The GM approves a new device and grants access to specific shared player characters.
+The GM's open browser is the authority. Players connect to that browser with WebRTC using a PeerJS room code or QR join link. PeerJS Cloud provides internet signaling; no application server needs to be deployed. The first multiplayer version supports one GM and seven players. The GM approves a new device and grants access to specific shared player characters.
+
+## Room codes and QR join links
+
+1. The GM opens a locally owned campaign and chooses **Connect → Host a table → Start hosting**. Keep the tab open.
+2. Share the `fatecore-[code]` room code, **Copy join link**, or the **Room QR code**. All players use the same code. A phone's ordinary camera can open the QR link; the app also supports camera scanning and image upload under **Join a table**.
+3. Players enter their name and code/link, then choose **Join table**. No response QR is needed.
+4. The GM chooses characters and approves each new device. Returning devices authenticate using their separate saved reconnect credential.
+
+PeerJS 1.5 uses its free public Cloud PeerServer by default. The static app remains deployable on GitHub Pages. Both participants need internet for signaling; application records and images travel over WebRTC, directly where possible or through a configured TURN relay. The signaling service sees routing IDs and connection metadata, not campaign snapshots. There is no availability guarantee from this application for the public service.
+
+The host stores a random eight-character room suffix (40 bits), an ECDSA P-256 signing identity, and device grants in browser local storage, outside campaign exports. The visible code and PeerJS ID both use `fatecore-` followed by the suffix. Codes are case-normalized and can also be entered without the prefix. A room code locates a host; it does not grant character access. Join QR links include the public host key, never private keys or player credentials.
+
+After first approval, the player saves the room address and host public key per campaign. Before sending a reconnect credential, the player verifies a fresh signed challenge bound to the negotiated host DTLS fingerprint, campaign, and room. This prevents another endpoint claiming an offline room ID from receiving that credential. Initial code-only pairing trusts the host on first use; QR links also verify the key in the invitation. This identity check is separate from GM approval and campaign filtering.
+
+### Reuse and recovery
+
+The same code and QR link work while the host keeps that address. A lost or failed transport automatically negotiates a fresh PeerJS connection and restores saved permissions, then receives fresh authorized campaign state. Mobile wake/network-resume events also trigger recovery. Reopening the app lets the player open the joined campaign and choose **Connection & drafts → Reconnect**, without a new scan. Explicit **Disconnect table**, a GM rejection, and identity mismatch stop automatic retries. Cached campaign data and local drafts remain readable.
+
+After a GM reload, reopen the campaign and select **Start hosting** to register the saved room ID again. Waiting players retry every three seconds. PeerJS IDs are not reserved while offline: an occupied ID reports an error; close another host tab or choose **New room code**. Changing the code preserves the host identity and closes the old room connections; players need the new address to reconnect. Room/private-key and approval persistence belongs to this browser origin, not the campaign export. Clearing browser storage requires fresh pairing.
+
+Only signaling connections are retried automatically; an unavailable service, closed GM tab, browser suspension, or blocked network can still prevent reconnection. PeerJS does not supply TURN credentials. Existing STUN/TURN settings remain available, with Google STUN selected by default in the room workflow.
+
+### Feature flag and test broker
+
+Manual offline invitation/response pairing is disabled by default. Set `VITE_ENABLE_MANUAL_PAIRING=true` at dev-server startup or production build to enable the retained manual interface instead of room controls. This flag selects the pairing workflow and exposes the local-network-only/no-STUN preset. That preset is hidden in the default internet-signaled workflow.
+
+`VITE_PEERJS_SERVER=https://your-broker.example/peerjs` can explicitly override the Cloud broker. Leave it unset for normal use. Tests run a local PeerServer with `npm run test:e2e:rooms`; they do not depend on the public Cloud broker. The original browser suite runs against the manual feature flag to continue covering the retained workflow. The standalone `peer` server package is a development dependency only and is never bundled in the app.
 
 ## QR pairing and manual connection
 
-QR pairing exchanges the complete connection offer and response without a signaling service. Open the app on both devices first; scan using the controls inside **Connect**, rather than a general-purpose phone camera app.
+With `VITE_ENABLE_MANUAL_PAIRING=true`, QR pairing exchanges the complete connection offer and response without a signaling service. Open the app on both devices first; scan using the controls inside **Connect**, rather than a general-purpose phone camera app.
 
 1. The GM opens a campaign, chooses **Connect → Host a table → Create player invitation**, and keeps the dialog open. An invitation QR appears.
 2. The player chooses **Connect to a table → Join a table**, enters their name, and selects **Scan invitation QR**. Alternatively, the GM downloads the invitation PNG and the player uses **Upload invitation QR image**. Reading a code fills the connection text; it does not start or approve a connection automatically.
@@ -22,9 +49,9 @@ Open **Connect → Connection settings · STUN and TURN** before creating an inv
 
 Under **STUN service**, choose:
 
-- **Local network only (no STUN)**: the default empty ICE server list, intended for participants on the same network.
+- **Local network only (no STUN)** (manual-pairing builds only): an empty ICE server list (the default only with manual pairing enabled), intended for participants on the same network.
 - **Cloudflare STUN**: `stun:stun.cloudflare.com:3478`. This public service is free and unlimited; it does not require an account or credentials. [Cloudflare FAQ](https://developers.cloudflare.com/realtime/turn/faq/).
-- **Google STUN**: `stun:stun.l.google.com:19302`, using UDP port 19302 without credentials.
+- **Google STUN** (default for PeerJS rooms): `stun:stun.l.google.com:19302`, using UDP port 19302 without credentials.
 - **Custom STUN**: enter one `stun:` or `stuns:` endpoint. Hostnames, IPv4, and bracketed IPv6 are supported, with an optional port.
 
 STUN helps browsers discover an internet route. Some networks also need TURN to relay the encrypted traffic. **TURN service** offers no relay, **Cloudflare TURN**, or **Custom TURN**. The Cloudflare preset uses TLS over TCP at `turns:turn.cloudflare.com:443?transport=tcp`; custom relays accept a `turn:` or `turns:` endpoint and an optional `?transport=udp` or `?transport=tcp`. Both relay choices require the issued **TURN username** and **TURN credential**. **Use relay only** forces the selected relay, which is useful when testing fallback connectivity. [Cloudflare endpoints](https://developers.cloudflare.com/realtime/turn/).
@@ -40,7 +67,7 @@ Selecting **Cloudflare TURN** reveals **Set up Cloudflare TURN** with these offi
 
 Cloudflare TURN has a usage allowance and metered billing beyond it; review the [current pricing](https://developers.cloudflare.com/realtime/sfu/platform/pricing/) for your account. No credentials or account are bundled. The app can remain a static browser application with manually issued credentials; automatic issuance would require a private helper that protects the provider API token.
 
-The earlier room-code controls have been removed from Connect. The legacy broker implementation and low-level routing tests remain in the source tree, outside the current pairing workflow.
+The legacy custom WebSocket broker remains outside the current interface. PeerJS rooms use their own signaling protocol and do not use that prototype.
 
 ## Reconnection, authority, and drafts
 
@@ -48,13 +75,13 @@ Each approved device receives a random revocable reconnect credential. The host 
 
 ### Sleep and temporary interruptions
 
-The application remains fully serverless. A WebRTC `disconnected` state retains the player's approval and the GM's pending approval request. On wake, page restoration, or network restoration, an approved client checks the existing connection by requesting a fresh authorized snapshot. It shows **reconnecting** and pauses player actions until the host returns a matching resynchronization acknowledgement. The browser reporting `connected`, or accepting a buffered send, is insufficient. Older hosts can confirm recovery with their returned snapshot.
+In the optional manual-pairing workflow, a WebRTC `disconnected` state retains the player's approval and the GM's pending approval request. On wake, page restoration, or network restoration, an approved client checks the existing connection by requesting a fresh authorized snapshot. It shows **reconnecting** and pauses player actions until the host returns a matching resynchronization acknowledgement. The browser reporting `connected`, or accepting a buffered send, is insufficient. Older hosts can confirm recovery with their returned snapshot.
 
 The client retries this check every three seconds for up to 45 seconds of active recovery time. Duplicate wake events do not reset that deadline; a suspended/hidden client receives a fresh recovery window when it resumes. A closed or failed transport ends the attempt immediately. Missing images can be requested again after an interrupted transfer. Session observers, timers, and old connection callbacks cannot carry over into a replacement attempt.
 
-If the phone's browser closes the transport or discards the tab, its original QR/text exchange cannot recreate it. That exchange belongs to a particular live session. With no always-on signaling service, a new invitation and response are still required. Even a short phone lock can end the browser's session; there is no guaranteed safe idle duration.
+For manual pairing only: if the phone's browser closes the transport or discards the tab, its original QR/text exchange cannot recreate it. That exchange belongs to a particular live session. With no always-on signaling service, a new invitation and response are still required. Even a short phone lock can end the browser's session; there is no guaranteed safe idle duration.
 
-### Replacing a dead connection
+### Replacing a dead manual connection
 
 1. On the GM's **Host a table** screen, open **Approved devices and revocation**, then choose **Reconnect device** beside the player. This closes that device's old transport and replaces any outstanding invitation without revoking its permission.
 2. The player scans the fresh invitation and creates a response. Their name is remembered on this browser. The GM scans the response and selects **Connect player**.
@@ -83,6 +110,10 @@ Control messages and assets use separate WebRTC data channels, small frames, and
 
 ## Verification status
 
+The PeerJS room update passes 289 unit tests, three real-transport room browser tests against a local official PeerServer, 21 retained manual-mode networking regressions, the production build, and all three offline-app checks. The production dependency audit is clean. Room regressions cover code and QR-image joining, multiple players sharing a room, destruction of a real connected transport, player reload, host restart under the same saved ID, occupied IDs, and withholding a saved credential when an impostor takes the room code.
+
+A production-build smoke test also completed public PeerJS Cloud signaling, host verification, GM approval, and full sample-image synchronization between two fresh independent Chrome processes. It used the same headless local-candidate test flags as the browser suite. With default headless networking, Cloud signaling created peer connections but ICE failed on this machine. This establishes public signaling and controlled local transfer, not default-network connectivity on physical phones, cross-network traversal, or TURN reliability. Those remain device verification gates.
+
 QR pairing adds 35 unit tests for compression, normalized legacy text, direction/version validation, allocation limits, and real encoded-pixel round trips. Five browser regressions pass: a complete invitation/response PNG exchange with GM approval, secret filtering, and a shared roll; invalid-image rejection; complete copy/paste pairing with stale-response clearing; camera denial/cancellation/late-permission cleanup; and successful synthetic-camera decoding with track release. The image-pairing flow also checks a 390px player viewport. QR camera tests use simulated media; scanning between physical phones/computers remains a real-device check. The production build and offline regression pass with the QR libraries bundled locally. Their licenses are included in [LICENSE-QR.txt](../public/LICENSE-QR.txt).
 
 The connection-settings update passes 202 unit tests across nine files, including 33 cases for endpoint validation, presets, credentials, and relay policy. Nine new browser tests verify host/player configuration at the WebRTC boundary, removal of room controls, settings locking, modal persistence, reload reset, credential exclusion from both backup modes, and a 390px layout. These tests intercept the peer constructor before networking; they verify configuration without contacting Cloudflare or a custom relay. All five QR pairing regressions and the production offline regression also pass with this update.
@@ -91,13 +122,13 @@ Earlier browser integration tests verified real two-context WebRTC connections, 
 
 The earlier peer tests use separate browser contexts on one development machine, not separate physical devices. The cached headless Chromium required test-only launch arguments `--disable-features=WebRtcHideLocalIpsWithMdns` and `--force-webrtc-ip-handling-policy=default` to gather usable local ICE candidates. QR and manual offer/answer exchange pass locally. The deployed-site test below adds separate Chrome processes without those overrides. Real devices on separate networks, forced TURN with supplied credentials, host-tab suspension, and mobile behavior remain release gates. Browser suspension can interrupt hosting; autosave and reconnect are the recovery path.
 
-### Deployed-site two-client test
+### Historical deployed-site manual-pairing test
 
 On November 6, 2026, two independent headless Chrome processes loaded `https://noddson.github.io/fatecc/` (build `2026.11.05254aa`) and passed copy/paste pairing with default WebRTC networking and no STUN or TURN. The GM opened the sample campaign, exchanged an invitation and answer with a fresh player browser, approved Mara Voss, and reached `connected` with a `direct` route. The player received shared journal content without the private entry. A GM roll and a player roll appeared on both clients with identical dice, totals, and activity counts. Native connection statistics confirmed a successful host-to-host candidate pair with bytes flowing in both directions. No application change was needed for this result.
 
 The same workflow passed with Cloudflare STUN and Google STUN selected on both clients. Those connections also used host-to-host local routes. Both presets gathered server-reflexive (`srflx`) candidates as well, alongside a browser ICE error 701, `STUN host lookup received error.` Discovery therefore produced internet candidates despite the reported lookup error. These passes establish that local pairing still works with those settings; they do **not** verify STUN traversal between networks or explain a particular physical device's failure.
 
-Repeat the test with an installed Playwright Chromium and its video recorder:
+To repeat this historical test, deploy a build with `VITE_ENABLE_MANUAL_PAIRING=true`, then use an installed Playwright Chromium and its video recorder:
 
 ```sh
 npx playwright install chromium ffmpeg

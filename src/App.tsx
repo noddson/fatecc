@@ -36,6 +36,7 @@ import {
   parseCampaignExport,
 } from './storage/backup';
 import { FatePeerHost, FatePeerClient, clearHostGrants } from './network';
+import { initialRoomAddress } from './network/rooms';
 import { DEFAULT_CONNECTION_SETTINGS, type ConnectionSettings } from './network/connection-settings';
 import { Overview } from './components/Overview';
 import { Characters } from './components/Characters';
@@ -93,7 +94,7 @@ export default function App() {
   const [createKind, setCreateKind] = useState<'campaign' | 'one-shot'>('campaign');
   const [showArchived, setShowArchived] = useState(false);
   const [menu, setMenu] = useState(false);
-  const [connection, setConnection] = useState(false);
+  const [connection, setConnection] = useState(() => !!initialRoomAddress());
   const [attribution, setAttribution] = useState(false);
   const [backup, setBackup] = useState(false);
   const [pendingImport, setPendingImport] = useState<{ data: Uint8Array; parsed: CampaignExport }>();

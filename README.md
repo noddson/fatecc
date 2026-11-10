@@ -68,15 +68,13 @@ The print layouts are original HTML inspired by the book's worksheets and [Evil 
 
 ## Play together
 
-Open **Connect**. One GM hosts; up to seven players connect from their own browser copies of the app. Choose **Host a table → Create player invitation** to display an invitation QR. The player scans or uploads it under **Join a table**, then selects **Create connection answer**. The GM scans or uploads that response, selects **Connect player**, and approves character access. Camera scans run inside the app; downloaded QR images and copy/paste text are available as fallbacks. QR pairing needs no signaling service. See the [pairing instructions](docs/networking.md#qr-pairing-and-manual-connection).
+Open **Connect → Host a table → Start hosting**. Share the `fatecore-[code]` room code, QR code, or join link. Players choose **Join a table**, enter their name and the code or scan the QR, and select **Join table**. The GM approves character access. One room serves the GM and up to seven players; there is no response QR exchange.
 
-Before pairing across the internet, open **Connection settings · STUN and TURN** on each device. Select **Cloudflare STUN** (`stun:stun.cloudflare.com:3478`), **Google STUN** (`stun:stun.l.google.com:19302`, UDP port 19302), or **Custom STUN** to enter another server. The default uses no external server for local-network play. If a direct connection fails, select **Cloudflare TURN** or **Custom TURN** and enter issued credentials. **Set up Cloudflare TURN** links the official account/key and credential-generation instructions. See the [connection settings guide](docs/networking.md#connection-settings) for the full setup.
+The free public PeerJS Cloud service exchanges connection details. Internet is required to start or rebuild a connection; no server deployment or account is required. Game data and images travel over WebRTC. Google STUN is selected by default; **Connection settings · STUN and TURN** retains custom services and optional TURN credentials for restrictive networks. See the [connection guide](docs/networking.md).
 
-Settings stay in memory until the page reloads and are excluded from campaign backups. Disconnect the table before changing settings for a new invitation. TURN relays encrypted peer traffic; campaign storage remains on participants' devices.
+The app saves the host's room code and signing identity in this browser. Players retain their room address, approved-device credential, and verified host identity separately from campaign data. Failed connections retry automatically. After reopening the app, open the saved joined campaign and select **Reconnect**. After a GM reload, reopen the campaign and select **Start hosting** to reuse the same code. An occupied code can be replaced with **New room code**; players then need that new address. Public PeerJS IDs are not permanently reserved while offline.
 
-The GM browser must stay open during shared play. A disconnected player keeps a sanitized cached view and can prepare a local narrative draft. Reconnect, submit the draft, and let the GM review it against its base revision. There is no automatic host election. Read [networking and deployment details](docs/networking.md) for credentials, ownership, and test limitations.
-
-After wake, the client confirms recovery with a fresh host response before enabling actions. If the connection has died, the GM chooses **Reconnect device** beside the saved player and exchanges fresh invitation/response codes. Names, approval, and character assignments are retained. A stale credential waits for explicit GM approval on the new connection; clearing pairing or revoking access is not a repair step. The app remains fully serverless, and actual phone lock/wake behavior still needs device testing. See [sleep and recovery limits](docs/networking.md#sleep-and-temporary-interruptions).
+The GM browser must stay open. Disconnected players retain an authorized cached view and local drafts. Manual offline invitation/response pairing is retained behind `VITE_ENABLE_MANUAL_PAIRING=true`, disabled by default. Phone suspension and cross-network TURN still need physical-device verification.
 
 ## Verification
 
@@ -85,19 +83,20 @@ npm run check        # TypeScript
 npm test             # Rules, commands, persistence, privacy, content, maps
 npm run build        # Static production application + offline precache
 npx playwright install chromium
-npm run test:e2e     # UI, QR pairing, connection settings, WebRTC, legacy broker
+npm run test:e2e     # UI/manual feature flag, then PeerJS room joining and recovery
+npm run test:e2e:rooms # Real PeerJS connections against a local test broker
 npm run test:offline # Build and verify offline operation against production
 ```
 
 For an existing compatible Chromium installation, set `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` to its executable. Automated tests use isolated browser profiles. The protocol tests use test-only ICE flags to expose local candidates in headless Chromium; the application does not change browser security settings.
 
-To test the deployed site in two independent Chrome processes with default WebRTC networking, run:
+To test a deployment built with the optional manual-pairing flag in two independent Chrome processes with default WebRTC networking, run:
 
 ```sh
 FATE_TEST_URL=https://noddson.github.io/fatecc npx playwright test tests/deployed-connection.spec.ts
 ```
 
-This opt-in suite exchanges invitations and answers through the UI, approves a player, checks privacy, and verifies identical rolls in both directions. It tests no STUN, Cloudflare STUN, and Google STUN, saving videos, screenshots, and connection diagnostics. Both clients run on the same machine; a passing STUN-selected case can still use a local route. See [live connection verification](docs/networking.md#deployed-site-two-client-test).
+This opt-in suite exchanges invitations and answers through the UI, approves a player, checks privacy, and verifies identical rolls in both directions. It tests no STUN, Cloudflare STUN, and Google STUN, saving videos, screenshots, and connection diagnostics. Both clients run on the same machine; a passing STUN-selected case can still use a local route. See [live connection verification](docs/networking.md#historical-deployed-site-manual-pairing-test).
 
 ## Project structure
 
@@ -106,7 +105,7 @@ This opt-in suite exchanges invitations and answers through the UI, approves a p
 - `src/network/`: selective player projections, device grants, WebRTC, asset transport, and drafts.
 - `src/content/`: pinned GitHub SRD source, generated Markdown/references, source catalog, attribution, and search.
 - `src/components/`: local campaign, builder, reference, session, journal, inventory, map, and connection interfaces.
-- `signaling/`: legacy connection-only WebSocket prototype; the current interface uses QR/text pairing.
+- `signaling/`: legacy connection-only WebSocket prototype; the current interface uses PeerJS Cloud rooms.
 
 Rules text and mechanical references come from a pinned revision of [fate-srd/fate-srd-content](https://github.com/fate-srd/fate-srd-content). The bundled Core SRD is CC BY 3.0 with attribution in [LICENSE-SRD.txt](public/LICENSE-SRD.txt). Its original CC-BY repository HTML is converted locally into Markdown and offline entries because the repository's Core Markdown identifies itself as abridged OGL. See [source provenance](docs/content-sources.md) and the [repository-linked rules verification register](docs/rules-verification.md).
 

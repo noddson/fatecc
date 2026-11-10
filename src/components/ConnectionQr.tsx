@@ -1,13 +1,23 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Camera, Download, Square, Upload } from 'lucide-react';
-import { connectionQrImage, decodeConnectionInput, decodeQrPixels, type ConnectionKind } from '../network/qr';
+import QRCode from 'qrcode';
+import {
+  connectionQrImage,
+  decodeConnectionInput,
+  decodeQrPixels,
+  type ConnectionKind as ManualConnectionKind,
+} from '../network/qr';
+import { parseRoomAddress } from '../network/rooms';
+type ConnectionKind = ManualConnectionKind | 'room';
 import './ConnectionQr.css';
 
 const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
 const MAX_IMAGE_PIXELS = 24_000_000;
 const IMAGE_TYPES = new Set(['image/png', 'image/jpeg', 'image/webp']);
-const describe = (kind: ConnectionKind) => (kind === 'offer' ? 'invitation' : 'response');
-const capitalized = (kind: ConnectionKind) => (kind === 'offer' ? 'Invitation' : 'Response');
+const describe = (kind: ConnectionKind) =>
+  kind === 'room' ? 'room' : kind === 'offer' ? 'invitation' : 'response';
+const capitalized = (kind: ConnectionKind) =>
+  kind === 'room' ? 'Room' : kind === 'offer' ? 'Invitation' : 'Response';
 const message = (error: unknown) =>
   error instanceof Error
     ? error.message
@@ -22,7 +32,11 @@ export function ConnectionQrDisplay({ text, kind }: { text: string; kind: Connec
   }>();
   useEffect(() => {
     let active = true;
-    void connectionQrImage(text, kind).then(
+    const image =
+      kind === 'room'
+        ? QRCode.toDataURL(text, { errorCorrectionLevel: 'M', margin: 4, scale: 6 })
+        : connectionQrImage(text, kind);
+    void image.then(
       (image) => {
         if (active) setResult({ text, kind, image });
       },
@@ -44,10 +58,12 @@ export function ConnectionQrDisplay({ text, kind }: { text: string; kind: Connec
             <Download size={16} aria-hidden="true" /> Download {describe(kind)} QR
           </a>
           <p>
-            {kind === 'offer'
-              ? 'The player scans this invitation from Join a table. Create a separate invitation for each player.'
-              : 'The GM scans this response from Host a table, then connects and approves your device.'}{' '}
-            Keep this connection open while you exchange the codes.
+            {kind === 'room'
+              ? 'Scan with your phone camera or from Join a table. Everyone uses the same code, including when reconnecting.'
+              : kind === 'offer'
+                ? 'The player scans this invitation from Join a table. Create a separate invitation for each player.'
+                : 'The GM scans this response from Host a table, then connects and approves your device.'}{' '}
+            Keep the GM’s tab open while playing.
           </p>
         </>
       ) : current?.error ? (
@@ -158,15 +174,18 @@ export function ConnectionQrReader({
   const consume = useCallback(
     (text: string, operation: number) => {
       if (!mountedRef.current || operation !== operationRef.current) return;
-      const decoded = decodeConnectionInput(text, kind);
+      const decoded =
+        kind === 'room' ? (parseRoomAddress(text), { text }) : decodeConnectionInput(text, kind);
       releaseCamera();
       operationRef.current++;
       setPhase('idle');
       setError('');
       setStatus(
-        kind === 'offer'
-          ? 'Invitation QR read. Review it below, then create your response.'
-          : 'Response QR read. Review it below, then connect the player.',
+        kind === 'room'
+          ? 'Room QR read. Select Join table to connect.'
+          : kind === 'offer'
+            ? 'Invitation QR read. Review it below, then create your response.'
+            : 'Response QR read. Review it below, then connect the player.',
       );
       onReadRef.current(decoded.text);
     },

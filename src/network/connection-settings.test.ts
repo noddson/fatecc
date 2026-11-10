@@ -12,8 +12,8 @@ const config = (changes: Partial<ConnectionSettings> = {}) =>
   buildIceConfiguration({ ...DEFAULT_CONNECTION_SETTINGS, ...changes });
 
 describe('connection settings', () => {
-  it('uses no external service by default and ignores unselected saved fields', () => {
-    expect(config()).toEqual({ iceServers: [], iceTransportPolicy: 'all' });
+  it('uses Google STUN by default and ignores unselected saved fields', () => {
+    expect(config()).toEqual({ iceServers: [{ urls: GOOGLE_STUN_URL }], iceTransportPolicy: 'all' });
     expect(config({ customStun: 'invalid', customTurn: 'invalid', turnCredential: 'secret' })).toEqual(
       config(),
     );
@@ -88,8 +88,13 @@ describe('connection settings', () => {
     'turn:192.168.1.10',
   ])('accepts a custom TURN endpoint %s', (url) => {
     expect(
-      config({ turnMode: 'custom', customTurn: url, turnUsername: 'user', turnCredential: 'pass' })
-        .iceServers,
+      config({
+        stunMode: 'none',
+        turnMode: 'custom',
+        customTurn: url,
+        turnUsername: 'user',
+        turnCredential: 'pass',
+      }).iceServers,
     ).toEqual([{ urls: url, username: 'user', credential: 'pass' }]);
   });
 

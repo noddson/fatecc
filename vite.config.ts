@@ -19,6 +19,7 @@ export default defineConfig(({ command, mode }) => {
         output: {
           manualChunks(moduleId) {
             if (moduleId.includes('/src/content/reference.json')) return 'fate-core-reference';
+            if (moduleId.includes('/node_modules/peerjs/')) return 'peerjs';
             if (moduleId.includes('/node_modules/')) return 'vendor';
           },
         },

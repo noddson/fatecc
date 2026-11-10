@@ -11,6 +11,7 @@ import { buildIceConfiguration, type ConnectionSettings } from '../network/conne
 import { compareDraft, deleteDraft, listDrafts, makeDraft, saveDraft } from '../network/drafts';
 import type { CharacterDraft } from '../network/drafts';
 import { loadPlayerName, savePlayerName } from '../network/credentials';
+import { MANUAL_PAIRING_ENABLED, loadRoom, initialRoomAddress, roomLink } from '../network/rooms';
 
 export interface ConnectionPanelProps {
   campaign: Campaign | undefined;
@@ -30,7 +31,9 @@ export interface ConnectionPanelProps {
 
 export function ConnectionPanel(props: ConnectionPanelProps) {
   const [tab, setTab] = useState<'host' | 'join' | 'drafts'>(
-    props.isPlayerView || props.clientRef.current ? 'join' : 'host',
+    props.isPlayerView || props.clientRef.current || initialRoomAddress() || !props.campaign
+      ? 'join'
+      : 'host',
   );
   const [status, setStatus] = useState(props.clientRef.current?.status ?? 'disconnected');
   const [peers, setPeers] = useState<PeerInfo[]>(props.hostRef.current?.peerList ?? []);
@@ -42,6 +45,14 @@ export function ConnectionPanel(props: ConnectionPanelProps) {
   const [answer, setAnswer] = useState(props.clientRef.current?.answerText ?? '');
   const [incomingOffer, setIncomingOffer] = useState(props.clientRef.current?.offerText ?? '');
   const [incomingAnswer, setIncomingAnswer] = useState('');
+  const [roomCode, setRoomCode] = useState(props.hostRef.current?.roomCode ?? '');
+  const [roomInput, setRoomInput] = useState(
+    () =>
+      initialRoomAddress() ||
+      props.clientRef.current?.roomCode ||
+      loadRoom(props.isPlayerView ? props.campaign?.id : undefined)?.code ||
+      '',
+  );
   const [name, setName] = useState(loadPlayerName);
   const [busy, setBusy] = useState(false);
   const [settings, setSettings] = useState<ConnectionSettings>(() => ({ ...props.settingsRef.current }));
@@ -65,6 +76,7 @@ export function ConnectionPanel(props: ConnectionPanelProps) {
     onPeers: (value: PeerInfo[]) => {
       if (mounted.current) {
         setPeers(value);
+        setRoomCode(props.hostRef.current?.roomCode ?? '');
         setGrants(props.hostRef.current?.savedGrants ?? []);
         setOffer(props.hostRef.current?.invitation?.offer ?? '');
       }
@@ -89,6 +101,7 @@ export function ConnectionPanel(props: ConnectionPanelProps) {
     try {
       await operation();
     } catch (error) {
+      if (mounted.current) setRoomCode(props.hostRef.current?.roomCode ?? '');
       failure(error instanceof Error ? error.message : 'Connection failed.');
     } finally {
       if (mounted.current) setBusy(false);
@@ -166,6 +179,7 @@ export function ConnectionPanel(props: ConnectionPanelProps) {
     props.clientRef.current?.close();
     props.hostRef.current = null;
     props.clientRef.current = null;
+    setRoomCode('');
     setPeers([]);
     setJoins([]);
     setOffer('');
@@ -202,8 +216,9 @@ export function ConnectionPanel(props: ConnectionPanelProps) {
         copy.
       </p>
       <p className="muted">
-        The player scans the GM’s invitation, then the GM scans the player’s response. You can also upload QR
-        images or copy and paste the connection text.
+        {MANUAL_PAIRING_ENABLED
+          ? 'Exchange an invitation and response QR, or copy and paste the connection text.'
+          : 'Share a room code or QR link. Internet access starts the connection; game data travels between your browsers. Keep the GM’s tab open.'}
       </p>
       <div className="actions" style={{ marginBottom: 20 }}>
         <button
@@ -241,67 +256,127 @@ export function ConnectionPanel(props: ConnectionPanelProps) {
             </h3>
             <Badge>{peers.filter((p) => p.status === 'connected').length} / 7 players</Badge>
           </div>
-          <div className="actions">
-            <button
-              className="button-primary"
-              disabled={busy || !props.campaign || props.isPlayerView}
-              onClick={() =>
-                void run(async () => {
-                  const invite = await host().replaceInvitation();
-                  setOffer(invite.offer);
-                  setIncomingAnswer('');
-                })
-              }
-            >
-              {busy ? 'Connecting…' : 'Create player invitation'}
-            </button>
-          </div>
-          {offer && (
-            <>
-              <ConnectionQrDisplay text={offer} kind="offer" />
-              <details className="connection-text-fallback">
-                <summary>Copy/paste invitation</summary>
-                <Field
-                  label="1. Send this offer to one player"
-                  hint="Each player needs a separate invitation."
+          {!MANUAL_PAIRING_ENABLED && (
+            <section className="stack" aria-label="Table room">
+              <div className="actions">
+                <button
+                  className="button-primary"
+                  disabled={busy || !props.campaign || props.isPlayerView}
+                  onClick={() =>
+                    void run(async () => {
+                      setRoomCode(await host().startPeerRoom());
+                    })
+                  }
                 >
-                  <textarea readOnly rows={4} value={offer} onFocus={(e) => e.target.select()} />
-                </Field>
-                <button onClick={() => copy(offer)}>
-                  <Copy size={16} /> Copy offer
+                  {busy ? 'Connecting…' : roomCode ? 'Resume hosting' : 'Start hosting'}
                 </button>
-              </details>
+                {roomCode && (
+                  <button
+                    disabled={busy}
+                    onClick={() =>
+                      void run(async () => {
+                        setRoomCode(await host().startPeerRoom(true));
+                      })
+                    }
+                  >
+                    New room code
+                  </button>
+                )}
+              </div>
+              {roomCode && (
+                <>
+                  <Field
+                    label="Room code"
+                    hint="All players use this code. It also works for reconnection while you are hosting."
+                  >
+                    <input
+                      aria-label="Room code"
+                      readOnly
+                      value={roomCode}
+                      onFocus={(event) => event.target.select()}
+                    />
+                  </Field>
+                  <div className="actions">
+                    <button onClick={() => copy(roomCode)}>
+                      <Copy size={16} /> Copy room code
+                    </button>
+                    <button onClick={() => copy(roomLink(roomCode, props.hostRef.current?.roomPublicKey))}>
+                      <Copy size={16} /> Copy join link
+                    </button>
+                  </div>
+                  <ConnectionQrDisplay
+                    text={roomLink(roomCode, props.hostRef.current?.roomPublicKey)}
+                    kind="room"
+                  />
+                </>
+              )}
+            </section>
+          )}
+          {MANUAL_PAIRING_ENABLED && (
+            <>
+              <div className="actions">
+                <button
+                  className="button-primary"
+                  disabled={busy || !props.campaign || props.isPlayerView}
+                  onClick={() =>
+                    void run(async () => {
+                      const invite = await host().replaceInvitation();
+                      setOffer(invite.offer);
+                      setIncomingAnswer('');
+                    })
+                  }
+                >
+                  {busy ? 'Connecting…' : 'Create player invitation'}
+                </button>
+              </div>
+              {offer && (
+                <>
+                  <ConnectionQrDisplay text={offer} kind="offer" />
+                  <details className="connection-text-fallback">
+                    <summary>Copy/paste invitation</summary>
+                    <Field
+                      label="1. Send this offer to one player"
+                      hint="Each player needs a separate invitation."
+                    >
+                      <textarea readOnly rows={4} value={offer} onFocus={(e) => e.target.select()} />
+                    </Field>
+                    <button onClick={() => copy(offer)}>
+                      <Copy size={16} /> Copy offer
+                    </button>
+                  </details>
+                </>
+              )}
+              <ConnectionQrReader
+                key="response-reader"
+                kind="answer"
+                disabled={busy || !props.hostRef.current}
+                onRead={(text) => setIncomingAnswer(text)}
+              />
+              <Field label="2. Paste the player's answer">
+                <textarea
+                  rows={3}
+                  value={incomingAnswer}
+                  onChange={(e) => setIncomingAnswer(e.target.value)}
+                  placeholder="The player's connection answer…"
+                />
+              </Field>
+              <button
+                disabled={busy || !incomingAnswer.trim()}
+                onClick={() =>
+                  void run(async () => {
+                    const parsed = decodeConnectionInput(incomingAnswer, 'answer');
+                    if (!props.hostRef.current) throw new Error('Create an invitation first.');
+                    await props.hostRef.current.acceptAnswer(parsed.envelope.peerId, parsed.text);
+                    setIncomingAnswer('');
+                    setOffer('');
+                    props.notify('Answer accepted. Waiting for the player to connect.');
+                  })
+                }
+              >
+                Connect player
+              </button>
             </>
           )}
-          <ConnectionQrReader
-            key="response-reader"
-            kind="answer"
-            disabled={busy || !props.hostRef.current}
-            onRead={(text) => setIncomingAnswer(text)}
-          />
-          <Field label="2. Paste the player's answer">
-            <textarea
-              rows={3}
-              value={incomingAnswer}
-              onChange={(e) => setIncomingAnswer(e.target.value)}
-              placeholder="The player's connection answer…"
-            />
-          </Field>
-          <button
-            disabled={busy || !incomingAnswer.trim()}
-            onClick={() =>
-              void run(async () => {
-                const parsed = decodeConnectionInput(incomingAnswer, 'answer');
-                if (!props.hostRef.current) throw new Error('Create an invitation first.');
-                await props.hostRef.current.acceptAnswer(parsed.envelope.peerId, parsed.text);
-                setIncomingAnswer('');
-                setOffer('');
-                props.notify('Answer accepted. Waiting for the player to connect.');
-              })
-            }
-          >
-            Connect player
-          </button>
           {joins.map((join) => (
             <section className="card" key={join.peerId} style={{ padding: 16, marginTop: 12 }}>
               <h3>{join.name} wants to join</h3>
@@ -395,23 +470,28 @@ export function ConnectionPanel(props: ConnectionPanelProps) {
                     <span>
                       {grant.name} · {assignedNames(grant.memberId, grant.characterIds)}
                     </span>
-                    <button
-                      aria-label={`Reconnect ${grant.name}`}
-                      disabled={busy}
-                      onClick={() =>
-                        void run(async () => {
-                          const invite = await host().replaceInvitation(grant.memberId);
-                          setAssignments((current) => ({ ...current, [invite.peerId]: grant.characterIds }));
-                          setOffer(invite.offer);
-                          setIncomingAnswer('');
-                          props.notify(
-                            `New invitation ready for ${grant.name}. Their saved approval is retained.`,
-                          );
-                        })
-                      }
-                    >
-                      Reconnect device
-                    </button>
+                    {MANUAL_PAIRING_ENABLED && (
+                      <button
+                        aria-label={`Reconnect ${grant.name}`}
+                        disabled={busy}
+                        onClick={() =>
+                          void run(async () => {
+                            const invite = await host().replaceInvitation(grant.memberId);
+                            setAssignments((current) => ({
+                              ...current,
+                              [invite.peerId]: grant.characterIds,
+                            }));
+                            setOffer(invite.offer);
+                            setIncomingAnswer('');
+                            props.notify(
+                              `New invitation ready for ${grant.name}. Their saved approval is retained.`,
+                            );
+                          })
+                        }
+                      >
+                        Reconnect device
+                      </button>
+                    )}
                     <button onClick={() => props.hostRef.current?.revoke(grant.memberId)}>
                       Revoke access
                     </button>
@@ -487,7 +567,7 @@ export function ConnectionPanel(props: ConnectionPanelProps) {
               retained.
             </p>
           )}
-          {status === 'awaiting-host' && (
+          {MANUAL_PAIRING_ENABLED && status === 'awaiting-host' && (
             <p role="status">
               Show this response to the GM, who must scan it and select Connect player. If it expires, ask for
               a fresh invitation.
@@ -500,9 +580,9 @@ export function ConnectionPanel(props: ConnectionPanelProps) {
             status === 'closed' ||
             (status === 'disconnected' && props.isPlayerView)) && (
             <p role="status">
-              The live connection has closed. Ask the GM to choose Reconnect device beside your name and
-              exchange the new invitation and response. Your saved approval and cached campaign are retained;
-              you do not need to clear the pairing.
+              {MANUAL_PAIRING_ENABLED
+                ? 'The live connection has closed. Ask the GM to choose Reconnect device beside your name and exchange the new invitation and response. Your saved approval and cached campaign are retained; you do not need to clear the pairing.'
+                : 'Use the same room code or select Reconnect. The GM must be hosting. Your saved approval and cached campaign are retained.'}
             </p>
           )}
           <Field label="Your name">
@@ -515,51 +595,99 @@ export function ConnectionPanel(props: ConnectionPanelProps) {
               maxLength={100}
             />
           </Field>
-          <ConnectionQrReader
-            key="invitation-reader"
-            kind="offer"
-            disabled={busy}
-            onRead={(text) => {
-              setIncomingOffer(text);
-              setAnswer('');
-            }}
-          />
-          <Field label="Paste the GM's offer">
-            <textarea
-              rows={4}
-              value={incomingOffer}
-              onChange={(e) => {
-                setIncomingOffer(e.target.value);
-                setAnswer('');
-              }}
-              placeholder="The GM's connection offer…"
-            />
-          </Field>
-          <button
-            className="button-primary"
-            disabled={busy || !incomingOffer.trim()}
-            onClick={() =>
-              void run(async () => {
-                const parsed = decodeConnectionInput(incomingOffer, 'offer');
-                setAnswer('');
-                setAnswer(await client().acceptOffer(parsed.text));
-              })
-            }
-          >
-            Create connection answer
-          </button>
-          {answer && (
+          {!MANUAL_PAIRING_ENABLED && (
             <>
-              <ConnectionQrDisplay text={answer} kind="answer" />
-              <details className="connection-text-fallback">
-                <summary>Copy/paste response</summary>
-                <Field label="Send this answer back to the GM">
-                  <textarea readOnly rows={4} value={answer} onFocus={(e) => e.target.select()} />
-                </Field>
-                <button onClick={() => copy(answer)}>
-                  <Copy size={16} /> Copy answer
+              <ConnectionQrReader kind="room" disabled={busy} onRead={setRoomInput} />
+              <Field label="Room code or join link">
+                <input
+                  value={roomInput}
+                  onChange={(event) => setRoomInput(event.target.value)}
+                  placeholder="fatecore-K7MP4QTX"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  spellCheck={false}
+                />
+              </Field>
+              <div className="actions">
+                <button
+                  className="button-primary"
+                  disabled={busy || !roomInput.trim()}
+                  onClick={() =>
+                    void run(async () => {
+                      await client().joinPeerRoom(roomInput);
+                      props.notify('Looking for the GM. Keep this tab open.');
+                    })
+                  }
+                >
+                  Join table
                 </button>
-              </details>
+                {(loadRoom(props.campaign?.id) || roomInput) && (
+                  <button
+                    disabled={busy}
+                    onClick={() =>
+                      void run(async () => {
+                        const room = loadRoom(props.campaign?.id);
+                        const address = room ? roomLink(room.code, room.publicKey) : roomInput;
+                        setRoomInput(address);
+                        await client().joinPeerRoom(address);
+                      })
+                    }
+                  >
+                    Reconnect
+                  </button>
+                )}
+              </div>
+            </>
+          )}
+          {MANUAL_PAIRING_ENABLED && (
+            <>
+              <ConnectionQrReader
+                key="invitation-reader"
+                kind="offer"
+                disabled={busy}
+                onRead={(text) => {
+                  setIncomingOffer(text);
+                  setAnswer('');
+                }}
+              />
+              <Field label="Paste the GM's offer">
+                <textarea
+                  rows={4}
+                  value={incomingOffer}
+                  onChange={(e) => {
+                    setIncomingOffer(e.target.value);
+                    setAnswer('');
+                  }}
+                  placeholder="The GM's connection offer…"
+                />
+              </Field>
+              <button
+                className="button-primary"
+                disabled={busy || !incomingOffer.trim()}
+                onClick={() =>
+                  void run(async () => {
+                    const parsed = decodeConnectionInput(incomingOffer, 'offer');
+                    setAnswer('');
+                    setAnswer(await client().acceptOffer(parsed.text));
+                  })
+                }
+              >
+                Create connection answer
+              </button>
+              {answer && (
+                <>
+                  <ConnectionQrDisplay text={answer} kind="answer" />
+                  <details className="connection-text-fallback">
+                    <summary>Copy/paste response</summary>
+                    <Field label="Send this answer back to the GM">
+                      <textarea readOnly rows={4} value={answer} onFocus={(e) => e.target.select()} />
+                    </Field>
+                    <button onClick={() => copy(answer)}>
+                      <Copy size={16} /> Copy answer
+                    </button>
+                  </details>
+                </>
+              )}
             </>
           )}
           <p className="muted">

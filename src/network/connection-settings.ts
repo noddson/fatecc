@@ -14,7 +14,7 @@ export const CLOUDFLARE_TURN_URL = 'turns:turn.cloudflare.com:443?transport=tcp'
 
 // Deliberately memory-only: do not include these settings in campaign records or backups.
 export const DEFAULT_CONNECTION_SETTINGS: Readonly<ConnectionSettings> = Object.freeze({
-  stunMode: 'none',
+  stunMode: import.meta.env.VITE_ENABLE_MANUAL_PAIRING === 'true' ? 'none' : 'google',
   customStun: '',
   turnMode: 'none',
   customTurn: '',

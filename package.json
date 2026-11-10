@@ -22,11 +22,12 @@
     "preview": "vite preview --host 127.0.0.1 --port 4173 --strictPort",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:e2e": "playwright test",
+    "test:e2e": "playwright test && playwright test -c playwright.rooms.config.ts",
     "check": "tsc -b --pretty false",
     "start": "npm run build && npm run preview",
     "signaling": "node signaling/server.mjs",
-    "test:offline": "npm run build && node scripts/test-offline.mjs"
+    "test:offline": "npm run build && node scripts/test-offline.mjs",
+    "test:e2e:rooms": "playwright test -c playwright.rooms.config.ts"
   },
   "dependencies": {
     "dexie": "^4.0.11",
@@ -34,6 +35,7 @@
     "jsqr": "^1.4.0",
     "lucide-react": "^0.468.0",
     "minisearch": "^7.1.2",
+    "peerjs": "^1.5.5",
     "qrcode": "^1.5.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
@@ -48,6 +50,7 @@
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^4.3.4",
     "fake-indexeddb": "^6.0.0",
+    "peer": "^1.0.2",
     "prettier": "^3.9.10",
     "typescript": "~5.7.3",
     "vite": "^6.1.0",

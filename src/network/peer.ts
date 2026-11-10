@@ -1,3 +1,19 @@
+import type Peer from 'peerjs';
+import type { DataConnection } from 'peerjs';
+import {
+  createRoomPeer,
+  hostRoom,
+  rotateRoom,
+  parseRoomAddress,
+  loadRoomByCode,
+  loadRoom,
+  saveRoom,
+  signHost,
+  verifyHost,
+  type HostRoom,
+  type RoomAddress,
+  type SavedRoom,
+} from './rooms';
 import type { Actor, Asset, Campaign } from '../domain/types';
 import { campaignSchema, assetSchema, assertReferences, assertSafeObject } from '../storage/schema';
 import { validateAssets } from '../storage/assets';
@@ -87,6 +103,16 @@ export class FatePeerHost {
   private commandQueue: Promise<void> = Promise.resolve();
   private socket?: WebSocket;
   private closed = false;
+  private roomPeer?: Peer;
+  private roomIdentity?: HostRoom;
+  private signalRetry?: ReturnType<typeof setInterval>;
+  get roomCode(): string {
+    return this.roomIdentity?.code ?? '';
+  }
+  get roomPublicKey(): string {
+    return this.roomIdentity?.publicKey ?? '';
+  }
+
   private campaignId: string;
   private stopObservingResume: () => void;
   readonly epoch = crypto.randomUUID();
@@ -173,27 +199,20 @@ export class FatePeerHost {
     Object.assign(this.options, observers);
     this.notify();
   }
-  async createOffer(peerId: string = crypto.randomUUID()): Promise<{ peerId: string; offer: string }> {
-    if (this.closed) throw new Error('This session is closed. Start hosting again.');
-    for (const peer of [...this.peers.values()])
-      if (['closed', 'failed', 'disconnected'].includes(peer.info.status)) this.removePeer(peer.info.peerId);
-    const active = [...this.peers.values()].filter(
-      (p) => !['closed', 'failed', 'disconnected'].includes(p.info.status),
-    );
-    if (active.length >= 7) throw new Error('The table supports up to seven connected players.');
-    const pc = new RTCPeerConnection(rtcConfig(this.options));
+  private attachTransport(
+    peerId: string,
+    pc: RTCPeerConnection,
+    controlChannel: RTCDataChannel,
+    assetChannel: RTCDataChannel,
+  ): HostPeer {
     const control = new DataTransport(
-      pc.createDataChannel('fate-control', { ordered: true }),
+      controlChannel,
       (value) => {
         void this.receive(peerId, value).catch((e) => this.error(errorText(e)));
       },
       this.error,
     );
-    const assets = new DataTransport(
-      pc.createDataChannel('fate-assets', { ordered: true }),
-      () => {},
-      this.error,
-    );
+    const assets = new DataTransport(assetChannel, () => {}, this.error);
     const peer: HostPeer = {
       pc,
       control,
@@ -252,6 +271,23 @@ export class FatePeerHost {
       if (peer.grant) void this.sendSnapshot(peer);
     });
     this.notify();
+    return peer;
+  }
+  async createOffer(peerId: string = crypto.randomUUID()): Promise<{ peerId: string; offer: string }> {
+    if (this.closed) throw new Error('This session is closed. Start hosting again.');
+    for (const peer of [...this.peers.values()])
+      if (['closed', 'failed', 'disconnected'].includes(peer.info.status)) this.removePeer(peer.info.peerId);
+    const active = [...this.peers.values()].filter(
+      (p) => !['closed', 'failed', 'disconnected'].includes(p.info.status),
+    );
+    if (active.length >= 7) throw new Error('The table supports up to seven connected players.');
+    const pc = new RTCPeerConnection(rtcConfig(this.options));
+    const peer = this.attachTransport(
+      peerId,
+      pc,
+      pc.createDataChannel('fate-control', { ordered: true }),
+      pc.createDataChannel('fate-assets', { ordered: true }),
+    );
     try {
       await pc.setLocalDescription(await pc.createOffer());
       await finishIce(pc);
@@ -303,6 +339,12 @@ export class FatePeerHost {
     const peer = this.peers.get(peerId);
     if (!peer || !this.pending.has(peerId) || peer.control.channel.readyState !== 'open')
       throw new Error('The player is no longer waiting to join.');
+    if (
+      [...this.peers.values()].filter(
+        (p) => p !== peer && p.grant && p.grant.memberId !== peer.reconnectMemberId,
+      ).length >= 7
+    )
+      throw new Error('The table supports up to seven connected players.');
     const allowed = this.campaign()
       .characters.filter((c) => c.kind === 'pc' && c.visibility === 'shared')
       .map((c) => c.id);
@@ -327,6 +369,17 @@ export class FatePeerHost {
   private async admit(peer: HostPeer, grant: DeviceGrant): Promise<void> {
     if (this.closed || this.peers.get(peer.info.peerId) !== peer || !this.grants.authenticate(grant.token))
       throw new Error('This connection has closed. Reconnect the approved device.');
+    if (
+      [...this.peers.values()].filter((p) => p !== peer && p.grant && p.grant.memberId !== grant.memberId)
+        .length >= 7
+    ) {
+      await peer.control.send({
+        type: 'rejected',
+        message: 'The table supports up to seven connected players. Try again when a place is free.',
+      });
+      this.removePeer(peer.info.peerId);
+      return;
+    }
     // One live session per approved device. Retire stale transports without revoking identity.
     for (const previous of [...this.peers.values()])
       if (previous !== peer && previous.grant?.memberId === grant.memberId)
@@ -390,6 +443,29 @@ export class FatePeerHost {
       return;
     }
     peer.receivedAt.push(now);
+    if (
+      value.type === 'identify' &&
+      this.roomIdentity &&
+      typeof value.nonce === 'string' &&
+      value.nonce.length === 36
+    ) {
+      const campaignId = this.campaign().id;
+      const identity = this.roomIdentity;
+      const signature = await signHost(
+        identity,
+        campaignId,
+        value.nonce,
+        peer.pc.localDescription?.sdp || '',
+      );
+      if (this.closed || this.peers.get(peerId) !== peer) return;
+      await peer.control.send({
+        type: 'host-identity',
+        campaignId,
+        publicKey: identity.publicKey,
+        signature,
+      });
+      return;
+    }
     if (value.type === 'hello') {
       if (peer.grant) return;
       if (typeof value.token === 'string') {
@@ -588,6 +664,102 @@ export class FatePeerHost {
     peer.snapshotQueue = operation.catch(() => {});
     return operation;
   }
+  async startPeerRoom(newCode = false): Promise<string> {
+    if (this.closed) throw new Error('This table is closed. Start hosting again.');
+    if (this.roomPeer?.open && !newCode) return this.roomCode;
+    this.roomPeer?.destroy();
+    clearInterval(this.signalRetry);
+    const identity = await hostRoom(this.campaignId);
+    if (this.closed) throw new Error('Hosting was cancelled.');
+    this.roomIdentity = newCode ? rotateRoom(this.campaignId, identity) : identity;
+    const broker = await createRoomPeer(this.roomCode, rtcConfig(this.options));
+    if (this.closed) {
+      broker.destroy();
+      throw new Error('Hosting was cancelled.');
+    }
+    this.roomPeer = broker;
+    broker.on('connection', (connection) => {
+      if (
+        this.closed ||
+        this.roomPeer !== broker ||
+        connection.label !== 'fate-control' ||
+        connection.serialization !== 'raw'
+      ) {
+        connection.close();
+        return;
+      }
+      connection.on('error', () => connection.close());
+      const timeout = setTimeout(() => connection.close(), CONNECTION_TIMEOUT_MS);
+      connection.on('close', () => clearTimeout(timeout));
+      connection.on('open', () => {
+        clearTimeout(timeout);
+        if (this.closed || this.roomPeer !== broker) {
+          connection.close();
+          return;
+        }
+        for (const peer of [...this.peers.values()])
+          if (['closed', 'failed', 'disconnected'].includes(peer.info.status))
+            this.removePeer(peer.info.peerId);
+        if (this.peers.size >= 14) {
+          connection.close();
+          this.error('The table supports up to seven connected players.');
+          return;
+        }
+        const pc = connection.peerConnection;
+        const peerId = crypto.randomUUID();
+        const peer = this.attachTransport(
+          peerId,
+          pc,
+          connection.dataChannel,
+          pc.createDataChannel('fate-assets', { ordered: true }),
+        );
+        this.watchPeer(peer);
+        void connectionRoute(pc)
+          .then((route) => {
+            if (this.peers.get(peerId) === peer) {
+              peer.info.route = route;
+              this.notify();
+            }
+          })
+          .catch(() => {});
+        connection.on('close', () => this.removePeer(peerId));
+      });
+    });
+    this.signalRetry = setInterval(() => {
+      if (!this.closed && broker.disconnected && !broker.destroyed) {
+        try {
+          broker.reconnect();
+        } catch {
+          /* Retry after network restoration. */
+        }
+      }
+    }, 3_000);
+    await new Promise<void>((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        broker.destroy();
+        reject(new Error('PeerJS did not respond. Check your internet connection and try again.'));
+      }, CONNECTION_TIMEOUT_MS);
+      broker.on('open', () => {
+        clearTimeout(timeout);
+        this.notify();
+        resolve();
+      });
+      broker.on('close', () => {
+        clearTimeout(timeout);
+        reject(new Error('The room service connection closed. Start hosting again.'));
+      });
+      broker.on('error', (error) => {
+        clearTimeout(timeout);
+        const message =
+          error.type === 'unavailable-id'
+            ? 'This room code is already in use. Close other host tabs or choose New room code.'
+            : 'Could not reach PeerJS. Check your internet connection and try again.';
+        reject(new Error(message));
+        if (!this.closed) this.error(message);
+      });
+    });
+    return this.roomCode;
+  }
   async openRoom(url: string): Promise<string> {
     this.socket?.close();
     const socket = new WebSocket(url);
@@ -635,6 +807,8 @@ export class FatePeerHost {
   }
   close(): void {
     this.closed = true;
+    clearInterval(this.signalRetry);
+    this.roomPeer?.destroy();
     this.stopObservingResume();
     this.socket?.close();
     for (const peer of this.peers.values()) {
@@ -655,6 +829,17 @@ export interface ClientOptions extends NetworkOptions {
 }
 export class FatePeerClient {
   private generation = 0;
+  private roomPeer?: Peer;
+  private roomAddress?: RoomAddress;
+  private verifiedRoom?: SavedRoom;
+  private roomNonce?: string;
+  private roomRetry?: ReturnType<typeof setInterval>;
+  private stopRoomResume?: () => void;
+  private roomAttempt = false;
+  get roomCode(): string {
+    return this.roomAddress?.code ?? '';
+  }
+
   private pc?: RTCPeerConnection;
   private control?: DataTransport;
   private assetCache = new Map<string, Asset>();
@@ -676,6 +861,13 @@ export class FatePeerClient {
     this.options.name = name;
   }
   private failAttempt(message: string): void {
+    if (this.roomAddress) {
+      this.closeTransport();
+      this.roomPeer?.destroy();
+      this.roomAttempt = false;
+      this.reportStatus('reconnecting');
+      return;
+    }
     this.close();
     this.reportStatus('failed');
     this.error(message);
@@ -866,6 +1058,48 @@ export class FatePeerClient {
   }
   private async receive(value: unknown): Promise<void> {
     if (!isRecord(value)) return;
+    if (this.roomAddress && !this.verifiedRoom) {
+      if (
+        value.type !== 'host-identity' ||
+        typeof value.campaignId !== 'string' ||
+        typeof value.publicKey !== 'string' ||
+        typeof value.signature !== 'string' ||
+        !this.roomNonce
+      )
+        return;
+      const generation = this.generation;
+      const address = this.roomAddress;
+      const room: SavedRoom = {
+        code: address.code,
+        campaignId: value.campaignId,
+        publicKey: value.publicKey,
+      };
+      const pinned = loadRoom(room.campaignId);
+      const expectedKey = pinned?.publicKey || address.publicKey;
+      const valid =
+        (!address.campaignId || address.campaignId === room.campaignId) &&
+        (!expectedKey || expectedKey === room.publicKey) &&
+        (!address.publicKey || address.publicKey === room.publicKey) &&
+        (await verifyHost(room, this.roomNonce, this.pc?.remoteDescription?.sdp || '', value.signature).catch(
+          () => false,
+        ));
+      if (generation !== this.generation || this.roomAddress !== address) return;
+      if (!valid) {
+        this.close();
+        this.reportStatus('failed');
+        this.error(
+          'The host identity does not match this saved table or QR link. Ask the GM for a new invitation.',
+        );
+        return;
+      }
+      this.verifiedRoom = room;
+      clearTimeout(this.connectionTimer);
+      this.campaignId = room.campaignId;
+      const credential = loadReconnect(room.campaignId);
+      await this.control!.send({ type: 'hello', name: this.options.name, token: credential?.token });
+      this.reportStatus('awaiting-approval');
+      return;
+    }
     if (value.type === 'approval-required') {
       if (this.approved) return;
       if (this.campaignId) clearReconnect(this.campaignId);
@@ -881,6 +1115,10 @@ export class FatePeerClient {
       value.characterIds.every((id) => typeof id === 'string')
     ) {
       saveReconnect(this.campaignId!, { token: value.token, memberId: value.memberId });
+      if (this.verifiedRoom) {
+        saveRoom(this.verifiedRoom);
+        this.roomAddress = { ...this.verifiedRoom };
+      }
       this.memberId = value.memberId;
       this.characterIds = value.characterIds;
       this.approved = true;
@@ -1010,6 +1248,106 @@ export class FatePeerClient {
       });
     });
   }
+  async joinPeerRoom(input: string): Promise<void> {
+    const parsed = parseRoomAddress(input);
+    const saved = loadRoomByCode(parsed.code);
+    if (saved && parsed.publicKey && saved.publicKey !== parsed.publicKey)
+      throw new Error('This link does not match the saved host identity. Ask the GM for the correct link.');
+    const address = saved ? { ...parsed, publicKey: saved.publicKey, campaignId: saved.campaignId } : parsed;
+    this.close();
+    this.roomAddress = address;
+    this.roomRetry = setInterval(() => {
+      void this.connectRoomAttempt();
+    }, 3_000);
+    this.stopRoomResume = observeResume(() => {
+      if (this.connected) void this.resume();
+      else void this.connectRoomAttempt();
+    });
+    await this.connectRoomAttempt();
+  }
+  private async connectRoomAttempt(): Promise<void> {
+    if (!this.roomAddress || this.roomAttempt || this.connected || this.currentStatus === 'awaiting-approval')
+      return;
+    const address = this.roomAddress;
+    this.roomAttempt = true;
+    this.closeTransport();
+    this.roomPeer?.destroy();
+    const generation = this.generation;
+    const broker = await createRoomPeer(undefined, rtcConfig(this.options));
+    if (generation !== this.generation || this.roomAddress !== address) {
+      broker.destroy();
+      return;
+    }
+    this.roomPeer = broker;
+    this.reportStatus('reconnecting');
+    this.watchConnection(CONNECTION_TIMEOUT_MS);
+    broker.on('connection', (connection) => connection.close());
+    broker.on('error', () => {
+      if (this.roomPeer === broker && this.roomAddress) this.failAttempt('Could not reach the host.');
+    });
+    broker.on('open', () => {
+      if (generation !== this.generation || this.roomAddress !== address) return;
+      const connection = broker.connect(address.code, {
+        label: 'fate-control',
+        serialization: 'raw',
+        reliable: true,
+      });
+      this.attachRoomConnection(connection, generation);
+    });
+  }
+  private attachRoomConnection(connection: DataConnection, generation: number): void {
+    const pc = connection.peerConnection;
+    this.pc = pc;
+    // PeerJS owns the primary channel; use a separate native channel on the same
+    // negotiated connection for images, preserving live-command responsiveness.
+    const originalDataChannel = pc.ondatachannel;
+    pc.ondatachannel = (event) => {
+      if (generation !== this.generation) {
+        event.channel.close();
+        return;
+      }
+      if (event.channel.label === 'fate-assets') {
+        new DataTransport(
+          event.channel,
+          (value) => {
+            if (generation === this.generation)
+              void this.receiveAsset(value).catch((error) => this.error(errorText(error)));
+          },
+          this.error,
+        );
+      } else originalDataChannel?.call(pc, event);
+    };
+    connection.on('error', () => {
+      if (generation === this.generation) this.failAttempt('The connection failed.');
+    });
+    connection.on('close', () => {
+      if (generation === this.generation) this.failAttempt('The host connection closed.');
+    });
+    pc.onconnectionstatechange = () => {
+      if (generation !== this.generation) return;
+      if (['failed', 'closed'].includes(pc.connectionState)) this.failAttempt('The connection failed.');
+      else if (pc.connectionState === 'disconnected' && this.approved) void this.resume();
+      else if (pc.connectionState === 'connected' && this.approved) void this.resume();
+    };
+    connection.on('open', () => {
+      if (generation !== this.generation) {
+        connection.close();
+        return;
+      }
+      this.control = new DataTransport(
+        connection.dataChannel,
+        (value) => {
+          if (generation === this.generation)
+            void this.receive(value).catch((error) => this.failAttempt(errorText(error)));
+        },
+        this.error,
+      );
+      this.roomNonce = crypto.randomUUID();
+      void this.control
+        .send({ type: 'identify', nonce: this.roomNonce })
+        .catch((error) => this.failAttempt(errorText(error)));
+    });
+  }
   async joinRoom(url: string, roomId: string): Promise<void> {
     const socket = new WebSocket(url);
     this.socket = socket;
@@ -1054,7 +1392,19 @@ export class FatePeerClient {
     if (this.campaignId) clearReconnect(this.campaignId);
   }
   close(): void {
+    this.roomAddress = undefined;
+    clearInterval(this.roomRetry);
+    this.stopRoomResume?.();
+    this.stopRoomResume = undefined;
+    this.closeTransport();
+    this.roomPeer?.destroy();
+    this.roomPeer = undefined;
+    this.roomAttempt = false;
+  }
+  private closeTransport(): void {
     this.generation++;
+    this.verifiedRoom = undefined;
+    this.roomNonce = undefined;
     clearTimeout(this.connectionTimer);
     clearInterval(this.recoveryTimer);
     this.recoveryTimer = undefined;

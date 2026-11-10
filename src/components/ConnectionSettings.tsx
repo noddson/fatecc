@@ -1,4 +1,5 @@
 import { Field } from '../ui';
+import { MANUAL_PAIRING_ENABLED } from '../network/rooms';
 import {
   CLOUDFLARE_STUN_URL,
   CLOUDFLARE_TURN_URL,
@@ -32,13 +33,13 @@ export function ConnectionSettingsEditor({ settings, onChange, disabled }: Conne
               value={settings.stunMode}
               onChange={(event) => change({ stunMode: event.target.value as ConnectionSettings['stunMode'] })}
             >
-              <option value="none">Local network only (no STUN)</option>
+              {MANUAL_PAIRING_ENABLED && <option value="none">Local network only (no STUN)</option>}
               <option value="cloudflare">Cloudflare STUN</option>
               <option value="google">Google STUN</option>
               <option value="custom">Custom STUN</option>
             </select>
           </Field>
-          {settings.stunMode === 'none' && (
+          {MANUAL_PAIRING_ENABLED && settings.stunMode === 'none' && (
             <p className="connection-service-help">
               Use this option when everyone is on the same local network.
             </p>
