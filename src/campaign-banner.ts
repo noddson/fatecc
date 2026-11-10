@@ -23,6 +23,6 @@ export function campaignBanner(
   if (campaign.maps.some((map) => map.revisions.some((revision) => coastAssets.has(revision.assetId))))
     return {
       src: `${import.meta.env.BASE_URL}illustrations/lantern-coast-dark-beacon.png`,
-      position: placement === 'overview' ? 0 : 50,
+      position: placement === 'overview' ? 25 : 50,
     };
 }
