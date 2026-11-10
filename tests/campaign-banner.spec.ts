@@ -122,8 +122,8 @@ test('campaign banners persist in overview and cards, while canceled replacement
   await dialog.getByRole('button', { name: 'Remove banner', exact: true }).click();
   await dialog.getByRole('button', { name: 'Save banner', exact: true }).click();
   await expect(dialog).not.toBeVisible();
-  await expect(image).toHaveCount(0);
-  await expect(page.locator('.coast-art')).toBeVisible();
+  await expect(image).toHaveAttribute('src', /lantern-coast-dark-beacon\.png$/);
+  await expect(page.locator('.coast-art')).toHaveCount(0);
   await page.reload();
   await expect(page.getByRole('button', { name: 'Add banner', exact: true })).toBeVisible();
 });

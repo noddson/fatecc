@@ -94,3 +94,9 @@ The three full Landon/Cynere/Zird retail sheet distributions previously used in 
 [columns]: https://github.com/fate-srd/fate-srd-content/blob/93ed848e723f31b4994b466b7241011ba24be885/source/fate-core-SRD.html#L5500
 [major]: https://github.com/fate-srd/fate-srd-content/blob/93ed848e723f31b4994b466b7241011ba24be885/source/fate-core-SRD.html#L5550
 [quick-stunts]: https://github.com/fate-srd/fate-srd-content/blob/93ed848e723f31b4994b466b7241011ba24be885/source/fate-core-SRD.html#L1090
+
+## Agreed Overcome costs
+
+The outcome dialog records a minor cost for an Overcome tie, or lets the table choose failure versus success at a serious cost for a failed Overcome. The agreed description is saved on the finalized roll and displayed in its result and activity entry. Optional effects create a situation aspect or boost on the scene or acting character; cost boosts grant one free invocation to the GM/opposition, enforced by the host even if a player forges a request. A cost need not create an aspect. Stress, resource spending, or other mechanical costs still require their respective controls. Older saved rolls without cost records remain valid.
+
+These fields record the table’s agreement; fictional suitability remains a human judgment. Private roll effects stay private, and the existing undo evidence reverses an unused linked effect without erasing its history. Historical cost aspect names remain readable after a boost is consumed or an aspect is removed.

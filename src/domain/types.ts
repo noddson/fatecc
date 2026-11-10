@@ -38,6 +38,7 @@ export interface Aspect {
   freeInvokes: number;
   ownerId?: string;
   freeInvokeOwnerId?: string;
+  freeInvokeGmOnly?: boolean;
   visibility: Visibility;
 }
 export interface Stunt {
@@ -193,6 +194,11 @@ export interface RollRecord {
   shifts: number;
   outcome: Outcome;
   explanation: string;
+  agreedCost?: {
+    severity: 'minor' | 'serious';
+    description: string;
+    aspect?: { id: string; name: string; kind: 'situation' | 'boost' };
+  };
   advantageExisting: boolean;
   invocations: { aspectId: string; name: string; free: boolean; bonus: number; reroll?: number[] }[];
   finalized: boolean;

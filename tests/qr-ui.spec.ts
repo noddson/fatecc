@@ -157,6 +157,10 @@ test('QR image invitations and responses join without a broker, preserve permiss
     await expect(invokeDialog.getByRole('button', { name: 'Add +2', exact: true })).toBeEnabled();
     await player.keyboard.press('Escape');
     await gm.getByRole('button', { name: 'Accept the outcome', exact: true }).click();
+    const minorCost = gm
+      .getByRole('dialog', { name: 'Accept the outcome', exact: true })
+      .getByLabel(/^Agreed minor cost/);
+    if (await minorCost.isVisible()) await minorCost.fill('The noise draws unwanted attention.');
     await gm.getByRole('button', { name: 'Finalize result', exact: true }).click();
     await expect(gm.locator('.roll-result')).toContainText('Finalized');
     await gm.getByRole('button', { name: 'Undo roll', exact: true }).click();

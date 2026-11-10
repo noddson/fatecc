@@ -20,6 +20,7 @@ const aspect = z.object({
   freeInvokes: integer,
   ownerId: id.optional(),
   freeInvokeOwnerId: id.optional(),
+  freeInvokeGmOnly: z.boolean().optional(),
   visibility,
 });
 const stunt = z.object({
@@ -185,6 +186,13 @@ const roll = z.object({
   shifts: number,
   outcome,
   explanation: text,
+  agreedCost: z
+    .object({
+      severity: z.enum(['minor', 'serious']),
+      description: text.min(1),
+      aspect: z.object({ id, name: label.min(1), kind: z.enum(['situation', 'boost']) }).optional(),
+    })
+    .optional(),
   advantageExisting: z.boolean(),
   invocations: z
     .array(

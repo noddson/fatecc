@@ -3325,3 +3325,16 @@ h2,
   line-height: 1.5;
   color: var(--text-muted, #65717d);
 }
+
+.roll-cost {
+  margin: 12px 0;
+  padding: 12px 14px;
+  border-left: 3px solid var(--brand, #175c8b);
+  background: #f2f5f8;
+  border-radius: 4px;
+  overflow-wrap: anywhere;
+}
+.roll-cost p {
+  margin: 6px 0 0;
+  white-space: pre-wrap;
+}

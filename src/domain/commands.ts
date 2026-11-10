@@ -55,6 +55,10 @@ export type GameCommand = BaseCommand &
         aspectName?: string;
         existingAspectId?: string;
         reduceAttackForBoost?: boolean;
+        agreedCost?: {
+          description: string;
+          aspect?: { name: string; kind: 'situation' | 'boost'; target?: 'scene' | 'character' };
+        };
       }
     | { type: 'compel'; characterId: string; accepted: boolean; reason: string; carryToNextScene?: boolean }
     | { type: 'adjustFate'; characterId: string; amount: number; reason: string }
@@ -343,6 +347,8 @@ export function applyCommand(original: Campaign, command: GameCommand, actor: Ac
         );
       if (command.free) {
         if (aspect.freeInvokes < 1) throw new Error('This aspect has no free invocations remaining.');
+        if (aspect.freeInvokeGmOnly && actor.role !== 'gm')
+          throw new Error('This free invocation belongs to the GM or opposition.');
         if (
           actor.role !== 'gm' &&
           aspect.freeInvokeOwnerId &&
@@ -418,6 +424,51 @@ export function applyCommand(original: Campaign, command: GameCommand, actor: Ac
         command.reduceAttackForBoost && roll.action === 'attack' && result.outcome === 'style';
       if (command.reduceAttackForBoost && !tradeForBoost)
         throw new Error('Only an attack that succeeds with style can trade one damage shift for a boost.');
+      const rollVisibility = campaign.events.find((e) => e.roll?.id === roll.id)?.visibility ?? c.visibility;
+      if (command.agreedCost !== undefined) {
+        if (roll.action !== 'overcome' || !['tie', 'failure'].includes(result.outcome))
+          throw new Error('An agreed cost applies to an Overcome tie or success at a serious cost.');
+        const cost = command.agreedCost;
+        if (
+          !cost ||
+          typeof cost.description !== 'string' ||
+          !cost.description.trim() ||
+          cost.description.length > 100_000
+        )
+          throw new Error('Describe the cost agreed by the table.');
+        roll.agreedCost = {
+          severity: result.outcome === 'tie' ? 'minor' : 'serious',
+          description: cost.description.trim(),
+        };
+        if (cost.aspect !== undefined) {
+          const effect = cost.aspect;
+          if (
+            !effect ||
+            !['situation', 'boost'].includes(effect.kind) ||
+            typeof effect.name !== 'string' ||
+            !effect.name.trim() ||
+            effect.name.length > 500 ||
+            (effect.target !== undefined && !['scene', 'character'].includes(effect.target))
+          )
+            throw new Error('Choose a named cost aspect or boost and its placement.');
+          const aspect = createAspect(
+            effect.kind,
+            effect.name.trim(),
+            effect.target === 'character' ? c.id : undefined,
+          );
+          aspect.visibility = rollVisibility === 'gm' || c.visibility === 'gm' ? 'gm' : 'shared';
+          if (effect.kind === 'boost') {
+            aspect.freeInvokes = 1;
+            aspect.freeInvokeGmOnly = true;
+          }
+          if (effect.target === 'character') {
+            c.aspects.push(aspect);
+            touch(c);
+          } else campaign.play.aspects.push(aspect);
+          roll.agreedCost.aspect = { id: aspect.id, name: aspect.name, kind: effect.kind };
+        }
+        roll.explanation = `Achieve your goal at a ${roll.agreedCost.severity} cost agreed by the table.`;
+      }
       if (result.boost || tradeForBoost) {
         const boost = createAspect('boost', command.aspectName?.trim() || `${c.name}'s opening`);
         boost.freeInvokes = 1;
@@ -453,7 +504,7 @@ export function applyCommand(original: Campaign, command: GameCommand, actor: Ac
         characterId: c.id,
         visibility: campaign.events.find((e) => e.roll?.id === roll.id)?.visibility ?? c.visibility,
         roll,
-        summary: `${c.name} finalizes ${roll.action}: ${roll.outcome}`,
+        summary: `${c.name} finalizes ${roll.action}: ${roll.agreedCost ? `success at a ${roll.agreedCost.severity} cost` : roll.outcome}`,
       };
       break;
     }

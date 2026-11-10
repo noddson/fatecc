@@ -65,6 +65,25 @@ export function reverseRoll(campaign: Campaign, roll: RollRecord): void {
   const later = campaign.events.slice(start);
   const related = later.filter((e) => e.roll?.id === roll.id);
   const undoneIds = new Set(campaign.events.filter((e) => e.roll?.undone).map((e) => e.roll!.id));
+  const createdAspects = new Set(
+    related.flatMap((event) =>
+      (event.undoChanges || []).flatMap((change) =>
+        change.kind === 'aspect' && !change.before && change.after ? [change.id] : [],
+      ),
+    ),
+  );
+  if (
+    later.some(
+      (event) =>
+        event.roll &&
+        event.roll.id !== roll.id &&
+        !undoneIds.has(event.roll.id) &&
+        event.roll.invocations.some((invocation) => createdAspects.has(invocation.aspectId)),
+    )
+  )
+    throw new Error(
+      'An effect of this roll has since changed or been used. Undo the dependent roll first, or correct the affected state manually.',
+    );
   const affected = new Set([roll.characterId, roll.targetCharacterId]);
   for (const event of related)
     for (const change of event.undoChanges || [])

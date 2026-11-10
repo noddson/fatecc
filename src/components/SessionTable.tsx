@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import { controlledCharacters, playerName } from '../domain/player-view';
 import { activeRolls } from '../domain/commands';
-import { deriveCharacter, initiative, resolveMobHit, validateHarm } from '../domain/rules';
+import { deriveCharacter, initiative, resolveAction, resolveMobHit, validateHarm } from '../domain/rules';
 import { id } from '../domain/defaults';
 import type { Action, Character, RollRecord } from '../domain/types';
 import { StressHelp } from './StressHelp';
@@ -86,6 +86,11 @@ export function SessionTable({
   const [resultName, setResultName] = useState('');
   const [existingAspect, setExistingAspect] = useState('');
   const [tradeBoost, setTradeBoost] = useState(false);
+  const [succeedAtCost, setSucceedAtCost] = useState(false);
+  const [costDescription, setCostDescription] = useState('');
+  const [costEffect, setCostEffect] = useState<'none' | 'situation' | 'boost'>('none');
+  const [costName, setCostName] = useState('');
+  const [costTarget, setCostTarget] = useState<'scene' | 'character'>('scene');
   const [harm, setHarm] = useState<Character>();
   const [track, setTrack] = useState('physical');
   const [shifts, setShifts] = useState(2);
@@ -114,6 +119,12 @@ export function SessionTable({
     a.name.trim(),
   );
   const invokeGroups = invoke ? invocationAspectGroups(c, invoke.characterId, !!readOnly) : [];
+  const finalResult = finalize
+    ? resolveAction(finalize.action, finalize.total, finalize.opposition, finalize.advantageExisting)
+    : undefined;
+  const hasAgreedCost =
+    finalize?.action === 'overcome' &&
+    (finalize.outcome === 'tie' || (finalize.outcome === 'failure' && succeedAtCost));
   const sourceHit = sourceRollId ? rolls.find((r) => r.id === sourceRollId) : undefined;
   const harmConsequences = Object.entries(consequences)
     .filter(([, name]) => name.trim())
@@ -420,13 +431,15 @@ export function SessionTable({
                 <div className="roll-total">
                   <strong>{signed(roll.total)}</strong>
                   <span>
-                    {roll.outcome === 'style'
-                      ? 'Success with style'
-                      : roll.outcome === 'failure'
-                        ? 'A complication'
-                        : roll.outcome === 'tie'
-                          ? 'A tie'
-                          : 'Success'}
+                    {roll.agreedCost
+                      ? 'Success at a cost'
+                      : roll.outcome === 'style'
+                        ? 'Success with style'
+                        : roll.outcome === 'failure'
+                          ? 'A complication'
+                          : roll.outcome === 'tie'
+                            ? 'A tie'
+                            : 'Success'}
                   </span>
                 </div>
               </div>
@@ -439,6 +452,7 @@ export function SessionTable({
                 · opposition {signed(roll.opposition)}
               </p>
               <p className="outcome-explanation">{roll.explanation}</p>
+              {roll.agreedCost && <AgreedCostSummary cost={roll.agreedCost} />}
               {roll.invocations.length > 0 && (
                 <div className="tags">
                   {roll.invocations.map((inv, i) => (
@@ -468,6 +482,11 @@ export function SessionTable({
                       setResultName('');
                       setExistingAspect('');
                       setTradeBoost(false);
+                      setSucceedAtCost(false);
+                      setCostDescription('');
+                      setCostEffect('none');
+                      setCostName('');
+                      setCostTarget('scene');
                     }}
                   >
                     <Check size={16} />
@@ -535,6 +554,9 @@ export function SessionTable({
                         </div>
                         <strong>{event.summary}</strong>
                         {event.detail && <p>{event.detail}</p>}
+                        {event.type === 'finalizeRoll' && event.roll?.agreedCost && (
+                          <AgreedCostSummary cost={event.roll.agreedCost} />
+                        )}
                         {event.roll && (
                           <p className="inline-roll">
                             {event.roll.dice.map((d) => (d > 0 ? '+' : d < 0 ? '−' : '0')).join(' ')}{' '}
@@ -570,7 +592,9 @@ export function SessionTable({
                 <strong>{aspect.name}</strong>
                 <div>
                   <Badge>{aspect.kind}</Badge>
-                  <small>{aspect.freeInvokes} free invokes</small>
+                  <small>
+                    {aspect.freeInvokes} free invokes{aspect.freeInvokeGmOnly ? ' · GM/opposition' : ''}
+                  </small>
                   {!readOnly && (
                     <ConfirmButton
                       title="Remove this scene aspect?"
@@ -973,9 +997,14 @@ export function SessionTable({
               {invokeGroups.map((group) => (
                 <optgroup key={group.label} label={group.label}>
                   {group.aspects.map((a) => (
-                    <option key={a.id} value={a.id}>
+                    <option
+                      key={a.id}
+                      value={a.id}
+                      disabled={!!readOnly && a.kind === 'boost' && a.freeInvokeGmOnly}
+                    >
                       {a.name}
                       {a.freeInvokes ? ` · ${a.freeInvokes} free` : ''}
+                      {a.freeInvokeGmOnly ? ' · GM/opposition' : ''}
                     </option>
                   ))}
                 </optgroup>
@@ -1046,13 +1075,77 @@ export function SessionTable({
       {finalize && (
         <Modal title="Accept the outcome" close={() => setFinalize(undefined)}>
           <p>{finalize.explanation}</p>
-          <Field label="Name any resulting aspect or boost">
-            <input
-              value={resultName}
-              onChange={(e) => setResultName(e.target.value)}
-              placeholder="Caught off balance"
-            />
-          </Field>
+          {finalize.action === 'overcome' && finalize.outcome === 'failure' && (
+            <Field label="Resolve the failed Overcome">
+              <select
+                value={succeedAtCost ? 'cost' : 'failure'}
+                onChange={(e) => setSucceedAtCost(e.target.value === 'cost')}
+              >
+                <option value="failure">Accept failure</option>
+                <option value="cost">Succeed at a serious cost</option>
+              </select>
+            </Field>
+          )}
+          {hasAgreedCost && (
+            <>
+              <Field
+                label={finalize.outcome === 'tie' ? 'Agreed minor cost' : 'Agreed serious cost'}
+                hint="Describe the cost agreed by the table. Apply any stress, resource spending, or other changes separately."
+              >
+                <textarea
+                  rows={3}
+                  value={costDescription}
+                  onChange={(e) => setCostDescription(e.target.value)}
+                  maxLength={100000}
+                />
+              </Field>
+              <Field label="Associated cost effect">
+                <select
+                  value={costEffect}
+                  onChange={(e) => setCostEffect(e.target.value as typeof costEffect)}
+                >
+                  <option value="none">Record the cost only</option>
+                  <option value="situation">Create an aspect</option>
+                  <option value="boost">Create a boost for the GM/opposition</option>
+                </select>
+              </Field>
+              {costEffect !== 'none' && (
+                <>
+                  <Field label="Cost aspect or boost name">
+                    <input
+                      value={costName}
+                      onChange={(e) => setCostName(e.target.value)}
+                      maxLength={500}
+                      placeholder="Hasty work"
+                    />
+                  </Field>
+                  <Field label="Cost effect applies to">
+                    <select
+                      value={costTarget}
+                      onChange={(e) => setCostTarget(e.target.value as typeof costTarget)}
+                    >
+                      <option value="scene">The scene</option>
+                      <option value="character">{finalize.characterName}</option>
+                    </select>
+                  </Field>
+                  {costEffect === 'boost' && (
+                    <p className="muted">
+                      The GM/opposition receives one free invocation. The boost is removed when used.
+                    </p>
+                  )}
+                </>
+              )}
+            </>
+          )}
+          {finalResult?.boost || finalResult?.freeInvokes || tradeBoost ? (
+            <Field label="Name any resulting aspect or boost">
+              <input
+                value={resultName}
+                onChange={(e) => setResultName(e.target.value)}
+                placeholder="Caught off balance"
+              />
+            </Field>
+          ) : null}
           {finalize.advantageExisting && (
             <Field label="Existing aspect">
               <select value={existingAspect} onChange={(e) => setExistingAspect(e.target.value)}>
@@ -1080,7 +1173,10 @@ export function SessionTable({
             <button onClick={() => setFinalize(undefined)}>Keep the roll open</button>
             <button
               className="button-primary"
-              disabled={!canAct(finalize.characterId)}
+              disabled={
+                !canAct(finalize.characterId) ||
+                (hasAgreedCost && (!costDescription.trim() || (costEffect !== 'none' && !costName.trim())))
+              }
               onClick={() => {
                 void dispatch({
                   type: 'finalizeRoll',
@@ -1088,6 +1184,15 @@ export function SessionTable({
                   aspectName: resultName,
                   existingAspectId: existingAspect || undefined,
                   reduceAttackForBoost: tradeBoost,
+                  agreedCost: hasAgreedCost
+                    ? {
+                        description: costDescription,
+                        aspect:
+                          costEffect !== 'none'
+                            ? { name: costName, kind: costEffect, target: costTarget }
+                            : undefined,
+                      }
+                    : undefined,
                 }).then((ok) => {
                   if (ok) setFinalize(undefined);
                 });
@@ -1429,5 +1534,19 @@ export function SessionTable({
         </Modal>
       )}
     </>
+  );
+}
+
+function AgreedCostSummary({ cost }: { cost: NonNullable<RollRecord['agreedCost']> }) {
+  return (
+    <div className="roll-cost">
+      <strong>{cost.severity === 'minor' ? 'Agreed minor cost' : 'Agreed serious cost'}</strong>
+      <p>{cost.description}</p>
+      {cost.aspect && (
+        <p>
+          {cost.aspect.kind === 'boost' ? 'Boost for GM/opposition' : 'Aspect'}: {cost.aspect.name}
+        </p>
+      )}
+    </div>
   );
 }

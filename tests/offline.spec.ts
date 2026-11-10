@@ -45,6 +45,9 @@ test('Lantern Coast can be created with its bundled map while offline', async ({
   await context.setOffline(true);
   await page.getByRole('button', { name: 'Explore The Lantern Coast' }).click();
   await expect(page.getByRole('heading', { name: 'The Lantern Coast', exact: true })).toBeVisible();
+  const banner = page.locator('.story-banner .campaign-banner-image');
+  await expect(banner).toHaveAttribute('src', /lantern-coast-dark-beacon\.png$/);
+  await expect.poll(() => banner.evaluate((img: HTMLImageElement) => img.naturalWidth)).toBe(2172);
   await page
     .getByRole('navigation', { name: 'Campaign' })
     .getByRole('button', { name: 'Maps & zones', exact: true })

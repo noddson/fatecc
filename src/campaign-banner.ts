@@ -1,4 +1,5 @@
 import type { Campaign } from './domain/types';
+import { LANTERN_COAST_MAP_HASH } from './sample-map';
 
 /** Uploaded artwork takes priority; the starter credit also identifies existing and renamed copies. */
 export function campaignBanner(campaign: Campaign): { src: string; position: number } | undefined {
@@ -13,4 +14,9 @@ export function campaignBanner(campaign: Campaign): { src: string; position: num
       src: `${import.meta.env.BASE_URL}illustrations/hearts-of-steel-riverton.png`,
       position: 50,
     };
+  const coastAssets = new Set(
+    campaign.assets.filter((asset) => asset.hash === LANTERN_COAST_MAP_HASH).map((asset) => asset.id),
+  );
+  if (campaign.maps.some((map) => map.revisions.some((revision) => coastAssets.has(revision.assetId))))
+    return { src: `${import.meta.env.BASE_URL}illustrations/lantern-coast-dark-beacon.png`, position: 50 };
 }

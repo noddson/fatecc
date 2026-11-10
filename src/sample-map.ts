@@ -2,7 +2,7 @@ import { id } from './domain/defaults';
 import type { Asset, CampaignMap, Character, Zone } from './domain/types';
 import { createAsset } from './storage/assets';
 
-const mapHash = '447f2e3c607b3bedd638f419aea9b996b559e242db23ee4b79a372972077594c';
+export const LANTERN_COAST_MAP_HASH = '447f2e3c607b3bedd638f419aea9b996b559e242db23ee4b79a372972077594c';
 
 /** The bundled image is cached with the app, then embedded in the campaign for portable backups. */
 export async function loadLanternCoastMap(
@@ -14,7 +14,8 @@ export async function loadLanternCoastMap(
     new File([await response.blob()], 'lantern-coast.png', { type: 'image/png' }),
     'shared',
   );
-  if (asset.hash !== mapHash) throw new Error('The Lantern Coast map failed its image integrity check.');
+  if (asset.hash !== LANTERN_COAST_MAP_HASH)
+    throw new Error('The Lantern Coast map failed its image integrity check.');
   const harbor = id(),
     lighthouse = id(),
     road = id(),
