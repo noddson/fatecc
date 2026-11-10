@@ -2,7 +2,10 @@ import type { Campaign } from './domain/types';
 import { LANTERN_COAST_MAP_HASH } from './sample-map';
 
 /** Uploaded artwork takes priority; the starter credit also identifies existing and renamed copies. */
-export function campaignBanner(campaign: Campaign): { src: string; position: number } | undefined {
+export function campaignBanner(
+  campaign: Campaign,
+  placement: 'overview' | 'card' = 'card',
+): { src: string; position: number } | undefined {
   const uploaded = campaign.assets.find((asset) => asset.id === campaign.bannerAssetId);
   if (uploaded) return { src: uploaded.dataUrl, position: campaign.bannerPosition ?? 50 };
   if (
@@ -18,5 +21,8 @@ export function campaignBanner(campaign: Campaign): { src: string; position: num
     campaign.assets.filter((asset) => asset.hash === LANTERN_COAST_MAP_HASH).map((asset) => asset.id),
   );
   if (campaign.maps.some((map) => map.revisions.some((revision) => coastAssets.has(revision.assetId))))
-    return { src: `${import.meta.env.BASE_URL}illustrations/lantern-coast-dark-beacon.png`, position: 50 };
+    return {
+      src: `${import.meta.env.BASE_URL}illustrations/lantern-coast-dark-beacon.png`,
+      position: placement === 'overview' ? 0 : 50,
+    };
 }

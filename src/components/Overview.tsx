@@ -14,7 +14,7 @@ export function Overview({
 }: EditorProps & { navigate: (page: string) => void }) {
   const [editing, setEditing] = useState(false);
   const [editingBanner, setEditingBanner] = useState(false);
-  const banner = campaignBanner(c);
+  const banner = campaignBanner(c, 'overview');
   const [form, setForm] = useState({ name: c.name, tagline: c.tagline, setting: c.setting, scale: c.scale });
   const [issue, setIssue] = useState('');
   const [baseDetails, setBaseDetails] = useState({
