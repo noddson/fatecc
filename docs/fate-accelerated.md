@@ -1,10 +1,10 @@
 # Fate Accelerated campaigns
 
-Each campaign uses one system. Creation defaults to Core and offers Accelerated with a short explanation of its approaches and shared stress. Campaign cards, the left navigation, and the top breadcrumb name the system with a small badge. Text remains visible on mobile and does not depend on color. Page titles remain campaign- or task-specific.
+Each campaign uses one system. Creation defaults to Core and offers Accelerated with a short explanation of its approaches and shared stress. Campaign cards and the top breadcrumb name the system with a small badge. The left navigation shows the campaign name without repeating the system label. Text remains visible on mobile and does not depend on color. Page titles remain campaign- or task-specific.
 
 ## Rules and compatibility
 
-The system is stored on the saved rules definition, independently of editable preset names and custom rules IDs. Old rules definitions without a system retain Core behavior. Presets are cloned for each campaign. Changing systems through imported game settings is blocked; cross-system character imports are blocked with an explanation. New campaigns are the supported way to choose another system. Existing campaigns, samples, historical rolls, browser database names, and backup format identifiers remain compatible.
+The system is stored on the saved rules definition, independently of editable preset names and custom rules IDs. Old rules definitions without a system retain Core behavior. Presets are cloned for each campaign. Changing systems through imported game settings is blocked; cross-system character imports are blocked with an explanation. New campaigns are the supported way to choose another system. Existing campaigns, the two Core starters, historical rolls, browser database names, and backup format identifiers remain compatible.
 
 Accelerated PCs use six approaches and starting ratings +3/+2/+2/+1/+1/+0. Validation requires a high concept, trouble, and a third aspect for full creation; two further aspects are optional. No phase trio is created. The first three stunts are free; choosing one to begin or discovering it during play follows the SRD. Approaches do not grant stress bonuses or extra consequence slots. One shared track has rated boxes 1/2/3, with normal 2/4/6 consequences. Core extreme consequences are unavailable.
 
@@ -17,6 +17,12 @@ Stress clears at scene boundaries. Consequence recovery needs appropriate narrat
 Accelerated nameless NPCs are mooks with free-text specialties (+2), weaknesses (−2), and everything else (+0), plus zero to two stress boxes for an individual. A grouped mook receives one stress box per two members, and no consequences. Groups are bounded at 40 members to preserve the existing 20-box import limit; split larger forces into multiple groups. Other NPC profiles use the full approaches-based rules. Core mob overflow is reserved for Core; use a grouped mook in Accelerated.
 
 The approach map continues to use the existing serialized rating and roll fields. System-specific interpretation lives in the domain rules and commands. JSON/ZIP exports, duplication, indexed storage schemas, player projections, and printed character/game worksheets retain the system and mook fields. Older application builds reject the new approach allocation rather than silently treating an Accelerated campaign as Core; all players should use the current build.
+
+## Accelerated starter
+
+**Explore Cirrus Skimmer (Accelerated)** loads an independent playable example with three ready PCs, two mook profiles, a full NPC profile, scene aspects, inventory, locations, and private GM prompts. Voltaire’s canonical aspects, approach allocation, and stunt effect are retained from the pinned Accelerated SRD. The sky shark comes from its mook examples. Sanchez is named in Voltaire’s aspect, but his build, Mira Vale, the naval opposition, Cloudbreak Anchorage, the cargo, and the opening adventure are companion additions. Sources and full attribution live in a dedicated campaign reference and survive backups. The SRD provides four characters from separate settings rather than a developed adventure; this starter does not present the added scenario as official material.
+
+The printable game worksheet omits rules revision numbers and explanatory “Governing skill” / “Fixed capacity” labels. Actual mechanics, house rules, privacy labels, and required attribution remain.
 
 ## Rules library sources and attribution
 

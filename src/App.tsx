@@ -66,6 +66,7 @@ import {
 } from './ui';
 import { sampleCampaign } from './sample';
 import { heartsOfSteelCampaign } from './hearts-of-steel';
+import { cirrusSkimmerCampaign } from './cirrus-skimmer';
 
 type PlayerSnapshot = { id: string; campaign: Campaign; actor?: Actor };
 const cacheDb = new Dexie('fate-player-cache') as Dexie & {
@@ -91,7 +92,7 @@ export default function App() {
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState<{ text: string; error: boolean }>();
   const [creating, setCreating] = useState(false);
-  const [loadingSample, setLoadingSample] = useState<'lantern' | 'hearts' | null>(null);
+  const [loadingSample, setLoadingSample] = useState<'lantern' | 'hearts' | 'cirrus' | null>(null);
   const [createName, setCreateName] = useState('');
   const [createSystem, setCreateSystem] = useState<FateSystem>('fate-core');
   const [createKind, setCreateKind] = useState<'campaign' | 'one-shot'>('campaign');
@@ -265,11 +266,17 @@ export default function App() {
       notify(e instanceof Error ? e.message : String(e), true);
     }
   };
-  const exploreSample = async (sample: 'lantern' | 'hearts') => {
+  const exploreSample = async (sample: 'lantern' | 'hearts' | 'cirrus') => {
     if (loadingSample) return;
     setLoadingSample(sample);
     try {
-      await add(sample === 'hearts' ? await heartsOfSteelCampaign() : await sampleCampaign());
+      await add(
+        sample === 'cirrus'
+          ? cirrusSkimmerCampaign()
+          : sample === 'hearts'
+            ? await heartsOfSteelCampaign()
+            : await sampleCampaign(),
+      );
     } catch (error) {
       notify(error instanceof Error ? error.message : 'The example campaign could not be loaded.', true);
     } finally {
@@ -384,7 +391,6 @@ export default function App() {
             <div className="sidebar-campaign">
               <span className="eyebrow">{remote ? 'PLAYER VIEW' : 'CURRENT CAMPAIGN'}</span>
               <strong>{campaign.name}</strong>
-              <SystemBadge rules={campaign.rules} />
             </div>
             <nav aria-label="Campaign">
               {navigation
@@ -705,6 +711,16 @@ export default function App() {
                   onClick={() => void exploreSample('hearts')}
                 >
                   {loadingSample === 'hearts' ? 'Loading Hearts of Steel…' : 'Explore Hearts of Steel'}{' '}
+                  <ArrowRight size={16} />
+                </button>
+                <button
+                  className="button-text"
+                  disabled={!!loadingSample}
+                  onClick={() => void exploreSample('cirrus')}
+                >
+                  {loadingSample === 'cirrus'
+                    ? 'Loading Cirrus Skimmer…'
+                    : 'Explore Cirrus Skimmer (Accelerated)'}{' '}
                   <ArrowRight size={16} />
                 </button>
               </div>

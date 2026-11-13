@@ -130,6 +130,9 @@ test('print packets use configured rules and current state, with shared handouts
   await expect(packet).toContainText('Body only');
   await expect(packet).toContainText('Recovery started');
   await expect(packet).toContainText('Custom campaign: a second shared mild consequence slot.');
+  await expect(packet.locator('.fs-game')).not.toContainText(
+    /rules revision|Governing skill:|Fixed capacity/i,
+  );
   await expect(packet).toContainText('Mara’s brass compass');
   await expect(packet).toContainText('Silas Reed');
   await expect(packet).not.toContainText('GM secret');

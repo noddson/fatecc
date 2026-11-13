@@ -11,10 +11,7 @@ export function GameWorksheet({ campaign: c }: { campaign: Campaign }) {
   const places = c.world.filter((entry) => entry.kind === 'location' || entry.kind === 'faction');
   return (
     <article className="fate-sheet fs-game">
-      <SheetHeader
-        title="Game creation worksheet"
-        subtitle={`${c.name} · ${r.name} · rules revision ${r.version}`}
-      />
+      <SheetHeader title="Game creation worksheet" subtitle={`${c.name} · ${r.name}`} />
       <div className="fs-labelled-box">
         <span>Game name</span>
         <TextValue>{c.name}</TextValue>
@@ -109,11 +106,6 @@ export function GameWorksheet({ campaign: c }: { campaign: Campaign }) {
               {r.stressTracks.map((track) => (
                 <div key={track.id}>
                   {track.name}: {track.boxes.join(', ') || 'none'}
-                  <small>
-                    {track.skillId
-                      ? `Governing skill: ${r.skills.find((s) => s.id === track.skillId)?.name || track.skillId}`
-                      : 'Fixed capacity'}
-                  </small>
                 </div>
               ))}
             </dd>

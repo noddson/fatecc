@@ -9,7 +9,8 @@ async function createCampaign(page: Page, name: string, system: string) {
     system === 'fate-core' ? 'Fate Core uses skills' : 'Fate Accelerated uses six approaches',
   );
   await dialog.getByRole('button', { name: 'Create campaign', exact: true }).click();
-  await expect(page.locator('.sidebar-campaign .system-badge')).toHaveText(
+  await expect(page.locator('.sidebar-campaign .system-badge')).toHaveCount(0);
+  await expect(page.locator('.breadcrumb .system-badge')).toHaveText(
     system === 'fate-core' ? 'Fate Core' : 'Fate Accelerated',
   );
 }
@@ -24,7 +25,7 @@ test('campaign choice, subtle identity, Accelerated sheets, table and offline re
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Sky pirates');
   await expect(page.locator('.breadcrumb .system-badge')).toHaveText('Fate Accelerated');
   await page.reload();
-  await expect(page.locator('.sidebar-campaign .system-badge')).toHaveText('Fate Accelerated');
+  await expect(page.locator('.breadcrumb .system-badge')).toHaveText('Fate Accelerated');
   await navigate(page, 'Characters');
   await page.getByRole('button', { name: 'New character', exact: true }).click();
   await page.getByRole('dialog').getByLabel('Name', { exact: true }).fill('Captain');
@@ -102,6 +103,39 @@ test('Accelerated identity stays visible on a narrow screen', async ({ page }) =
   await expect(page.locator('.breadcrumb .system-badge')).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   await page.screenshot({ path: '/private/tmp/fate-accelerated-mobile.png', fullPage: true });
+});
+
+test('Cirrus Skimmer loads a playable Accelerated starter and keeps game-sheet metadata out of print', async ({
+  page,
+}) => {
+  await page.goto('./');
+  await page.getByRole('button', { name: 'Explore Cirrus Skimmer (Accelerated)', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Cirrus Skimmer', level: 1, exact: true })).toBeVisible();
+  await expect(page.locator('.breadcrumb .system-badge')).toHaveText('Fate Accelerated');
+  await expect(page.locator('.sidebar-campaign .system-badge')).toHaveCount(0);
+  await navigate(page, 'Characters');
+  await expect(page.locator('.character-card')).toHaveCount(3);
+  await page.locator('.character-card').filter({ hasText: 'Voltaire' }).click();
+  await page.getByRole('button', { name: 'Approaches', exact: true }).click();
+  await expect(page.getByRole('combobox', { name: 'Flashy rating', exact: true })).toHaveValue('3');
+  await expect(page.getByRole('combobox', { name: 'Forceful rating', exact: true })).toHaveValue('0');
+  await navigate(page, 'At the table');
+  await page.getByRole('combobox', { name: 'Approach', exact: true }).selectOption('flashy');
+  await page.getByRole('button', { name: /Roll the dice/ }).click();
+  await expect(page.locator('.roll-math')).toContainText('Flashy +3');
+  await navigate(page, 'Print sheets');
+  const game = page.locator('.print-packet .fs-game');
+  await expect(game).toContainText('Cirrus Skimmer');
+  await expect(game).toContainText('Fate Accelerated');
+  await expect(game).toContainText('Approaches');
+  await expect(game).not.toContainText(/rules revision|Governing skill:|Fixed capacity/i);
+  await game.screenshot({ path: '/private/tmp/fate-cirrus-game-sheet.png' });
+  await page.reload();
+  await expect(page.getByRole('heading', { name: 'Cirrus Skimmer', level: 1, exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'My campaigns', exact: true }).click();
+  await expect(
+    page.locator('.campaign-card').filter({ hasText: 'Cirrus Skimmer' }).locator('.system-badge'),
+  ).toHaveText('Fate Accelerated');
 });
 
 test('Accelerated mook profiles persist and roll specialties instead of approaches', async ({ page }) => {

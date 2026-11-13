@@ -1,5 +1,28 @@
 import { expect, test } from '@playwright/test';
 
+test('Cirrus Skimmer can be loaded as an Accelerated example entirely offline', async ({ page, context }) => {
+  test.skip(!process.env.FATE_TEST_URL, 'Requires the built PWA.');
+  await page.goto('./');
+  await page.evaluate(async () => {
+    await navigator.serviceWorker.ready;
+  });
+  await page.reload();
+  await expect.poll(() => page.evaluate(() => !!navigator.serviceWorker.controller)).toBe(true);
+  await context.setOffline(true);
+  await page.getByRole('button', { name: 'Explore Cirrus Skimmer (Accelerated)', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Cirrus Skimmer', level: 1, exact: true })).toBeVisible();
+  await expect(page.locator('.breadcrumb .system-badge')).toHaveText('Fate Accelerated');
+  await expect(page.locator('.sidebar-campaign .system-badge')).toHaveCount(0);
+  await page.reload();
+  await page
+    .getByRole('navigation', { name: 'Campaign' })
+    .getByRole('button', { name: 'Characters', exact: true })
+    .click();
+  await expect(page.locator('.character-card')).toHaveCount(3);
+  await expect(page.locator('.character-card').filter({ hasText: 'Voltaire' })).toBeVisible();
+  await context.setOffline(false);
+});
+
 test('an Accelerated campaign can be created, reloaded, and searched entirely offline', async ({
   page,
   context,
@@ -19,7 +42,7 @@ test('an Accelerated campaign can be created, reloaded, and searched entirely of
   await dialog.getByRole('button', { name: 'Create campaign', exact: true }).click();
   await expect(page.locator('.breadcrumb .system-badge')).toHaveText('Fate Accelerated');
   await page.reload();
-  await expect(page.locator('.sidebar-campaign .system-badge')).toHaveText('Fate Accelerated');
+  await expect(page.locator('.breadcrumb .system-badge')).toHaveText('Fate Accelerated');
   await page
     .getByRole('navigation', { name: 'Campaign' })
     .getByRole('button', { name: 'Rules library', exact: true })

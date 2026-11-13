@@ -3370,20 +3370,6 @@ h2,
   background: currentColor;
   flex: none;
 }
-.sidebar-campaign .system-badge {
-  margin-top: 10px;
-  font-size: 10px;
-}
-.sidebar-campaign .system-core {
-  color: #c4e1f2;
-  background: #ffffff08;
-  border-color: #c4e1f240;
-}
-.sidebar-campaign .system-accelerated {
-  color: #f1d098;
-  background: #ffffff08;
-  border-color: #f1d09850;
-}
 .campaign-card-body .system-badge {
   margin: 5px 0 3px;
 }
