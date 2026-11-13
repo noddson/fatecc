@@ -1,0 +1,24 @@
+{
+  "generatedOn": "2026-11-13",
+  "tool": "built-in ImageGen",
+  "prompts": "docs/cirrus-skimmer-art-prompts.md",
+  "artwork": "Original companion artwork and geography; not official Fate SRD art.",
+  "assets": [
+    {
+      "role": "map",
+      "path": "public/sample/cirrus-skimmer-sea-of-clouds.png",
+      "width": 1536,
+      "height": 1024,
+      "bytes": 3245215,
+      "sha256": "684ae62b400d94f8e3d5bc03d2cddab4dfa73a700fbe967642acf7de909a7230"
+    },
+    {
+      "role": "banner",
+      "path": "public/illustrations/cirrus-skimmer-sea-of-clouds.png",
+      "width": 2172,
+      "height": 724,
+      "bytes": 2419047,
+      "sha256": "66c1fa918e4b5def448954da4b0ceb2d6bd75d505d8cdde6d99a30b6207c7ba7"
+    }
+  ]
+}

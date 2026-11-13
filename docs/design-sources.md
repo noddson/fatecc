@@ -40,6 +40,12 @@ The app bundles and precaches the banner. The overview and campaign card use it 
 
 The unchanged PNG has SHA-256 `24795fe2d40896f541419ca4affdd59a871b48f3f125f73388476498943fb751`. New Hearts of Steel starters load and verify the precached image, then embed it as a shared map asset with an initial revision and no overlays. The map travels in both GM and player JSON/ZIP backups. Existing campaigns can upload the bundled PNG without replacing their maps or campaign data.
 
+## Cirrus Skimmer banner and Sea of Clouds chart
+
+`public/illustrations/cirrus-skimmer-sea-of-clouds.png` is a panoramic original companion illustration of the skyship approaching Cloudbreak Anchorage. It uses the existing Lantern Coast and Hearts of Steel banners as painting-style references and the generated regional chart as a geography reference. The crescent island, slate roofs, wooden skyship docks, teal beacon, Glasswind Spires, and Stormwall agree between the banner and map. A scale correction reduces the vessel to a few house-widths so the anchorage reads as an island port with room for several ships. It is the default for existing and new Cirrus Skimmer starters identified by their credits entry, including renamed copies; uploaded banners take priority.
+
+`public/sample/cirrus-skimmer-sea-of-clouds.png` is an overhead regional chart with seven labeled travel areas, aerial routes, and space for movable tokens. An initial oblique chart was refined into a straight-down plan view. New starters embed its verified bytes as a shared map with connected travel zones and PC tokens in Trade Winds Reach. Existing campaigns can upload the supplied PNG without changing other maps. Both images are original AI-generated companion art created with the built-in ImageGen tool on 2026-11-13; the geography is not official Fate setting material and no book art is copied. See [exact prompts](cirrus-skimmer-art-prompts.md) and [dimensions, sizes, and SHA-256 hashes](cirrus-skimmer-art-assets.json).
+
 ## Font identification
 
 The PDF's page font-resource dictionaries identify **Gotham** for headings, labels, and examples, and **Adobe Garamond Pro** for most prose. The following counts are the number of pages with each font listed in their resources, after removing subset prefixes. They are not glyph counts or a measurement of how much text each face sets.

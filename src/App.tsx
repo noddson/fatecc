@@ -272,7 +272,7 @@ export default function App() {
     try {
       await add(
         sample === 'cirrus'
-          ? cirrusSkimmerCampaign()
+          ? await cirrusSkimmerCampaign()
           : sample === 'hearts'
             ? await heartsOfSteelCampaign()
             : await sampleCampaign(),

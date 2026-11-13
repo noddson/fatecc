@@ -113,6 +113,20 @@ test('Cirrus Skimmer loads a playable Accelerated starter and keeps game-sheet m
   await expect(page.getByRole('heading', { name: 'Cirrus Skimmer', level: 1, exact: true })).toBeVisible();
   await expect(page.locator('.breadcrumb .system-badge')).toHaveText('Fate Accelerated');
   await expect(page.locator('.sidebar-campaign .system-badge')).toHaveCount(0);
+  const banner = page.locator('.story-banner .campaign-banner-image');
+  await expect(banner).toHaveAttribute('src', /cirrus-skimmer-sea-of-clouds\.png$/);
+  await expect
+    .poll(() => banner.evaluate((img: HTMLImageElement) => [img.naturalWidth, img.naturalHeight]))
+    .toEqual([2172, 724]);
+  await page.screenshot({ path: '/private/tmp/fate-cirrus-banner-overview.png', fullPage: true });
+  await navigate(page, 'Maps & zones');
+  const chart = page.locator('.map-image');
+  await expect
+    .poll(() => chart.evaluate((img: HTMLImageElement) => [img.naturalWidth, img.naturalHeight]))
+    .toEqual([1536, 1024]);
+  await expect(page.getByRole('button', { name: /^Zone:/ })).toHaveCount(7);
+  await expect(page.getByRole('button', { name: /^Token:/ })).toHaveCount(3);
+  await page.screenshot({ path: '/private/tmp/fate-sea-of-clouds-map-ui.png', fullPage: true });
   await navigate(page, 'Characters');
   await expect(page.locator('.character-card')).toHaveCount(3);
   await page.locator('.character-card').filter({ hasText: 'Voltaire' }).click();

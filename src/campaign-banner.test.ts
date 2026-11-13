@@ -44,3 +44,34 @@ it('recognizes existing and renamed Lantern Coast maps while preserving uploaded
   c.maps = [];
   expect(campaignBanner(c)).toBeUndefined();
 });
+
+it('recognizes renamed Cirrus Skimmer starters while retaining uploaded banner priority', () => {
+  const c = createCampaign('Renamed skyship', 'fate-accelerated');
+  c.world.push({
+    id: 'credit',
+    kind: 'reference',
+    title: 'Cirrus Skimmer — sources and credits',
+    body: 'Credits',
+    tags: [],
+    visibility: 'shared',
+  });
+  expect(campaignBanner(c, 'overview')).toEqual({
+    src: `${import.meta.env.BASE_URL}illustrations/cirrus-skimmer-sea-of-clouds.png`,
+    position: 50,
+  });
+  c.assets.push({
+    id: 'custom',
+    name: 'Banner',
+    mime: 'image/png',
+    hash: 'custom',
+    dataUrl: 'custom-banner',
+    visibility: 'shared',
+  });
+  c.bannerAssetId = 'custom';
+  c.bannerPosition = 65;
+  expect(campaignBanner(c)).toEqual({ src: 'custom-banner', position: 65 });
+  delete c.bannerAssetId;
+  expect(campaignBanner(c)?.src).toContain('cirrus-skimmer-sea-of-clouds.png');
+  c.world = [];
+  expect(campaignBanner(c)).toBeUndefined();
+});

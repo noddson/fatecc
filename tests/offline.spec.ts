@@ -13,6 +13,20 @@ test('Cirrus Skimmer can be loaded as an Accelerated example entirely offline', 
   await expect(page.getByRole('heading', { name: 'Cirrus Skimmer', level: 1, exact: true })).toBeVisible();
   await expect(page.locator('.breadcrumb .system-badge')).toHaveText('Fate Accelerated');
   await expect(page.locator('.sidebar-campaign .system-badge')).toHaveCount(0);
+  const banner = page.locator('.story-banner .campaign-banner-image');
+  await expect(banner).toHaveAttribute('src', /cirrus-skimmer-sea-of-clouds\.png$/);
+  await expect.poll(() => banner.evaluate((img: HTMLImageElement) => img.naturalWidth)).toBe(2172);
+  await page
+    .getByRole('navigation', { name: 'Campaign' })
+    .getByRole('button', { name: 'Maps & zones', exact: true })
+    .click();
+  await expect
+    .poll(() =>
+      page.locator('.map-image').evaluate((img: HTMLImageElement) => [img.naturalWidth, img.naturalHeight]),
+    )
+    .toEqual([1536, 1024]);
+  await expect(page.getByRole('button', { name: /^Zone:/ })).toHaveCount(7);
+  await expect(page.getByRole('button', { name: /^Token:/ })).toHaveCount(3);
   await page.reload();
   await page
     .getByRole('navigation', { name: 'Campaign' })

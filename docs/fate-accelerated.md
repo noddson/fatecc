@@ -20,9 +20,15 @@ The approach map continues to use the existing serialized rating and roll fields
 
 ## Accelerated starter
 
-**Explore Cirrus Skimmer (Accelerated)** loads an independent playable example with three ready PCs, two mook profiles, a full NPC profile, scene aspects, inventory, locations, and private GM prompts. Voltaire’s canonical aspects, approach allocation, and stunt effect are retained from the pinned Accelerated SRD. The sky shark comes from its mook examples. Sanchez is named in Voltaire’s aspect, but his build, Mira Vale, the naval opposition, Cloudbreak Anchorage, the cargo, and the opening adventure are companion additions. Sources and full attribution live in a dedicated campaign reference and survive backups. The SRD provides four characters from separate settings rather than a developed adventure; this starter does not present the added scenario as official material.
+**Explore Cirrus Skimmer (Accelerated)** loads an independent playable example with three ready PCs, two mook profiles, a full NPC profile, scene aspects, inventory, locations, private GM prompts, and a shared Sea of Clouds regional chart with seven connected travel areas and crew tokens. Voltaire’s canonical aspects, approach allocation, and stunt effect are retained from the pinned Accelerated SRD. The sky shark comes from its mook examples. Sanchez is named in Voltaire’s aspect, but his build, Mira Vale, the naval opposition, Cloudbreak Anchorage, the cargo, and the opening adventure are companion additions. Sources and full attribution live in a dedicated campaign reference and survive backups. The SRD provides four characters from separate settings rather than a developed adventure; this starter does not present the added scenario as official material.
 
 The printable game worksheet omits rules revision numbers and explanatory “Governing skill” / “Fixed capacity” labels. Actual mechanics, house rules, privacy labels, and required attribution remain.
+
+## Cirrus Skimmer artwork and chart
+
+Cirrus Skimmer uses a matching panoramic skyship banner and a straight-down Sea of Clouds regional chart. Cloudbreak Anchorage, Glasswind Spires, Stormwall, Patrol Reach, Trade Winds Reach, the Quiet Shoals, and the Lower Cloud Sea are original companion geography. The image, travel areas, connections, and character tokens are included in new starters and travel in GM/player JSON and ZIP backups. The crew begins in Trade Winds Reach. Travel areas are a narrative navigation aid; the table sets journey times and tactical scale.
+
+The bundled banner is recognized by the starter's source-credit entry, so existing, renamed, and duplicated starters receive it without a data migration. Uploaded banners retain priority. The chart is available at `public/sample/cirrus-skimmer-sea-of-clouds.png` for existing campaigns to upload under Maps & zones. Saved maps are not replaced automatically. Both images are precached for offline use. Exact prompts and asset hashes are recorded in `cirrus-skimmer-art-prompts.md` and `cirrus-skimmer-art-assets.json`. Accelerated system labels use teal alongside their full text.
 
 ## Rules library sources and attribution
 

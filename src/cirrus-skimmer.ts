@@ -1,6 +1,7 @@
 import metadata from './content/accelerated-metadata.json';
 import { createAspect, createCampaign, createCharacter, id } from './domain/defaults';
 import type { Character, Stunt, WorldEntry } from './domain/types';
+import { loadSeaOfCloudsMap } from './cirrus-skimmer-map';
 
 export const CIRRUS_SOURCES = [
   {
@@ -41,7 +42,7 @@ const stunt = (name: string, description: string): Stunt => ({
 });
 
 /** One official example PC in a clearly identified companion-written adventure. */
-export function cirrusSkimmerCampaign() {
+export async function cirrusSkimmerCampaign() {
   const c = createCampaign('Cirrus Skimmer', 'fate-accelerated');
   c.tagline = 'Keep the ship flying. Get the cargo home.';
   c.setting =
@@ -205,7 +206,7 @@ export function cirrusSkimmerCampaign() {
     entry(
       'reference',
       'Cirrus Skimmer — sources and credits',
-      `©2013 Evil Hat Productions, LLC.\n\n${metadata.attribution}\n\nCreative Commons Attribution 3.0 Unported: ${metadata.licenseUrl}\n\nThis is an independent companion starter, not an official published adventure. Voltaire’s aspects, approaches, refresh, and stunt effect come from the Accelerated SRD; her description and stunt text are condensed. The sky shark uses the SRD’s mook example. The sky-pirate/Royal Navy premise comes from its campaign suggestions. Sanchez is named in Voltaire’s aspect, but his character build and description here are companion additions. Mira Vale, the naval opposition, Cloudbreak Anchorage, the cargo, issues, scene aspects, equipment, and adventure prompts are original companion material. No book artwork is included.\n\nSource revision: ${metadata.revision}\n\n${CIRRUS_SOURCES.map((source) => `${source.element}\n${source.changes}\n${source.section}: ${metadata.sourceUrl}#L${source.line}`).join('\n\n')}`,
+      `©2013 Evil Hat Productions, LLC.\n\n${metadata.attribution}\n\nCreative Commons Attribution 3.0 Unported: ${metadata.licenseUrl}\n\nThis is an independent companion starter, not an official published adventure. Voltaire’s aspects, approaches, refresh, and stunt effect come from the Accelerated SRD; her description and stunt text are condensed. The sky shark uses the SRD’s mook example. The sky-pirate/Royal Navy premise comes from its campaign suggestions. Sanchez is named in Voltaire’s aspect, but his character build and description here are companion additions. Mira Vale, the naval opposition, Cloudbreak Anchorage, the cargo, issues, scene aspects, equipment, and adventure prompts are original companion material. The Sea of Clouds chart and matching banner are original AI-generated companion artwork, not official Fate geography or book artwork.\n\nSource revision: ${metadata.revision}\n\n${CIRRUS_SOURCES.map((source) => `${source.element}\n${source.changes}\n${source.section}: ${metadata.sourceUrl}#L${source.line}`).join('\n\n')}`,
       'shared',
       ['sources', 'CC BY 3.0'],
     ),
@@ -239,6 +240,18 @@ export function cirrusSkimmerCampaign() {
     createAspect('situation', 'Storm Front Ahead'),
     createAspect('situation', 'An Engine on Borrowed Time'),
   ];
+  c.world.push(
+    entry(
+      'reference',
+      'Sea of Clouds — chart notes',
+      'An original companion regional chart for this starter. Cloudbreak Anchorage is the delivery destination; Glasswind Spires, Stormwall, Patrol Reach, Trade Winds Reach, the Quiet Shoals, and the Lower Cloud Sea give the table places to explore. The geography, routes, zone aspects, banner, and chart are original companion material, not official Fate geography. These are travel areas: agree on flight time, obstacles, and tactical scale in the fiction. The crew begins in Trade Winds Reach. Existing campaigns can upload the bundled chart under Maps & zones without replacing their campaign data.',
+      'shared',
+      ['map', 'sources'],
+    ),
+  );
   c.play.npcFatePoints = 3;
+  const { asset, map } = await loadSeaOfCloudsMap(c.characters);
+  c.assets.push(asset);
+  c.maps.push(map);
   return c;
 }

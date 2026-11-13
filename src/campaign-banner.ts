@@ -10,6 +10,12 @@ export function campaignBanner(
   if (uploaded) return { src: uploaded.dataUrl, position: campaign.bannerPosition ?? 50 };
   if (
     campaign.world.some(
+      (entry) => entry.kind === 'reference' && entry.title === 'Cirrus Skimmer — sources and credits',
+    )
+  )
+    return { src: `${import.meta.env.BASE_URL}illustrations/cirrus-skimmer-sea-of-clouds.png`, position: 50 };
+  if (
+    campaign.world.some(
       (entry) => entry.kind === 'reference' && entry.title === 'Hearts of Steel — sources and credits',
     )
   )
