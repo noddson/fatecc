@@ -26,8 +26,8 @@ export function RulesAttribution({ close }: { close: () => void }) {
     <Modal title="Rules Attribution" close={close} wide>
       <div className="rules-attribution">
         <p className="attribution-intro">
-          Fate Core Companion is an independent companion. The rules, logo, and symbols are used with credit
-          to their creators.
+          Fate Campaign Companion is an independent companion. The rules, logo, and symbols are used with
+          credit to their creators.
         </p>
         <section className="attribution-credits" aria-label="Logo and font credits">
           <div>

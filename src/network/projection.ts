@@ -114,6 +114,8 @@ export function projectCampaign(
     .map((event, index) => {
       delete event.detail;
       delete event.undoChanges;
+      if (event.roll?.helperIds)
+        event.roll.helperIds = event.roll.helperIds.filter((id) => visibleCharacters.has(id));
       return { ...event, sequence: index + 1 };
     });
   copy.processedCommandIds = [];

@@ -22,7 +22,7 @@ TRANSFORMATION = ('The pinned repository CC-BY HTML is converted into local Mark
                   'plain-text entries. Whitespace and list/table layout are normalized; links retain their '
                   'visible text; styling, images, chapter-number decorations, and empty graphic placeholders '
                   'are omitted. Rule text and examples are retained. The upstream abridged OGL Core '
-                  'Markdown is not used. Other editions and supplements are catalogued, not imported.')
+                  'Markdown is not used. Alternate editions use separate import pipelines; supplements remain catalogued.')
 
 
 def json_bytes(value):

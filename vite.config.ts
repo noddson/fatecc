@@ -19,6 +19,8 @@ export default defineConfig(({ command, mode }) => {
         output: {
           manualChunks(moduleId) {
             if (moduleId.includes('/src/content/reference.json')) return 'fate-core-reference';
+            if (moduleId.includes('/src/content/accelerated-reference.json'))
+              return 'fate-accelerated-reference';
             if (moduleId.includes('/node_modules/peerjs/')) return 'peerjs';
             if (moduleId.includes('/node_modules/')) return 'vendor';
           },
@@ -41,7 +43,7 @@ export default defineConfig(({ command, mode }) => {
         registerType: 'prompt',
         includeAssets: ['branding/*', 'fonts/*'],
         manifest: {
-          name: 'Fate Core Companion',
+          name: 'Fate Campaign Companion',
           short_name: 'Fate',
           description: 'Your stories. Your table.',
           theme_color: '#175c8b',

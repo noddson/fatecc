@@ -145,5 +145,13 @@
       "status": "requires-license-review",
       "sourceUrl": "https://github.com/fate-srd/fate-srd-content/blob/93ed848e723f31b4994b466b7241011ba24be885/docs/markdown/words-of-power.md"
     }
-  ]
+  ],
+  "acceleratedSource": {
+    "path": "source/fate-accelerated-SRD.html",
+    "blobSha": "52bb8b82c073fbe26f33cc741163bbbf854cbc08",
+    "sha256": "35e66d6cae993216dcaa6cff867d32d96b485c8e436d00f75f57649ee9e871f0",
+    "bytes": 180746,
+    "license": "CC-BY-3.0",
+    "reason": "Complete original HTML preserves linked text omitted by the upstream Markdown conversion."
+  }
 }

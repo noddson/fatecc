@@ -25,6 +25,8 @@ import {
 } from 'lucide-react';
 import { useRegisterSW } from 'virtual:pwa-register/react';
 import type { Actor, Campaign, CampaignExport } from './domain/types';
+import { SystemBadge } from './components/SystemBadge';
+import { type FateSystem } from './domain/editions';
 import { createCampaign, id } from './domain/defaults';
 import { applyCommand, type GameCommand } from './domain/commands';
 import { listCampaigns, loadCampaign, saveCampaign, deleteCampaign } from './storage/db';
@@ -91,6 +93,7 @@ export default function App() {
   const [creating, setCreating] = useState(false);
   const [loadingSample, setLoadingSample] = useState<'lantern' | 'hearts' | null>(null);
   const [createName, setCreateName] = useState('');
+  const [createSystem, setCreateSystem] = useState<FateSystem>('fate-core');
   const [createKind, setCreateKind] = useState<'campaign' | 'one-shot'>('campaign');
   const [showArchived, setShowArchived] = useState(false);
   const [menu, setMenu] = useState(false);
@@ -381,6 +384,7 @@ export default function App() {
             <div className="sidebar-campaign">
               <span className="eyebrow">{remote ? 'PLAYER VIEW' : 'CURRENT CAMPAIGN'}</span>
               <strong>{campaign.name}</strong>
+              <SystemBadge rules={campaign.rules} />
             </div>
             <nav aria-label="Campaign">
               {navigation
@@ -425,7 +429,7 @@ export default function App() {
           </button>
           <a href="https://fate-srd.com/" target="_blank" rel="noreferrer">
             <CircleHelp size={16} />
-            About Fate Core
+            About Fate
             <ArrowRight size={14} />
           </a>
           <div className="sidebar-attribution">
@@ -453,6 +457,7 @@ export default function App() {
                 <span>My campaigns</span>
                 <span>/</span>
                 <strong>{navigation.find(([key]) => key === page)?.[1] || 'Overview'}</strong>
+                <SystemBadge rules={campaign.rules} />
               </>
             )}
           </div>
@@ -527,7 +532,7 @@ export default function App() {
               />
               <section className="welcome-banner">
                 <div>
-                  <Badge tone="brand-tone">FATE CORE · FICTION FIRST</Badge>
+                  <Badge tone="brand-tone">FATE · FICTION FIRST</Badge>
                   <h2>
                     The next great story
                     <br />
@@ -537,7 +542,13 @@ export default function App() {
                     From the first high concept to the last impossible roll.
                     <br />A home for your entire campaign, right in your browser.
                   </p>
-                  <button className="button-accent" onClick={() => setCreating(true)}>
+                  <button
+                    className="button-accent"
+                    onClick={() => {
+                      setCreateSystem('fate-core');
+                      setCreating(true);
+                    }}
+                  >
                     <Plus size={17} />
                     Create a campaign
                   </button>
@@ -596,6 +607,7 @@ export default function App() {
                           </div>
                           <div className="campaign-card-body">
                             <h3>{c.name}</h3>
+                            <SystemBadge rules={c.rules} />
                             <p>{c.tagline || c.setting || 'A world waiting to be discovered.'}</p>
                             <div className="character-meta">
                               <span>
@@ -660,7 +672,13 @@ export default function App() {
                       </article>
                     );
                   })}
-                <button className="new-campaign-card" onClick={() => setCreating(true)}>
+                <button
+                  className="new-campaign-card"
+                  onClick={() => {
+                    setCreateSystem('fate-core');
+                    setCreating(true);
+                  }}
+                >
                   <span>
                     <Plus size={26} />
                   </span>
@@ -699,6 +717,7 @@ export default function App() {
                       <article className="card" key={copy.campaign.id} style={{ padding: 20 }}>
                         <Badge>Read-only player copy</Badge>
                         <h3>{copy.campaign.name}</h3>
+                        <SystemBadge rules={copy.campaign.rules} />
                         <p>
                           {copy.campaign.characters
                             .filter((ch) => copy.actor?.characterIds.includes(ch.id))
@@ -749,7 +768,7 @@ export default function App() {
         </main>
         <footer className="app-footer">
           <AppVersion />
-          <span>Tools by Nick Oddson to support games using the world's best TTRPG, Fate Core</span>
+          <span>Tools by Nick Oddson to support games using the world's best TTRPG, Fate</span>
         </footer>
       </div>
       {toast && (
@@ -766,7 +785,7 @@ export default function App() {
           <form
             onSubmit={(e) => {
               e.preventDefault();
-              const c = createCampaign(createName.trim());
+              const c = createCampaign(createName.trim(), createSystem);
               c.kind = createKind;
               void add(c);
             }}
@@ -780,6 +799,19 @@ export default function App() {
                 onChange={(e) => setCreateName(e.target.value)}
               />
             </Field>
+            <Field label="Rules system">
+              <select value={createSystem} onChange={(e) => setCreateSystem(e.target.value as FateSystem)}>
+                <option value="fate-core">Fate Core</option>
+                <option value="fate-accelerated">Fate Accelerated</option>
+              </select>
+            </Field>
+            <p className="rules-choice-summary" aria-live="polite">
+              <strong>{createSystem === 'fate-core' ? 'Fate Core' : 'Fate Accelerated'}</strong>
+              {createSystem === 'fate-core'
+                ? ' uses skills, a skill pyramid, and separate physical and mental stress tracks.'
+                : ' uses six approaches, a shorter character creation process, and one shared stress track.'}{' '}
+              This campaign uses one rules system for everyone at the table.
+            </p>
             <Field label="Format">
               <select value={createKind} onChange={(e) => setCreateKind(e.target.value as typeof createKind)}>
                 <option value="campaign">Ongoing campaign</option>
@@ -787,8 +819,7 @@ export default function App() {
               </select>
             </Field>
             <p className="muted">
-              Start with the verified Fate Core preset. You can shape the setting and rules once you’re
-              inside.
+              Start with the selected rules system. You can customize its settings inside the campaign.
             </p>
             <div className="modal-actions">
               <button type="button" onClick={() => setCreating(false)}>

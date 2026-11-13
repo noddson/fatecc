@@ -1,5 +1,37 @@
 import { expect, test } from '@playwright/test';
 
+test('an Accelerated campaign can be created, reloaded, and searched entirely offline', async ({
+  page,
+  context,
+}) => {
+  test.skip(!process.env.FATE_TEST_URL, 'Requires the built PWA.');
+  await page.goto('./');
+  await page.evaluate(async () => {
+    await navigator.serviceWorker.ready;
+  });
+  await page.reload();
+  await expect.poll(() => page.evaluate(() => !!navigator.serviceWorker.controller)).toBe(true);
+  await context.setOffline(true);
+  await page.getByRole('button', { name: 'Create a campaign', exact: true }).click();
+  const dialog = page.getByRole('dialog');
+  await dialog.getByLabel('Campaign name', { exact: true }).fill('Offline sky pirates');
+  await dialog.getByRole('combobox', { name: 'Rules system', exact: true }).selectOption('fate-accelerated');
+  await dialog.getByRole('button', { name: 'Create campaign', exact: true }).click();
+  await expect(page.locator('.breadcrumb .system-badge')).toHaveText('Fate Accelerated');
+  await page.reload();
+  await expect(page.locator('.sidebar-campaign .system-badge')).toHaveText('Fate Accelerated');
+  await page
+    .getByRole('navigation', { name: 'Campaign' })
+    .getByRole('button', { name: 'Rules library', exact: true })
+    .click();
+  await page.getByRole('searchbox').fill('approaches');
+  await expect(page.locator('.reference-card').first()).toBeVisible();
+  await page.locator('.reference-card').first().click();
+  await expect(page.getByRole('dialog').locator('.reference-article')).toContainText(/approach/i);
+  await expect(page.getByRole('dialog').locator('.reference-article-meta')).toContainText('Fate Accelerated');
+  await context.setOffline(false);
+});
+
 test('Hearts of Steel Riverton banner and map are precached before the starter is first opened offline', async ({
   page,
   context,
@@ -112,7 +144,7 @@ test('production PWA restores a campaign and searches the bundled rules while of
       .locator('.campaign-banner-image')
       .evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth === 2),
   ).toBe(true);
-  await expect(page.locator('.app-version')).toContainText('Fate Core Companion');
+  await expect(page.locator('.app-version')).toContainText('Fate Campaign Companion');
   // Fonts not yet used on this screen must also be available from the offline precache.
   const offlineFonts = await page.evaluate(async () => {
     const faces = await Promise.all([

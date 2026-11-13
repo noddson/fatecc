@@ -1,3 +1,4 @@
+import { isAccelerated, ratingName } from '../domain/editions';
 import { useState } from 'react';
 import {
   Check,
@@ -47,6 +48,7 @@ export function SessionTable({
   playerActor,
   playDisabled,
 }: EditorProps) {
+  const accelerated = isAccelerated(c.rules);
   const controlled = controlledCharacters(c, readOnly, playerActor);
   const [chosenCharacterId, setCharacterId] = useState('');
   const characterId =
@@ -55,6 +57,7 @@ export function SessionTable({
     controlled[0]?.id ||
     '';
   const canAct = (id: string) => !playDisabled && controlled.some((ch) => ch.id === id);
+  const [mookChoice, setMookChoice] = useState('mook-ordinary');
   const [skillId, setSkillId] = useState(c.rules.skills[0]?.id || '');
   const [action, setAction] = useState<Action>('overcome');
   const [opposition, setOpposition] = useState(2);
@@ -120,7 +123,7 @@ export function SessionTable({
   );
   const invokeGroups = invoke ? invocationAspectGroups(c, invoke.characterId, !!readOnly) : [];
   const finalResult = finalize
-    ? resolveAction(finalize.action, finalize.total, finalize.opposition, finalize.advantageExisting)
+    ? resolveAction(finalize.action, finalize.total, finalize.opposition, finalize.advantageExisting, c.rules)
     : undefined;
   const hasAgreedCost =
     finalize?.action === 'overcome' &&
@@ -258,7 +261,7 @@ export function SessionTable({
                 </span>{' '}
                 Make your move
               </h2>
-              <Badge>4dF + skill</Badge>
+              <Badge>4dF + {ratingName(c.rules).toLowerCase()}</Badge>
             </div>
             <form
               onSubmit={(e) => {
@@ -268,7 +271,7 @@ export function SessionTable({
                   type: 'roll',
                   characterId,
                   action,
-                  skillId,
+                  skillId: accelerated && current?.kind === 'nameless' ? mookChoice : skillId,
                   opposition,
                   modifier,
                   advantageExisting: existing,
@@ -300,14 +303,24 @@ export function SessionTable({
                       ))}
                     </select>
                   </Field>
-                  <Field label="Skill">
-                    <select value={skillId} onChange={(e) => setSkillId(e.target.value)}>
-                      {c.rules.skills.map((s) => (
-                        <option value={s.id} key={s.id}>
-                          {s.name} ({signed(current?.skills[s.id] || 0)})
-                        </option>
-                      ))}
-                    </select>
+                  <Field
+                    label={accelerated && current?.kind === 'nameless' ? 'Mook rating' : ratingName(c.rules)}
+                  >
+                    {accelerated && current?.kind === 'nameless' ? (
+                      <select value={mookChoice} onChange={(e) => setMookChoice(e.target.value)}>
+                        <option value="mook-good">Skilled (+2): {current.mook?.goodAt || 'specialty'}</option>
+                        <option value="mook-bad">Bad (−2): {current.mook?.badAt || 'weakness'}</option>
+                        <option value="mook-ordinary">Everything else (+0)</option>
+                      </select>
+                    ) : (
+                      <select value={skillId} onChange={(e) => setSkillId(e.target.value)}>
+                        {c.rules.skills.map((s) => (
+                          <option value={s.id} key={s.id}>
+                            {s.name} ({signed(current?.skills[s.id] || 0)})
+                          </option>
+                        ))}
+                      </select>
+                    )}
                   </Field>
                   <Field
                     label="Opposition"
@@ -348,7 +361,11 @@ export function SessionTable({
                     </Field>
                     <Field
                       label="Teamwork helpers"
-                      hint="Each helper needs at least +1 in the selected skill."
+                      hint={
+                        accelerated
+                          ? 'Each helper describes their help and gives up their action this exchange. The GM decides how many can help.'
+                          : 'Each helper needs at least +1 in the selected skill.'
+                      }
                     >
                       <select
                         multiple
@@ -380,8 +397,14 @@ export function SessionTable({
                   <Dices size={18} />
                   Roll the dice{' '}
                   <span>
-                    {signed(current?.skills[skillId] || 0)}{' '}
-                    {c.rules.skills.find((s) => s.id === skillId)?.name}
+                    {accelerated && current?.kind === 'nameless' ? (
+                      `${mookChoice === 'mook-good' ? '+2 specialty' : mookChoice === 'mook-bad' ? '−2 weakness' : '+0 ordinary'}`
+                    ) : (
+                      <>
+                        {signed(current?.skills[skillId] || 0)}{' '}
+                        {c.rules.skills.find((s) => s.id === skillId)?.name}
+                      </>
+                    )}
                   </span>
                 </button>
               </fieldset>
@@ -647,17 +670,19 @@ export function SessionTable({
               <h2>
                 <Shield size={18} /> Around the table
               </h2>
-              {!readOnly && c.characters.some((ch) => ch.kind === 'nameless' && !ch.takenOut) && (
-                <button
-                  onClick={() => {
-                    setMobIds([]);
-                    setMobShifts(1);
-                    setMobOpen(true);
-                  }}
-                >
-                  Mob harm
-                </button>
-              )}
+              {!accelerated &&
+                !readOnly &&
+                c.characters.some((ch) => ch.kind === 'nameless' && !ch.takenOut) && (
+                  <button
+                    onClick={() => {
+                      setMobIds([]);
+                      setMobShifts(1);
+                      setMobOpen(true);
+                    }}
+                  >
+                    Mob harm
+                  </button>
+                )}
             </div>
             {c.characters.map((ch) => {
               const stats = deriveCharacter(ch, c.rules);
@@ -685,7 +710,7 @@ export function SessionTable({
                   </div>
                   {stats.tracks.map((t) => (
                     <div className="roster-track" key={t.id}>
-                      <StressHelp character={ch} track={t} compact />
+                      <StressHelp rules={c.rules} character={ch} track={t} compact />
                       <div className="stress-boxes">
                         {t.boxes.map((v: number) => (
                           <span key={v} className={(ch.stress[t.id] || []).includes(v) ? 'checked' : ''}>
@@ -746,9 +771,14 @@ export function SessionTable({
             })}
             {c.play.conflictId && (
               <div className="initiative">
-                <strong>Core initiative</strong>
+                <strong>
+                  {accelerated
+                    ? `Suggested turn order · ${c.play.conflictType === 'physical' ? 'Quick' : 'Careful'}`
+                    : 'Core initiative'}
+                </strong>
+                {accelerated && <small>Ties follow the fiction; the GM decides.</small>}
                 <p>
-                  {initiative(c.characters, c.play.conflictType)
+                  {initiative(c.characters, c.play.conflictType, c.rules)
                     .map((ch: Character) => ch.name)
                     .join(' → ')}
                 </p>
@@ -900,8 +930,12 @@ export function SessionTable({
                 value={conflictType}
                 onChange={(e) => setConflictType(e.target.value as typeof conflictType)}
               >
-                <option value="physical">Physical · Notice / Athletics / Physique</option>
-                <option value="mental">Mental · Empathy / Rapport / Will</option>
+                <option value="physical">
+                  {accelerated ? 'Physical · Quick' : 'Physical · Notice / Athletics / Physique'}
+                </option>
+                <option value="mental">
+                  {accelerated ? 'Mental · Careful' : 'Mental · Empathy / Rapport / Will'}
+                </option>
               </select>
             </Field>
           )}
@@ -1311,7 +1345,7 @@ export function SessionTable({
                 </Field>
               );
             })}
-          {(harm.kind === 'pc' || harm.kind === 'main') && !harm.extremeUsed && (
+          {!accelerated && (harm.kind === 'pc' || harm.kind === 'main') && !harm.extremeUsed && (
             <details>
               <summary>Last resort: an extreme consequence (8 shifts)</summary>
               <p className="notice-text">

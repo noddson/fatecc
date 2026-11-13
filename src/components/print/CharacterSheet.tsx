@@ -1,3 +1,4 @@
+import { isAccelerated, ratingName } from '../../domain/editions';
 import { playerName } from '../../domain/player-view';
 import type { Campaign, Character, Consequence } from '../../domain/types';
 import { deriveCharacter, LADDER } from '../../domain/rules';
@@ -35,13 +36,15 @@ export function CharacterSheet({
   const trackName = (trackId: string) => stats.tracks.find((track) => track.id === trackId)?.name || trackId;
   const ranks = [
     ...new Set([
-      ...Object.values(ch.skills).filter((rank) => rank > 0),
+      ...Object.values(ch.skills).filter((rank) => rank >= (isAccelerated(rules) ? 0 : 1)),
       ...Object.keys(rules.skillSlots)
         .map(Number)
-        .filter((rank) => rank > 0),
+        .filter((rank) => rank >= (isAccelerated(rules) ? 0 : 1)),
     ]),
   ].sort((a, b) => b - a);
-  const assigned = Object.entries(ch.skills).filter(([, rank]) => rank > 0);
+  const assigned = isAccelerated(rules)
+    ? rules.skills.map((s) => [s.id, ch.skills[s.id] ?? 0] as const)
+    : Object.entries(ch.skills).filter(([, rank]) => rank > 0);
   // House rules can define several slots of the same capacity. Each recorded injury
   // belongs to one slot, and injuries left over after a rules change must remain visible.
   const used = new Set<number>();
@@ -131,28 +134,44 @@ export function CharacterSheet({
             ))}
             {!ch.aspects.length && <WriteLines count={3} />}
           </SheetSection>
-          <SheetSection title="Skills" className="fs-skills">
-            <table className="fs-skill-table">
-              <tbody>
-                {ranks.map((rank) => (
-                  <tr key={rank}>
-                    <th scope="row">
-                      {LADDER[rank] || 'Rating'} <span>({signed(rank)})</span>
-                    </th>
-                    <td>
-                      <TextValue>
-                        {assigned
-                          .filter(([, value]) => value === rank)
-                          .map(([skill]) => skillName(skill))
-                          .join(', ')}
-                      </TextValue>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            <p className="fs-small">Unranked skills: Mediocre (+0).</p>
-            <p className="fs-small">Banked skill points: {ch.bankedSkillPoints}</p>
+          <SheetSection
+            title={isAccelerated(rules) && ch.kind === 'nameless' ? 'Mook profile' : ratingName(rules, true)}
+            className="fs-skills"
+          >
+            {isAccelerated(rules) && ch.kind === 'nameless' ? (
+              <>
+                <p>Skilled (+2): {ch.mook?.goodAt || '—'}</p>
+                <p>Bad (−2): {ch.mook?.badAt || '—'}</p>
+                <p>Everything else (+0)</p>
+              </>
+            ) : (
+              <>
+                <table className="fs-skill-table">
+                  <tbody>
+                    {ranks.map((rank) => (
+                      <tr key={rank}>
+                        <th scope="row">
+                          {LADDER[rank] || 'Rating'} <span>({signed(rank)})</span>
+                        </th>
+                        <td>
+                          <TextValue>
+                            {assigned
+                              .filter(([, value]) => value === rank)
+                              .map(([skill]) => skillName(skill))
+                              .join(', ')}
+                          </TextValue>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                {!isAccelerated(rules) && <p className="fs-small">Unranked skills: Mediocre (+0).</p>}
+                <p className="fs-small">
+                  {isAccelerated(rules) ? 'Approach increases available' : 'Banked skill points'}:{' '}
+                  {ch.bankedSkillPoints}
+                </p>
+              </>
+            )}
           </SheetSection>
         </div>
         <SheetSection title="Stunts" className="fs-stunts">
@@ -179,7 +198,7 @@ export function CharacterSheet({
                 <div key={track.id} className="fs-stress-track fs-entry">
                   <h3>
                     {track.name}
-                    {definition && <small> ({skillName(definition.skillId)})</small>}
+                    {definition?.skillId && <small> ({skillName(definition.skillId)})</small>}
                   </h3>
                   <div className="fs-stress-boxes">
                     {track.boxes.map((rating) => {
@@ -288,7 +307,10 @@ export function CharacterSheet({
             <WriteLines count={3} />
           </SheetSection>
           <SheetSection title="Advancement">
-            <p className="fs-small">Banked skill points: {ch.bankedSkillPoints}</p>
+            <p className="fs-small">
+              {isAccelerated(rules) ? 'Approach increases available' : 'Banked skill points'}:{' '}
+              {ch.bankedSkillPoints}
+            </p>
             {ch.milestones.map((milestone) => (
               <div className="fs-entry fs-milestone" key={milestone.id}>
                 <h3>{milestone.type.charAt(0).toUpperCase() + milestone.type.slice(1)} milestone</h3>

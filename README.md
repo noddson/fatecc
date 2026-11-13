@@ -1,6 +1,6 @@
-# Fate Core Companion
+# Fate Campaign Companion
 
-A local-first Fate Core campaign application. Create a game, build characters, search the bundled Core SRD, run sessions, keep a campaign journal and inventory, and share a table over WebRTC. Data lives in your browser; complete JSON and ZIP backups are portable.
+A local-first Fate Core and Fate Accelerated campaign application. Each campaign uses one selected rules system. Create a game, build characters, search the bundled SRD for its rules system, run sessions, keep a campaign journal and inventory, and share a table over WebRTC. Data lives in your browser; complete JSON and ZIP backups are portable.
 
 ## Run locally
 
@@ -17,7 +17,7 @@ The current audit has no critical, high, or moderate findings, and `npm audit --
 
 Open **http://127.0.0.1:4173/fatecc/** for the production build. On macOS, you can also double-click **Start Fate.command** after installing Node. Keep the same address and port: browser storage belongs to its origin. Development (`npm run dev`) opens at **http://127.0.0.1:4173/**. The supplied PDF stays outside the built application.
 
-The production build registers an offline service worker. After the first successful load, the app and its Core references are available offline. Use your browser's install option where supported. Apply available updates between sessions after making a backup. Development mode (`npm run dev`) does not install the production offline worker.
+The production build registers an offline service worker. After the first successful load, the app and both rules libraries are available offline. Use your browser's install option where supported. Apply available updates between sessions after making a backup. Development mode (`npm run dev`) does not install the production offline worker.
 
 For phones/tablets, serve the `dist/` directory from static HTTPS hosting and open it once on each device. This serves application files only, not a campaign database. Ordinary HTTP on another computer's LAN address does not meet PWA secure-context requirements. No publishing or cloud account is needed for local desktop use.
 
@@ -35,8 +35,8 @@ details everything included in the first commit and its verification limits.
 
 ## Start a story
 
-1. Create a campaign or one-shot, or explore either optional starter. **Lantern Coast** is original companion material with an illustrated coast map, five connected travel zones, and party tokens at Bellweather Harbor. Its bundled image works offline and travels in JSON/ZIP backups; its default overview and library banner depicts the unlit Dark Beacon and map-matched coastline; `public/sample/lantern-coast.png` is also available to upload or print. **Hearts of Steel** adapts the pinned CC-BY Core SRD, with Landon, Cynere, Zird, Riverton, factions, GM characters, and a private opening scene. It includes a portable Riverton town map revised to match its overview banner; `public/sample/hearts-of-steel-riverton-map.png` is available to upload into existing campaigns or print. Its journal identifies companion additions and retains element-by-element source links and full attribution in exports. See [starter provenance](docs/hearts-of-steel.md).
-2. Define the setting and issues in Overview. In Game settings, review/apply changes to the Core preset before creating characters.
+1. Create a campaign or one-shot and select **Fate Core** or **Fate Accelerated**, or explore either optional starter. **Lantern Coast** is original companion material with an illustrated coast map, five connected travel zones, and party tokens at Bellweather Harbor. Its bundled image works offline and travels in JSON/ZIP backups; its default overview and library banner depicts the unlit Dark Beacon and map-matched coastline; `public/sample/lantern-coast.png` is also available to upload or print. **Hearts of Steel** adapts the pinned CC-BY Core SRD, with Landon, Cynere, Zird, Riverton, factions, GM characters, and a private opening scene. It includes a portable Riverton town map revised to match its overview banner; `public/sample/hearts-of-steel-riverton-map.png` is available to upload into existing campaigns or print. Its journal identifies companion additions and retains element-by-element source links and full attribution in exports. See [starter provenance](docs/hearts-of-steel.md).
+2. Define the setting and issues in Overview. In Game settings, review/apply changes to the selected preset before creating characters.
 3. Create full or quick characters. Draft edits save locally; character checks explain missing choices and invalid mechanics. NPCs have separate profiles.
 4. Use At the table for rolls, invocations, compels, stress, consequences, scene/session boundaries, and a permanent activity log. The table still decides fictional permissions and narrative costs.
 5. Add private/shared journal entries and inventory. For a private possession, set inventory **Visibility** to **Character** and choose its character under **Held by**. Only that character’s assigned player and the GM receive the item and its private activity; general shared exports exclude it. Deleting the character preserves those possessions as GM-only party items. Upload exported map images under Maps & zones. Publish a selected map revision when ready to share it.
@@ -104,7 +104,7 @@ This opt-in suite exchanges invitations and answers through the UI, approves a p
 
 ## Project structure
 
-- `src/domain/`: typed state, verified Core preset, pure rules, authorized/idempotent commands.
+- `src/domain/`: typed state, verified Core and Accelerated presets, pure rules, authorized/idempotent commands.
 - `src/storage/`: IndexedDB records and image blobs, bounded import schemas, migrations, portable backups.
 - `src/network/`: selective player projections, device grants, WebRTC, asset transport, and drafts.
 - `src/content/`: pinned GitHub SRD source, generated Markdown/references, source catalog, attribution, and search.
@@ -115,7 +115,7 @@ Rules text and mechanical references come from a pinned revision of [fate-srd/fa
 
 Run `python3 scripts/import-srd.py --check` to verify the pinned source bytes and reproducible outputs, or `python3 scripts/import-srd.py` to regenerate them offline. No rules are fetched at application runtime. Existing campaigns keep their saved content version; the library explicitly identifies an older edition when applicable.
 
-The [content roadmap](docs/content-roadmap.md) inventories 19 upstream Markdown documents and plans optional reference packs, settings, and alternate presets with their own attribution and tests. Core remains the automated preset. Arbitrary scripts, cloud campaign storage, marketplace content, and fog of war remain outside this implementation.
+The [content roadmap](docs/content-roadmap.md) inventories 19 upstream Markdown documents and plans optional reference packs, settings, and alternate presets with their own attribution and tests. Core and Accelerated have separate automated presets. Arbitrary scripts, cloud campaign storage, marketplace content, and fog of war remain outside this implementation.
 
 ## Fate Core design
 
@@ -130,3 +130,13 @@ Images support PNG, JPEG, and WebP up to 10 MB each. Full imports and expanded Z
 Browser storage can be cleared or exhausted. Keep external backups using the Backup dialog. A player-safe export is not a complete GM recovery backup. Connection credentials are deliberately excluded from every export. Already disclosed information cannot be recalled from another participant's device.
 
 Campaign cards show **Last played** at the bottom left, relative to the latest recorded gameplay event (days, weeks, months, or years; **today** for the current local date). A campaign without recorded play says **Not played yet**. Preparation edits, player assignments, sheet corrections, and archiving do not reset this date. Longer intervals use approximate 30-day months and 365-day years; the date tooltip gives the exact timestamp.
+
+## Campaign rules systems
+
+The **Rules system** choice on a new campaign selects Core (the default) or Accelerated for everyone at that table. A small, explicitly named label identifies the system on campaign cards, beneath the name in the left navigation, and beside the top breadcrumb. Blue identifies Core and amber identifies Accelerated; the text always accompanies the color. Campaign names and page titles remain uncluttered.
+
+Accelerated uses six approaches with starting ratings +3, +2, +2, +1, +1, +0, three required aspects and two optional ones, no phase trio, three free stunts, and one shared stress track with rated boxes 1, 2, 3. Physical initiative uses Quick; mental initiative uses Careful, with ties decided by the GM. Significant and major milestones provide an approach increase up to +5 without skill columns; minor changes can swap any two approaches. Recovery uses narrative care and GM-confirmed periods, without Core treatment rolls. Stress clears at scene boundaries. Accelerated mooks have +2 specialties, −2 weaknesses, +0 otherwise, and an explicitly chosen stress capacity; groups receive one box per two mooks. Printable sheets and contextual references follow the selected system.
+
+Existing and customized legacy campaigns retain Core behavior. JSON/ZIP backups, duplication, cached player copies, and multiplayer projections preserve the chosen system. Changing systems and importing a character from another system require authored conversion and are not offered automatically. Both starter campaigns remain Core.
+
+Accelerated references are generated from the pinned original CC-BY HTML, whose visible link text is preserved. Verify with `python3 scripts/import-accelerated.py --check`. See [Accelerated implementation and verification](docs/fate-accelerated.md).

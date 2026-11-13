@@ -36,19 +36,25 @@ const stunt = z.object({
 export const rulesSchema: z.ZodType<RuleSetDefinition> = z
   .object({
     id,
+    system: z.enum(['fate-core', 'fate-accelerated']).optional(),
     version: integer,
     name: label,
     contentVersion: label,
     aspectCount: z.number().int().min(2).max(20),
     phaseCount: z.number().int().min(0).max(20),
     skillCap: z.number().int().min(1).max(20),
-    allocation: z.enum(['pyramid', 'columns']),
+    allocation: z.enum(['pyramid', 'columns', 'approaches']),
     skillSlots: z.record(z.string(), z.number().int().min(0).max(100)),
     refresh: z.number().int().min(1).max(100),
     freeStunts: z.number().int().min(0).max(100),
     stressTracks: z
       .array(
-        z.object({ id, name: label, skillId: id, boxes: z.array(z.number().int().min(1).max(100)).max(20) }),
+        z.object({
+          id,
+          name: label,
+          skillId: id.optional(),
+          boxes: z.array(z.number().int().min(1).max(100)).max(20),
+        }),
       )
       .max(20),
     consequenceSlots: z.array(z.number().int().min(1).max(100)).max(20),
@@ -61,7 +67,7 @@ export const rulesSchema: z.ZodType<RuleSetDefinition> = z
   .superRefine((rules, context) => {
     const skills = new Set(rules.skills.map((skill) => skill.id));
     rules.stressTracks.forEach((track, index) => {
-      if (!skills.has(track.skillId))
+      if (track.skillId && !skills.has(track.skillId))
         context.addIssue({
           code: 'custom',
           path: ['stressTracks', index, 'skillId'],
@@ -69,7 +75,12 @@ export const rulesSchema: z.ZodType<RuleSetDefinition> = z
         });
     });
     for (const [rank, slots] of Object.entries(rules.skillSlots)) {
-      if (slots > 0 && (!/^\d+$/.test(rank) || Number(rank) < 1 || Number(rank) > rules.skillCap))
+      if (
+        slots > 0 &&
+        (!/^\d+$/.test(rank) ||
+          Number(rank) < (rules.allocation === 'approaches' ? 0 : 1) ||
+          Number(rank) > rules.skillCap)
+      )
         context.addIssue({
           code: 'custom',
           path: ['skillSlots', rank],
@@ -131,6 +142,14 @@ export const characterSchema: z.ZodType<Character> = z.object({
   conceded: z.boolean(),
   extremeUsed: z.boolean(),
   npcTough: z.boolean().optional(),
+  mook: z
+    .object({
+      goodAt: text,
+      badAt: text,
+      stressBoxes: z.number().int().min(0).max(2),
+      groupSize: z.number().int().min(2).max(40).optional(),
+    })
+    .optional(),
 });
 export const assetSchema = z.object({
   id,
@@ -208,6 +227,7 @@ const roll = z.object({
   finalized: z.boolean(),
   undone: z.boolean().optional(),
   exchange: integer.optional(),
+  helperIds: z.array(id).max(100).optional(),
 });
 const undoChange = z.discriminatedUnion('kind', [
   z.object({

@@ -5,7 +5,7 @@ export function AppVersion() {
     : 'This local build has no Git commit metadata.';
   return (
     <span className="app-version">
-      Fate Core Companion ·{' '}
+      Fate Campaign Companion ·{' '}
       {version.githubCommitUrl ? (
         <a href={version.githubCommitUrl} target="_blank" rel="noreferrer" title={description}>
           {version.displayVersion}

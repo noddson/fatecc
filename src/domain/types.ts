@@ -11,10 +11,11 @@ export interface SkillDefinition {
 export interface StressTrackDefinition {
   id: string;
   name: string;
-  skillId: string;
+  skillId?: string;
   boxes: number[];
 }
 export interface RuleSetDefinition {
+  system?: 'fate-core' | 'fate-accelerated';
   id: string;
   version: number;
   name: string;
@@ -22,7 +23,7 @@ export interface RuleSetDefinition {
   aspectCount: number;
   phaseCount: number;
   skillCap: number;
-  allocation: 'pyramid' | 'columns';
+  allocation: 'pyramid' | 'columns' | 'approaches';
   skillSlots: Record<string, number>;
   refresh: number;
   freeStunts: number;
@@ -100,6 +101,7 @@ export interface Character {
   conceded: boolean;
   extremeUsed: boolean;
   npcTough?: boolean;
+  mook?: { goodAt: string; badAt: string; stressBoxes: number; groupSize?: number };
 }
 export interface Member {
   id: string;
@@ -204,6 +206,7 @@ export interface RollRecord {
   finalized: boolean;
   undone?: boolean;
   exchange?: number;
+  helperIds?: string[];
 }
 /** Host-only evidence for reversing a roll without replacing unrelated campaign state. */
 export type RollUndoChange =

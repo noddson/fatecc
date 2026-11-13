@@ -1,5 +1,7 @@
 import type { Aspect, Campaign, Character, RuleSetDefinition, SkillDefinition } from './types';
 import sourceMetadata from '../content/source-metadata.json';
+import acceleratedMetadata from '../content/accelerated-metadata.json';
+import { isAccelerated, type FateSystem } from './editions';
 
 export const id = () => crypto.randomUUID();
 
@@ -10,6 +12,7 @@ const skill = (name: string, description: string, actions: SkillDefinition['acti
   actions,
 });
 export const CORE_RULES: RuleSetDefinition = {
+  system: 'fate-core',
   id: 'fate-core',
   version: 1,
   name: 'Fate Core',
@@ -68,6 +71,49 @@ export const CORE_RULES: RuleSetDefinition = {
   ],
 };
 
+export const ACCELERATED_RULES: RuleSetDefinition = {
+  system: 'fate-accelerated',
+  id: 'fate-accelerated',
+  version: 1,
+  name: 'Fate Accelerated',
+  contentVersion: acceleratedMetadata.version,
+  aspectCount: 5,
+  phaseCount: 0,
+  skillCap: 3,
+  allocation: 'approaches',
+  skillSlots: { '3': 1, '2': 2, '1': 2, '0': 1 },
+  refresh: 3,
+  freeStunts: 3,
+  stressTracks: [{ id: 'stress', name: 'Stress', boxes: [1, 2, 3] }],
+  consequenceSlots: [2, 4, 6],
+  houseRules: '',
+  skills: [
+    skill('Careful', 'Pay attention to detail and take the time to get it right.', [
+      'overcome',
+      'advantage',
+      'attack',
+      'defend',
+    ]),
+    skill('Clever', 'Think fast, solve problems, and find a weakness.', [
+      'overcome',
+      'advantage',
+      'attack',
+      'defend',
+    ]),
+    skill('Flashy', 'Draw attention with style and panache.', ['overcome', 'advantage', 'attack', 'defend']),
+    skill('Forceful', 'Use strength, determination, or brute force.', [
+      'overcome',
+      'advantage',
+      'attack',
+      'defend',
+    ]),
+    skill('Quick', 'Act with speed and dexterity.', ['overcome', 'advantage', 'attack', 'defend']),
+    skill('Sneaky', 'Use misdirection, stealth, or deceit.', ['overcome', 'advantage', 'attack', 'defend']),
+  ],
+};
+export const rulesPreset = (system: FateSystem): RuleSetDefinition =>
+  structuredClone(system === 'fate-accelerated' ? ACCELERATED_RULES : CORE_RULES);
+
 export function createAspect(kind: Aspect['kind'], name = '', ownerId?: string): Aspect {
   return { id: id(), kind, name, ownerId, freeInvokes: 0, visibility: 'shared' };
 }
@@ -98,7 +144,7 @@ export function createCharacter(
       story: '',
       characterIds: [],
     })),
-    skills: {},
+    skills: isAccelerated(rules) ? Object.fromEntries(rules.skills.map((s) => [s.id, 0])) : {},
     stunts: [],
     extras: '',
     refreshAdjustment: 0,
@@ -111,10 +157,13 @@ export function createCharacter(
     takenOut: false,
     conceded: false,
     extremeUsed: false,
+    ...(isAccelerated(rules) && kind === 'nameless'
+      ? { mook: { goodAt: '', badAt: '', stressBoxes: 0 } }
+      : {}),
   };
 }
 
-export function createCampaign(name = 'Untitled campaign'): Campaign {
+export function createCampaign(name = 'Untitled campaign', system: FateSystem = 'fate-core'): Campaign {
   const now = new Date().toISOString();
   return {
     id: id(),
@@ -127,7 +176,7 @@ export function createCampaign(name = 'Untitled campaign'): Campaign {
     archived: false,
     createdAt: now,
     updatedAt: now,
-    rules: structuredClone(CORE_RULES),
+    rules: rulesPreset(system),
     issues: [createAspect('game'), createAspect('game')],
     members: [{ id: 'gm', name: 'Game master', role: 'gm', characterIds: [] }],
     characters: [],

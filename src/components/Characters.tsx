@@ -15,7 +15,8 @@ import { createCharacter, id } from '../domain/defaults';
 import { releaseCharacterInventory } from '../domain/inventory';
 import { applyMilestoneChoice, deriveCharacter, supportedColumns, validateCharacter } from '../domain/rules';
 import type { MilestoneChoice } from '../domain/rules';
-import { coreRuleSource } from '../domain/rule-sources';
+import { isAccelerated, advancementCap, ratingName, systemId } from '../domain/editions';
+import { ruleSource } from '../domain/rule-sources';
 import type { Character, Consequence, Milestone, Stunt } from '../domain/types';
 import { createAsset } from '../storage/assets';
 import { campaignForPrint, PrintDialog } from './PrintSheets';
@@ -212,7 +213,9 @@ export function Characters(props: EditorProps) {
             <Field label="Role">
               <select value={kind} onChange={(e) => setKind(e.target.value as Character['kind'])}>
                 <option value="pc">Player character</option>
-                <option value="nameless">Nameless NPC</option>
+                <option value="nameless">
+                  {isAccelerated(c.rules) ? 'Mook / group of mooks' : 'Nameless NPC'}
+                </option>
                 <option value="supporting">Supporting NPC</option>
                 <option value="main">Main NPC</option>
               </select>
@@ -267,6 +270,7 @@ export function Characters(props: EditorProps) {
             <button onClick={() => setPendingImport(undefined)}>Cancel</button>
             <button
               className="button-primary"
+              disabled={systemId(pendingImport.rules) !== systemId(c.rules)}
               onClick={() => {
                 void (async () => {
                   const prepared = prepareCharacterImport(pendingImport, c);
@@ -338,6 +342,8 @@ function CharacterEditor({
   const hadPlay =
     c.events.some((e) => e.characterId === character.id || e.roll?.characterId === character.id) ||
     character.milestones.length > 0;
+  const accelerated = isAccelerated(c.rules);
+  const mook = accelerated && form.kind === 'nameless';
   const inPlay = hadPlay || form.status === 'ready';
   const locked = form.kind === 'pc' && inPlay && !overrideReason;
   const stats = deriveCharacter(form, c.rules),
@@ -484,9 +490,10 @@ function CharacterEditor({
     return dispatch(input);
   };
   const canRaise = skillToRaise
-    ? supportedColumns({ ...form.skills, [skillToRaise]: (form.skills[skillToRaise] || 0) + 1 })
+    ? accelerated ||
+      supportedColumns({ ...form.skills, [skillToRaise]: (form.skills[skillToRaise] || 0) + 1 })
     : false;
-  const exceedsCap = skillToRaise ? (form.skills[skillToRaise] || 0) + 1 > c.rules.skillCap : false;
+  const exceedsCap = skillToRaise ? (form.skills[skillToRaise] || 0) + 1 > advancementCap(c.rules) : false;
   return (
     <>
       <div className="character-default-print">
@@ -579,7 +586,7 @@ function CharacterEditor({
           </div>
           {stats.tracks.map((t) => (
             <div key={t.id}>
-              <StressHelp character={form} track={t} />
+              <StressHelp rules={c.rules} character={form} track={t} />
               <div className="stress-boxes">
                 {t.boxes.map((v) => (
                   <span key={v} className={(form.stress[t.id] || []).includes(v) ? 'checked' : ''}>
@@ -593,7 +600,7 @@ function CharacterEditor({
         <div className="tabs no-print">
           {[
             ['aspects', 'Aspects & story'],
-            ['skills', 'Skills'],
+            ['skills', mook ? 'Mook profile' : ratingName(c.rules, true)],
             ['stunts', 'Stunts & extras'],
             ['growth', 'Growth & recovery'],
           ].map(([key, label]) => (
@@ -694,7 +701,7 @@ function CharacterEditor({
                         </select>
                       </Field>
                     </div>
-                    {form.kind === 'supporting' && (
+                    {form.kind === 'supporting' && !accelerated && (
                       <label className="checkbox-label">
                         <input
                           type="checkbox"
@@ -738,8 +745,12 @@ function CharacterEditor({
                     <div className="section-heading">
                       <h2>Aspects</h2>
                       <Badge>
-                        <a href={coreRuleSource('character-creation').url} target="_blank" rel="noreferrer">
-                          {coreRuleSource('character-creation').label}
+                        <a
+                          href={ruleSource(c.rules, 'character-creation').url}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          {ruleSource(c.rules, 'character-creation').label}
                         </a>
                       </Badge>
                     </div>
@@ -852,21 +863,93 @@ function CharacterEditor({
                   )}
                 </>
               )}
-              {tab === 'skills' && (
+              {tab === 'skills' && mook && (
+                <section className="panel">
+                  <h2>Mook profile</h2>
+                  <p className="muted">
+                    Roll +2 for a specialty, −2 for a weakness, and +0 for everything else. Mooks have no
+                    consequences.
+                  </p>
+                  <Field label="Skilled at (+2)">
+                    <textarea
+                      value={form.mook?.goodAt ?? ''}
+                      onChange={(e) =>
+                        edit((d) => {
+                          d.mook = { badAt: '', stressBoxes: 0, ...d.mook, goodAt: e.target.value };
+                        })
+                      }
+                    />
+                  </Field>
+                  <Field label="Bad at (−2)">
+                    <textarea
+                      value={form.mook?.badAt ?? ''}
+                      onChange={(e) =>
+                        edit((d) => {
+                          d.mook = { goodAt: '', stressBoxes: 0, ...d.mook, badAt: e.target.value };
+                        })
+                      }
+                    />
+                  </Field>
+                  <Field label="Stress boxes" hint="An individual mook has zero, one, or two boxes.">
+                    <select
+                      value={form.mook?.stressBoxes ?? 0}
+                      disabled={!!form.mook?.groupSize}
+                      onChange={(e) =>
+                        edit((d) => {
+                          d.mook = { goodAt: '', badAt: '', ...d.mook, stressBoxes: Number(e.target.value) };
+                        })
+                      }
+                    >
+                      {[0, 1, 2].map((n) => (
+                        <option key={n} value={n}>
+                          {n}
+                        </option>
+                      ))}
+                    </select>
+                  </Field>
+                  <Field
+                    label="Group size"
+                    hint="Use 0 for an individual; a group has one stress box per two mooks (up to 40 mooks per group)."
+                  >
+                    <input
+                      type="number"
+                      min="0"
+                      max="40"
+                      value={form.mook?.groupSize ?? 0}
+                      onChange={(e) =>
+                        edit((d) => {
+                          const count = Number(e.target.value);
+                          d.mook = {
+                            goodAt: '',
+                            badAt: '',
+                            stressBoxes: 0,
+                            ...d.mook,
+                            groupSize: count >= 2 ? Math.min(40, count) : undefined,
+                          };
+                        })
+                      }
+                    />
+                  </Field>
+                </section>
+              )}
+              {tab === 'skills' && !mook && (
                 <section className="panel">
                   <div className="section-heading">
                     <h2>What you’re good at</h2>
                     <Badge>
-                      <a href={coreRuleSource('skills').url} target="_blank" rel="noreferrer">
-                        {coreRuleSource('skills').label}
+                      <a href={ruleSource(c.rules, 'skills').url} target="_blank" rel="noreferrer">
+                        {ruleSource(c.rules, 'skills').label}
                       </a>
                     </Badge>
                   </div>
                   <p className="muted">
-                    Unselected skills are Mediocre (+0).{' '}
+                    {accelerated
+                      ? 'Approaches describe how you act. Start with +3, +2, +2, +1, +1, +0; choose an approach that fits your description.'
+                      : 'Unselected skills are Mediocre (+0).'}{' '}
                     {form.creationMode === 'quick' &&
                       'Empty slots stay available as you discover your character.'}{' '}
-                    {form.milestones.some((m) => m.type !== 'minor') &&
+                    {!accelerated &&
+                      form.milestones.some((m) => m.type !== 'minor') &&
                       'Advancement uses supported columns, not the creation pyramid.'}
                   </p>
                   <div className="pyramid">
@@ -876,10 +959,10 @@ function CharacterEditor({
                         <div key={rank}>
                           <strong>{signed(Number(rank))}</strong>
                           <span>
-                            {Object.values(form.skills).filter((n) => n === Number(rank)).length}
+                            {c.rules.skills.filter((s) => (form.skills[s.id] ?? 0) === Number(rank)).length}
                             {!form.milestones.some((m) => m.type !== 'minor')
                               ? ` / ${count} slots`
-                              : ' skills'}
+                              : ` ${ratingName(c.rules, true).toLowerCase()}`}
                           </span>
                           <div>
                             {Object.entries(form.skills)
@@ -907,13 +990,21 @@ function CharacterEditor({
                           value={form.skills[skill.id] || 0}
                           onChange={(e) =>
                             edit((d) => {
-                              if (Number(e.target.value) === 0) delete d.skills[skill.id];
+                              if (Number(e.target.value) === 0 && !accelerated) delete d.skills[skill.id];
                               else d.skills[skill.id] = Number(e.target.value);
                             })
                           }
                         >
                           {Array.from(
-                            { length: Math.max(c.rules.skillCap, form.skills[skill.id] || 0) + 1 },
+                            {
+                              length:
+                                Math.max(
+                                  form.milestones.some((m) => m.type !== 'minor')
+                                    ? advancementCap(c.rules)
+                                    : c.rules.skillCap,
+                                  form.skills[skill.id] || 0,
+                                ) + 1,
+                            },
                             (_, n) => (
                               <option value={n} key={n}>
                                 {signed(n)}
@@ -941,8 +1032,9 @@ function CharacterEditor({
                       </button>
                     </div>
                     <p className="muted">
-                      The first {c.rules.freeStunts} standard stunts are free. In-play quick creation charges
-                      paid stunts immediately. Full characters buy or replace stunts through a milestone.
+                      {accelerated && 'Begin with one stunt; you can add more as you play. '}The first{' '}
+                      {c.rules.freeStunts} standard stunts are free. In-play quick creation charges paid
+                      stunts immediately. Full characters buy or replace stunts through a milestone.
                     </p>
                     {form.stunts.map((stunt, i) => (
                       <div className="subpanel" key={stunt.id}>
@@ -1088,7 +1180,8 @@ function CharacterEditor({
                       )}
                     </div>
                     <p>
-                      Banked skill points: <strong>{form.bankedSkillPoints}</strong>
+                      {accelerated ? 'Approach increases available:' : 'Banked skill points:'}{' '}
+                      <strong>{form.bankedSkillPoints}</strong>
                     </p>
                     {form.milestones.map((m) => (
                       <div className="timeline-entry" key={m.id}>
@@ -1108,7 +1201,7 @@ function CharacterEditor({
                     )}
                     {form.bankedSkillPoints > 0 && (
                       <div className="subpanel">
-                        <Field label="Spend a banked skill point">
+                        <Field label={accelerated ? 'Raise an approach' : 'Spend a banked skill point'}>
                           <select
                             value={skillToRaise}
                             onChange={(e) => {
@@ -1116,7 +1209,9 @@ function CharacterEditor({
                               setRaiseCap(false);
                             }}
                           >
-                            <option value="">Choose a skill to raise…</option>
+                            <option value="">
+                              {accelerated ? 'Choose an approach to raise…' : 'Choose a skill to raise…'}
+                            </option>
                             {c.rules.skills.map((s) => (
                               <option key={s.id} value={s.id}>
                                 {s.name} · {signed(form.skills[s.id] || 0)} →{' '}
@@ -1125,7 +1220,7 @@ function CharacterEditor({
                             ))}
                           </select>
                         </Field>
-                        {skillToRaise && (
+                        {skillToRaise && !accelerated && (
                           <p className={canRaise ? 'muted' : 'notice-text'}>
                             {canRaise
                               ? 'The resulting skill columns have support at every rank.'
@@ -1144,7 +1239,7 @@ function CharacterEditor({
                           </label>
                         )}
                         <button
-                          disabled={!skillToRaise || !canRaise || (exceedsCap && !raiseCap)}
+                          disabled={!skillToRaise || !canRaise || (exceedsCap && (accelerated || !raiseCap))}
                           onClick={() => {
                             void command({
                               type: 'spendSkill',
@@ -1156,7 +1251,7 @@ function CharacterEditor({
                             });
                           }}
                         >
-                          Spend 1 skill point
+                          {accelerated ? 'Raise approach by 1' : 'Spend 1 skill point'}
                         </button>
                       </div>
                     )}
@@ -1173,7 +1268,9 @@ function CharacterEditor({
                             {con.value === 8
                               ? 'An extreme consequence becomes a changed character aspect at a major milestone.'
                               : con.recovering
-                                ? `Recovering since ${new Date(con.recoveryStartedAt!).toLocaleDateString()} — allow a whole ${con.value === 2 ? 'scene' : con.value === 4 ? 'session' : 'scenario'} after treatment begins.`
+                                ? accelerated
+                                  ? 'Recovering — confirm care, rest, and the appropriate scene/session/scenario boundary before clearing.'
+                                  : `Recovering since ${new Date(con.recoveryStartedAt!).toLocaleDateString()} — allow a whole ${con.value === 2 ? 'scene' : con.value === 4 ? 'session' : 'scenario'} after treatment begins.`
                                 : 'Recovery has not begun.'}
                           </p>
                           {con.value !== 8 && (
@@ -1382,8 +1479,12 @@ function CharacterEditor({
             {milestoneType === 'minor'
               ? 'One eligible equivalent change.'
               : milestoneType === 'significant'
-                ? 'One equivalent change and one bankable skill point.'
-                : 'One equivalent change, one skill point, and one additional refresh.'}{' '}
+                ? accelerated
+                  ? 'One equivalent change and one approach increase, up to Superb (+5).'
+                  : 'One equivalent change and one bankable skill point.'
+                : accelerated
+                  ? 'One equivalent change, one approach increase, and one additional refresh.'
+                  : 'One equivalent change, one skill point, and one additional refresh.'}{' '}
             After awarding, use “Choose milestone change” to spend its equivalent change.
           </p>
           <div className="modal-actions">
@@ -1437,7 +1538,13 @@ function CharacterEditor({
           close={() => setRecovery(undefined)}
         >
           <h3>{recovery.name}</h3>
-          {recovery.recovering ? (
+          {accelerated ? (
+            <p>
+              {recovery.recovering
+                ? 'Confirm the fiction permits recovery and the required time has passed: mild at scene end after rest; moderate at the end of the next session; severe at scenario end. The advancement rules also allow moderate recovery after two sessions and severe recovery at a significant milestone after two sessions.'
+                : 'Describe appropriate care or rest in the fiction. Accelerated requires no treatment roll. Begin recovery, then confirm the appropriate period before clearing.'}
+            </p>
+          ) : recovery.recovering ? (
             <p>
               A whole {recovery.value === 2 ? 'scene' : recovery.value === 4 ? 'session' : 'scenario'} must
               have passed after recovery began, with appropriate narrative care. This is a table judgment, not
@@ -1667,7 +1774,11 @@ function MilestoneDialog({
       <Field label="Eligible change">
         <select value={kind} onChange={(e) => setKind(e.target.value as typeof kind)}>
           <option value="renameAspect">Rename one character aspect</option>
-          <option value="swapSkills">Swap skill ratings / replace an Average skill</option>
+          <option value="swapSkills">
+            {isAccelerated(rules)
+              ? 'Swap any two approach ratings'
+              : 'Swap skill ratings / replace an Average skill'}
+          </option>
           <option value="replaceStunt">Replace one stunt</option>
           <option value="buyStunt">Buy one new stunt</option>
         </select>
@@ -1696,12 +1807,12 @@ function MilestoneDialog({
       {kind === 'swapSkills' && (
         <div className="form-grid">
           {[
-            ['First skill', first, setFirst],
-            ['Second skill', second, setSecond],
+            [`First ${ratingName(rules).toLowerCase()}`, first, setFirst],
+            [`Second ${ratingName(rules).toLowerCase()}`, second, setSecond],
           ].map(([label, value, setter]) => (
             <Field key={String(label)} label={String(label)}>
               <select value={String(value)} onChange={(e) => (setter as (v: string) => void)(e.target.value)}>
-                <option value="">Choose a skill…</option>
+                <option value="">{isAccelerated(rules) ? 'Choose an approach…' : 'Choose a skill…'}</option>
                 {rules.skills.map((skill) => (
                   <option key={skill.id} value={skill.id}>
                     {skill.name} ({signed(character.skills[skill.id] || 0)})

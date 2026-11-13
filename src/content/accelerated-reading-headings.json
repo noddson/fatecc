@@ -1,0 +1,430 @@
+{
+  "baseUrl": "https://fate-srd.com/fate-accelerated/",
+  "verifiedAt": "2026-11-13",
+  "pages": {
+    "": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Fate Accelerated"
+      }
+    ],
+    "aspects-fate-points": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Aspects & Fate Points"
+      },
+      {
+        "level": 2,
+        "id": "what-kinds-of-aspects-are-there",
+        "text": "What Kinds of Aspects Are There?"
+      },
+      {
+        "level": 3,
+        "id": "pvp-player-versus-player",
+        "text": "PVP (Player versus player)"
+      },
+      {
+        "level": 2,
+        "id": "what-do-you-do-with-aspects",
+        "text": "What Do You Do With Aspects?"
+      },
+      {
+        "level": 3,
+        "id": "invoking-aspects",
+        "text": "Invoking Aspects"
+      },
+      {
+        "level": 3,
+        "id": "compelling-aspects",
+        "text": "Compelling Aspects"
+      },
+      {
+        "level": 3,
+        "id": "how-many-fate-points-does-the-[gm]-get",
+        "text": "How Many Fate Points Does the [GM] Get?"
+      },
+      {
+        "level": 3,
+        "id": "establishing-facts",
+        "text": "Establishing Facts"
+      },
+      {
+        "level": 2,
+        "id": "composing-good-aspects",
+        "text": "Composing Good Aspects"
+      }
+    ],
+    "being-gamemaster": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Being the Gamemaster"
+      },
+      {
+        "level": 2,
+        "id": "help-build-campaigns",
+        "text": "Help Build Campaigns"
+      },
+      {
+        "level": 2,
+        "id": "build-scenarios-and-run-game-sessions",
+        "text": "Build Scenarios and Run Game Sessions"
+      },
+      {
+        "level": 3,
+        "id": "scenarios",
+        "text": "Scenarios"
+      },
+      {
+        "level": 3,
+        "id": "running-game-sessions",
+        "text": "Running Game Sessions"
+      },
+      {
+        "level": 2,
+        "id": "setting-difficulty-levels",
+        "text": "Setting Difficulty Levels"
+      },
+      {
+        "level": 3,
+        "id": "rules-of-thumb",
+        "text": "Rules of Thumb:"
+      },
+      {
+        "level": 3,
+        "id": "optional-rule-approach-related-target-numbers",
+        "text": "Optional Rule: Approach-related Target Numbers"
+      },
+      {
+        "level": 2,
+        "id": "bad-guys",
+        "text": "Bad Guys"
+      },
+      {
+        "level": 3,
+        "id": "cyclops-house-bully",
+        "text": "Cyclops House Bully"
+      },
+      {
+        "level": 3,
+        "id": "steel-assassin",
+        "text": "Steel Assassin"
+      },
+      {
+        "level": 3,
+        "id": "sky-shark",
+        "text": "Sky Shark"
+      }
+    ],
+    "challenges-contests-and-conflicts": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Challenges, Contests, and Conflicts"
+      },
+      {
+        "level": 2,
+        "id": "challenges",
+        "text": "Challenges"
+      },
+      {
+        "level": 2,
+        "id": "contests",
+        "text": "Contests"
+      },
+      {
+        "level": 2,
+        "id": "conflicts",
+        "text": "Conflicts"
+      },
+      {
+        "level": 3,
+        "id": "conflicts-the-30-second-version",
+        "text": "Conflicts: The 30-Second Version"
+      },
+      {
+        "level": 3,
+        "id": "setting-the-scene",
+        "text": "Setting the Scene"
+      },
+      {
+        "level": 3,
+        "id": "determine-turn-order",
+        "text": "Determine Turn Order"
+      },
+      {
+        "level": 3,
+        "id": "exchanges",
+        "text": "Exchanges"
+      }
+    ],
+    "example-characters": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Example Characters"
+      },
+      {
+        "level": 2,
+        "id": "reth-of-the-andrali-resistance",
+        "text": "Reth of the Andrali Resistance"
+      },
+      {
+        "level": 2,
+        "id": "voltaire",
+        "text": "Voltaire"
+      },
+      {
+        "level": 2,
+        "id": "abigail-zhao",
+        "text": "Abigail Zhao"
+      },
+      {
+        "level": 2,
+        "id": "bethesda-flushing-phd",
+        "text": "Bethesda Flushing, PhD"
+      }
+    ],
+    "get-started": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Get Started!"
+      }
+    ],
+    "getting-better-doing-stuff-character-advancement": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Getting Better at Doing Stuff: Character Advancement"
+      },
+      {
+        "level": 2,
+        "id": "milestones",
+        "text": "Milestones"
+      },
+      {
+        "level": 3,
+        "id": "minor-milestones",
+        "text": "Minor Milestones"
+      },
+      {
+        "level": 3,
+        "id": "significant-milestones",
+        "text": "Significant Milestones"
+      },
+      {
+        "level": 3,
+        "id": "raising-approach-bonuses",
+        "text": "Raising Approach Bonuses"
+      },
+      {
+        "level": 3,
+        "id": "major-milestones",
+        "text": "Major Milestones"
+      }
+    ],
+    "how-do-stuff-outcomes-actions-and-approaches": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "How To Do Stuff: Outcomes, Actions, and Approaches"
+      },
+      {
+        "level": 3,
+        "id": "taking-action-the-30-second-version",
+        "text": "Taking Action: The 30-Second Version"
+      },
+      {
+        "level": 2,
+        "id": "dice-or-cards",
+        "text": "Dice or Cards"
+      },
+      {
+        "level": 2,
+        "id": "outcomes",
+        "text": "Outcomes"
+      },
+      {
+        "level": 2,
+        "id": "actions",
+        "text": "Actions"
+      },
+      {
+        "level": 3,
+        "id": "actions--outcomes-the-30-second-version",
+        "text": "Actions & Outcomes: The 30-Second Version"
+      },
+      {
+        "level": 3,
+        "id": "getting-help",
+        "text": "Getting Help"
+      },
+      {
+        "level": 2,
+        "id": "choose-your-approach",
+        "text": "Choose Your Approach"
+      },
+      {
+        "level": 2,
+        "id": "roll-the-dice-add-your-bonus",
+        "text": "Roll the Dice, Add Your Bonus"
+      },
+      {
+        "level": 2,
+        "id": "decide-whether-to-modify-the-roll",
+        "text": "Decide Whether to Modify the Roll"
+      }
+    ],
+    "ouch-damage-stress-and-consequences": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Ouch! Damage, Stress, and Consequences"
+      },
+      {
+        "level": 3,
+        "id": "stress--consequences-the-30-second-version",
+        "text": "Stress & Consequences: The 30-Second Version"
+      },
+      {
+        "level": 2,
+        "id": "what-is-stress",
+        "text": "What Is Stress?"
+      },
+      {
+        "level": 2,
+        "id": "what-are-consequences",
+        "text": "What Are Consequences?"
+      },
+      {
+        "level": 2,
+        "id": "what-happens-when-i-get-taken-out",
+        "text": "What Happens When I Get Taken Out?"
+      },
+      {
+        "level": 2,
+        "id": "giving-in",
+        "text": "Giving In"
+      },
+      {
+        "level": 2,
+        "id": "getting-better—recovering-from-stress-and-consequences",
+        "text": "Getting Better—Recovering from Stress and Consequences"
+      },
+      {
+        "level": 3,
+        "id": "renaming-moderate-and-severe-consequences",
+        "text": "Renaming Moderate and Severe Consequences"
+      }
+    ],
+    "stunts": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Stunts"
+      },
+      {
+        "level": 3,
+        "id": "tool-for-stunt-inspiration",
+        "text": "Tool for Stunt Inspiration"
+      }
+    ],
+    "telling-stories-together": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Telling Stories Together"
+      },
+      {
+        "level": 2,
+        "id": "what-do-you-mean-tell-stories",
+        "text": "What Do You Mean, “Tell Stories”?"
+      },
+      {
+        "level": 2,
+        "id": "so-how-do-we-do-it",
+        "text": "So How Do We Do It?"
+      },
+      {
+        "level": 3,
+        "id": "telling-stories-together-what-do-you-mean",
+        "text": "Telling Stories “Together”? What Do You Mean?"
+      }
+    ],
+    "who-do-you-want-be": [
+      {
+        "level": 1,
+        "id": "",
+        "text": "Who Do You Want To Be?"
+      },
+      {
+        "level": 2,
+        "id": "what-kind-of-characters-can-i-play",
+        "text": "What Kind of Characters Can I Play?"
+      },
+      {
+        "level": 2,
+        "id": "how-do-i-make-the-character",
+        "text": "How Do I Make the Character?"
+      },
+      {
+        "level": 3,
+        "id": "aspects-in-a-nutshell",
+        "text": "Aspects in a Nutshell"
+      },
+      {
+        "level": 3,
+        "id": "high-concept",
+        "text": "High Concept"
+      },
+      {
+        "level": 3,
+        "id": "trouble",
+        "text": "Trouble"
+      },
+      {
+        "level": 3,
+        "id": "another-aspect",
+        "text": "Another Aspect"
+      },
+      {
+        "level": 3,
+        "id": "optional-one-or-two-additional-aspects",
+        "text": "Optional: One or Two Additional Aspects"
+      },
+      {
+        "level": 3,
+        "id": "name-and-appearance",
+        "text": "Name and Appearance"
+      },
+      {
+        "level": 3,
+        "id": "creating-characters-the-30-second-version",
+        "text": "Creating Characters: The 30-Second Version"
+      },
+      {
+        "level": 3,
+        "id": "approaches",
+        "text": "Approaches"
+      },
+      {
+        "level": 3,
+        "id": "the-ladder",
+        "text": "The Ladder"
+      },
+      {
+        "level": 3,
+        "id": "stunts-and-refresh",
+        "text": "Stunts and Refresh"
+      },
+      {
+        "level": 3,
+        "id": "how-many-stunts",
+        "text": "How Many Stunts?"
+      }
+    ]
+  }
+}

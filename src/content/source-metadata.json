@@ -14,12 +14,12 @@
   "sourceBytes": 773242,
   "sourceFormat": "HTML (original CC-BY SRD in the GitHub repository)",
   "markdownPath": "src/content/source/fate-core.generated.md",
-  "markdownSha256": "b74498c6c86ad9172f32dd6786b884f825d3b067a0319b72bf91ff255743e51f",
+  "markdownSha256": "b27787c71ce905b1f03b7d6e223655602eb7d99a6e884dcb94db8f3d7009b54c",
   "copyright": "©2013 Evil Hat Productions, LLC.",
   "license": "Creative Commons Attribution 3.0 Unported",
   "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
   "licensingGuideUrl": "https://fate-srd.com/official-licensing-fate",
   "attribution": "This work is based on Fate Core System and Fate Accelerated Edition (found at http://www.faterpg.com/), products of Evil Hat Productions, LLC, developed, authored, and edited by Leonard Balsera, Brian Engard, Jeremy Keller, Ryan Macklin, Mike Olson, Clark Valentine, Amanda Valentine, Fred Hicks, and Rob Donoghue, and licensed for our use under the Creative Commons Attribution 3.0 Unported license (http://creativecommons.org/licenses/by/3.0/).",
-  "transformation": "The pinned repository CC-BY HTML is converted into local Markdown and heading-based plain-text entries. Whitespace and list/table layout are normalized; links retain their visible text; styling, images, chapter-number decorations, and empty graphic placeholders are omitted. Rule text and examples are retained. The upstream abridged OGL Core Markdown is not used. Other editions and supplements are catalogued, not imported.",
+  "transformation": "The pinned repository CC-BY HTML is converted into local Markdown and heading-based plain-text entries. Whitespace and list/table layout are normalized; links retain their visible text; styling, images, chapter-number decorations, and empty graphic placeholders are omitted. Rule text and examples are retained. The upstream abridged OGL Core Markdown is not used. Alternate editions use separate import pipelines; supplements remain catalogued.",
   "entryCount": 310
 }

@@ -1,0 +1,280 @@
+{
+  "baseUrl": "https://fate-srd.com/fate-accelerated/",
+  "verifiedAt": "2026-11-13",
+  "sourceRevision": "93ed848e723f31b4994b466b7241011ba24be885",
+  "sections": [
+    {
+      "sourceLine": 1,
+      "path": ""
+    },
+    {
+      "sourceLine": 9,
+      "path": "get-started"
+    },
+    {
+      "sourceLine": 45,
+      "path": "telling-stories-together"
+    },
+    {
+      "sourceLine": 49,
+      "path": "telling-stories-together#what-do-you-mean-tell-stories"
+    },
+    {
+      "sourceLine": 57,
+      "path": "telling-stories-together#so-how-do-we-do-it"
+    },
+    {
+      "sourceLine": 65,
+      "path": "telling-stories-together#telling-stories-together-what-do-you-mean"
+    },
+    {
+      "sourceLine": 77,
+      "path": "who-do-you-want-be"
+    },
+    {
+      "sourceLine": 81,
+      "path": "who-do-you-want-be#what-kind-of-characters-can-i-play"
+    },
+    {
+      "sourceLine": 85,
+      "path": "who-do-you-want-be#how-do-i-make-the-character"
+    },
+    {
+      "sourceLine": 89,
+      "path": "who-do-you-want-be#aspects-in-a-nutshell"
+    },
+    {
+      "sourceLine": 97,
+      "path": "who-do-you-want-be#high-concept"
+    },
+    {
+      "sourceLine": 105,
+      "path": "who-do-you-want-be#trouble"
+    },
+    {
+      "sourceLine": 113,
+      "path": "who-do-you-want-be#another-aspect"
+    },
+    {
+      "sourceLine": 117,
+      "path": "who-do-you-want-be#optional-one-or-two-additional-aspects"
+    },
+    {
+      "sourceLine": 123,
+      "path": "who-do-you-want-be#name-and-appearance"
+    },
+    {
+      "sourceLine": 145,
+      "path": "who-do-you-want-be#approaches"
+    },
+    {
+      "sourceLine": 248,
+      "path": "who-do-you-want-be#stunts-and-refresh"
+    },
+    {
+      "sourceLine": 266,
+      "path": "how-do-stuff-outcomes-actions-and-approaches"
+    },
+    {
+      "sourceLine": 294,
+      "path": "how-do-stuff-outcomes-actions-and-approaches#dice-or-cards"
+    },
+    {
+      "sourceLine": 310,
+      "path": "how-do-stuff-outcomes-actions-and-approaches#outcomes"
+    },
+    {
+      "sourceLine": 326,
+      "path": "how-do-stuff-outcomes-actions-and-approaches#actions"
+    },
+    {
+      "sourceLine": 333,
+      "path": "how-do-stuff-outcomes-actions-and-approaches#actions"
+    },
+    {
+      "sourceLine": 437,
+      "path": "how-do-stuff-outcomes-actions-and-approaches#actions"
+    },
+    {
+      "sourceLine": 451,
+      "path": "how-do-stuff-outcomes-actions-and-approaches#actions"
+    },
+    {
+      "sourceLine": 465,
+      "path": "how-do-stuff-outcomes-actions-and-approaches#actions"
+    },
+    {
+      "sourceLine": 479,
+      "path": "how-do-stuff-outcomes-actions-and-approaches#getting-help"
+    },
+    {
+      "sourceLine": 483,
+      "path": "how-do-stuff-outcomes-actions-and-approaches#choose-your-approach"
+    },
+    {
+      "sourceLine": 505,
+      "path": "how-do-stuff-outcomes-actions-and-approaches#roll-the-dice-add-your-bonus"
+    },
+    {
+      "sourceLine": 509,
+      "path": "how-do-stuff-outcomes-actions-and-approaches#decide-whether-to-modify-the-roll"
+    },
+    {
+      "sourceLine": 515,
+      "path": "challenges-contests-and-conflicts"
+    },
+    {
+      "sourceLine": 523,
+      "path": "challenges-contests-and-conflicts#challenges"
+    },
+    {
+      "sourceLine": 535,
+      "path": "challenges-contests-and-conflicts#contests"
+    },
+    {
+      "sourceLine": 547,
+      "path": "challenges-contests-and-conflicts#conflicts"
+    },
+    {
+      "sourceLine": 573,
+      "path": "challenges-contests-and-conflicts#setting-the-scene"
+    },
+    {
+      "sourceLine": 587,
+      "path": "challenges-contests-and-conflicts#determine-turn-order"
+    },
+    {
+      "sourceLine": 593,
+      "path": "challenges-contests-and-conflicts#exchanges"
+    },
+    {
+      "sourceLine": 600,
+      "path": "ouch-damage-stress-and-consequences"
+    },
+    {
+      "sourceLine": 634,
+      "path": "ouch-damage-stress-and-consequences#what-is-stress"
+    },
+    {
+      "sourceLine": 645,
+      "path": "ouch-damage-stress-and-consequences#what-are-consequences"
+    },
+    {
+      "sourceLine": 657,
+      "path": "ouch-damage-stress-and-consequences#what-happens-when-i-get-taken-out"
+    },
+    {
+      "sourceLine": 661,
+      "path": "ouch-damage-stress-and-consequences#giving-in"
+    },
+    {
+      "sourceLine": 669,
+      "path": "ouch-damage-stress-and-consequences#getting-better—recovering-from-stress-and-consequences"
+    },
+    {
+      "sourceLine": 686,
+      "path": "aspects-fate-points"
+    },
+    {
+      "sourceLine": 696,
+      "path": "aspects-fate-points#what-kinds-of-aspects-are-there"
+    },
+    {
+      "sourceLine": 735,
+      "path": "aspects-fate-points#what-do-you-do-with-aspects"
+    },
+    {
+      "sourceLine": 739,
+      "path": "aspects-fate-points#invoking-aspects"
+    },
+    {
+      "sourceLine": 775,
+      "path": "aspects-fate-points#compelling-aspects"
+    },
+    {
+      "sourceLine": 797,
+      "path": "aspects-fate-points#establishing-facts"
+    },
+    {
+      "sourceLine": 803,
+      "path": "aspects-fate-points#composing-good-aspects"
+    },
+    {
+      "sourceLine": 835,
+      "path": "stunts"
+    },
+    {
+      "sourceLine": 881,
+      "path": "getting-better-doing-stuff-character-advancement"
+    },
+    {
+      "sourceLine": 885,
+      "path": "getting-better-doing-stuff-character-advancement#milestones"
+    },
+    {
+      "sourceLine": 891,
+      "path": "getting-better-doing-stuff-character-advancement#minor-milestones"
+    },
+    {
+      "sourceLine": 909,
+      "path": "getting-better-doing-stuff-character-advancement#significant-milestones"
+    },
+    {
+      "sourceLine": 927,
+      "path": "getting-better-doing-stuff-character-advancement#major-milestones"
+    },
+    {
+      "sourceLine": 941,
+      "path": "being-gamemaster"
+    },
+    {
+      "sourceLine": 947,
+      "path": "being-gamemaster#help-build-campaigns"
+    },
+    {
+      "sourceLine": 968,
+      "path": "being-gamemaster#build-scenarios-and-run-game-sessions"
+    },
+    {
+      "sourceLine": 972,
+      "path": "being-gamemaster#scenarios"
+    },
+    {
+      "sourceLine": 980,
+      "path": "being-gamemaster#running-game-sessions"
+    },
+    {
+      "sourceLine": 1002,
+      "path": "being-gamemaster#setting-difficulty-levels"
+    },
+    {
+      "sourceLine": 1008,
+      "path": "being-gamemaster#rules-of-thumb"
+    },
+    {
+      "sourceLine": 1026,
+      "path": "being-gamemaster#bad-guys"
+    },
+    {
+      "sourceLine": 1110,
+      "path": "example-characters"
+    },
+    {
+      "sourceLine": 1116,
+      "path": "example-characters#reth-of-the-andrali-resistance"
+    },
+    {
+      "sourceLine": 1162,
+      "path": "example-characters#voltaire"
+    },
+    {
+      "sourceLine": 1208,
+      "path": "example-characters#abigail-zhao"
+    },
+    {
+      "sourceLine": 1255,
+      "path": "example-characters#bethesda-flushing-phd"
+    }
+  ],
+  "verificationUrl": "https://fate-srd.com/fate-accelerated/who-do-you-want-be#approaches"
+}

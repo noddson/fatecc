@@ -21,6 +21,7 @@ import {
 } from './rules';
 import type { MilestoneChoice } from './rules';
 import { createAspect, id } from './defaults';
+import { isAccelerated, advancementCap } from './editions';
 import { captureRollChanges, reverseRoll } from './roll-undo';
 
 interface BaseCommand {
@@ -265,7 +266,18 @@ export function applyCommand(original: Campaign, command: GameCommand, actor: Ac
       const c = character!;
       if (!['overcome', 'advantage', 'attack', 'defend'].includes(command.action))
         throw new Error('Unknown Fate action.');
-      const skill = campaign.rules.skills.find((s) => s.id === command.skillId);
+      const mook = isAccelerated(campaign.rules) && c.kind === 'nameless';
+      const mookChoices = [
+        {
+          id: 'mook-good',
+          name: `Skilled (+2): ${c.mook?.goodAt.slice(0, 450) || 'table-approved specialty'}`,
+        },
+        { id: 'mook-bad', name: `Bad (−2): ${c.mook?.badAt.slice(0, 450) || 'table-approved weakness'}` },
+        { id: 'mook-ordinary', name: 'Everything else (+0)' },
+      ];
+      const skill = mook
+        ? mookChoices.find((s) => s.id === command.skillId)
+        : campaign.rules.skills.find((s) => s.id === command.skillId);
       if (!skill) throw new Error('Choose a skill in this game.');
       integer(command.opposition, 'Opposition');
       integer(command.modifier ?? 0, 'Modifier');
@@ -275,12 +287,32 @@ export function applyCommand(original: Campaign, command: GameCommand, actor: Ac
       const helpers = (command.helperIds ?? []).map((helperId) => findCharacter(campaign, helperId));
       if (actor.role !== 'gm' && helpers.some((h) => h.visibility === 'gm'))
         throw new Error('That helper is unavailable.');
-      const helperBonus = teamworkBonus(c, helpers, command.skillId);
+      const helperBonus = teamworkBonus(c, helpers, command.skillId, campaign.rules);
+      if (
+        isAccelerated(campaign.rules) &&
+        helpers.some(
+          (h) =>
+            h.takenOut || h.conceded || (campaign.play.conflictId && campaign.play.actedIds.includes(h.id)),
+        )
+      )
+        throw new Error('Each helper must be able to act and have an action available this exchange.');
       const dice = rollDice();
       const modifier = (command.modifier ?? 0) + helperBonus;
-      const rating = c.skills[command.skillId] ?? 0;
+      const rating = mook
+        ? command.skillId === 'mook-good'
+          ? 2
+          : command.skillId === 'mook-bad'
+            ? -2
+            : 0
+        : (c.skills[command.skillId] ?? 0);
       const total = dice.reduce((sum, die) => sum + die, 0) + rating + modifier;
-      const resolution = resolveAction(command.action, total, command.opposition, command.advantageExisting);
+      const resolution = resolveAction(
+        command.action,
+        total,
+        command.opposition,
+        command.advantageExisting,
+        campaign.rules,
+      );
       if (command.targetCharacterId) {
         const target = findCharacter(campaign, command.targetCharacterId);
         if (actor.role !== 'gm' && target.visibility === 'gm') throw new Error('Target is unavailable.');
@@ -306,8 +338,13 @@ export function applyCommand(original: Campaign, command: GameCommand, actor: Ac
         targetCharacterId: command.targetCharacterId,
         conflictId: campaign.play.conflictId,
         exchange: campaign.play.exchange,
+        ...(isAccelerated(campaign.rules) && campaign.play.conflictId
+          ? { helperIds: helpers.map((h) => h.id) }
+          : {}),
         harmResolved: command.action !== 'attack' || resolution.damage === 0,
       };
+      if (campaign.play.conflictId && isAccelerated(campaign.rules))
+        campaign.play.actedIds.push(...helpers.map((h) => h.id));
       if (campaign.play.conflictId && command.action !== 'defend') campaign.play.actedIds.push(c.id);
       event = {
         ...event,
@@ -385,7 +422,13 @@ export function applyCommand(original: Campaign, command: GameCommand, actor: Ac
         roll.skill +
         roll.modifier +
         roll.invocations.reduce((sum, inv) => sum + inv.bonus, 0);
-      const result = resolveAction(roll.action, roll.total, roll.opposition, roll.advantageExisting);
+      const result = resolveAction(
+        roll.action,
+        roll.total,
+        roll.opposition,
+        roll.advantageExisting,
+        campaign.rules,
+      );
       Object.assign(roll, {
         shifts: result.shifts,
         outcome: result.outcome,
@@ -419,7 +462,13 @@ export function applyCommand(original: Campaign, command: GameCommand, actor: Ac
       const c = findCharacter(campaign, roll.characterId);
       checkOwner(actor, c);
       if (roll.finalized) throw new Error('This roll has already been finalized.');
-      const result = resolveAction(roll.action, roll.total, roll.opposition, roll.advantageExisting);
+      const result = resolveAction(
+        roll.action,
+        roll.total,
+        roll.opposition,
+        roll.advantageExisting,
+        campaign.rules,
+      );
       const tradeForBoost =
         command.reduceAttackForBoost && roll.action === 'attack' && result.outcome === 'style';
       if (command.reduceAttackForBoost && !tradeForBoost)
@@ -564,6 +613,11 @@ export function applyCommand(original: Campaign, command: GameCommand, actor: Ac
         } else if (command.boundary === 'scene') {
           if (campaign.play.conflictId) throw new Error('End the conflict before changing scenes.');
           settleAwards('scene');
+          if (isAccelerated(campaign.rules))
+            campaign.characters.forEach((c) => {
+              c.stress = Object.fromEntries(campaign.rules.stressTracks.map((t) => [t.id, []]));
+              touch(c);
+            });
           campaign.play.sceneId = id();
           campaign.play.sceneName = command.name || 'New scene';
           campaign.play.aspects = [];
@@ -602,6 +656,11 @@ export function applyCommand(original: Campaign, command: GameCommand, actor: Ac
         } else if (command.boundary === 'scene') {
           if (campaign.play.conflictId) throw new Error('End the conflict before ending the scene.');
           settleAwards('scene');
+          if (isAccelerated(campaign.rules))
+            campaign.characters.forEach((c) => {
+              c.stress = Object.fromEntries(campaign.rules.stressTracks.map((t) => [t.id, []]));
+              touch(c);
+            });
           campaign.play.aspects = [];
         }
       }
@@ -681,7 +740,10 @@ export function applyCommand(original: Campaign, command: GameCommand, actor: Ac
         throw new Error('Extreme consequences change at major milestones, not through ordinary recovery.');
       if (command.stage === 'start') {
         const target = consequence.value + (command.selfTreatment ? 2 : 0);
-        if (command.recoveryTotal === undefined || command.recoveryTotal < target)
+        if (
+          !isAccelerated(campaign.rules) &&
+          (command.recoveryTotal === undefined || command.recoveryTotal < target)
+        )
           throw new Error(
             `Recovery requires a successful treatment roll against +${target}, plus narrative permission.`,
           );
@@ -782,6 +844,8 @@ export function applyCommand(original: Campaign, command: GameCommand, actor: Ac
       break;
     }
     case 'mobHarm': {
+      if (isAccelerated(campaign.rules))
+        throw new Error('Create a grouped mook and allocate its harm directly.');
       const result = resolveMobHit(
         command.characterIds.map((characterId) => findCharacter(campaign, characterId)),
         campaign.rules,
@@ -899,12 +963,18 @@ export function applyCommand(original: Campaign, command: GameCommand, actor: Ac
       if (!campaign.rules.skills.some((s) => s.id === command.skillId))
         throw new Error('Choose a skill in this game.');
       const rating = (c.skills[command.skillId] ?? 0) + 1;
-      if (rating > campaign.rules.skillCap && !(command.raiseCap && c.milestones.at(-1)?.type === 'major'))
+      if (isAccelerated(campaign.rules) && rating > advancementCap(campaign.rules))
+        throw new Error('An approach cannot exceed Superb (+5).');
+      if (
+        !isAccelerated(campaign.rules) &&
+        rating > campaign.rules.skillCap &&
+        !(command.raiseCap && c.milestones.at(-1)?.type === 'major')
+      )
         throw new Error('Exceeding the skill cap requires a major milestone and an explicit cap increase.');
       c.skills[command.skillId] = rating;
-      if (!supportedColumns(c.skills))
+      if (!isAccelerated(campaign.rules) && !supportedColumns(c.skills))
         throw new Error('This increase needs more supporting skills at lower ranks.');
-      if (rating > campaign.rules.skillCap) {
+      if (!isAccelerated(campaign.rules) && rating > campaign.rules.skillCap) {
         campaign.rules.skillCap = rating;
         campaign.rules.version++;
       }

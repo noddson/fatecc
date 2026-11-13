@@ -1,6 +1,6 @@
 # Future content from the Fate SRD repository
 
-This is a reviewed inventory and integration plan, not a list of features already enabled. The application currently bundles **Fate Core only**. Additional rules must not silently change the Core preset or an existing campaign.
+This is a reviewed inventory and integration plan, not a list of features already enabled. The application now bundles **Fate Core and Fate Accelerated** as separate campaign presets and offline libraries. See [Accelerated support](fate-accelerated.md). Additional rules must not silently change the Core preset or an existing campaign.
 
 Inventory snapshot: [`docs/markdown/` at commit `93ed848e723f31b4994b466b7241011ba24be885`](https://github.com/fate-srd/fate-srd-content/tree/93ed848e723f31b4994b466b7241011ba24be885/docs/markdown), reviewed 2026-11-06. The source lock records the upstream files. Paths below are relative to that repository.
 
@@ -52,7 +52,7 @@ Preview mechanical changes before applying a template to an existing game. Disti
 
 ### 4. Introduce alternate editions separately
 
-Accelerated, Condensed, and the No-Skill Swashbuckling variant require separately identified presets and tests. Never blend their skill/approach choices, stress behavior, initiative, or milestones into Core implicitly. Importing references is not the same as implementing the edition's mechanics.
+Accelerated now has its own preset and tests. Condensed and the No-Skill Swashbuckling variant still require separately identified presets and tests. Never blend their skill/approach choices, stress behavior, initiative, or milestones into Core implicitly. Importing references is not the same as implementing the edition's mechanics.
 
 Condensed's pinned repository author list differs from the current website licensing guidance. Reconcile the required credit when that edition is selected for inclusion; do not silently discard the pinned notice or invent a replacement author list.
 

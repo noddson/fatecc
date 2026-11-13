@@ -2,7 +2,8 @@
 """Audit reading destinations against official heading IDs; never import rule prose.
 
 Run --refresh to refresh the heading-only snapshot, then --check to audit links
-offline. Reviewing and changing reading-links.json remains a deliberate step.
+offline. Select --edition accelerated to audit that edition using the same workflow.
+Reviewing and changing either reading-links mapping remains a deliberate step.
 """
 import argparse
 from concurrent.futures import ThreadPoolExecutor
@@ -44,7 +45,7 @@ class Headings(HTMLParser):
             self.current = None
 
 
-def refresh(mapping):
+def refresh(mapping, snapshot_path):
     paths = sorted({section['path'].split('#')[0] for section in mapping['sections']})
 
     def read(path):
@@ -61,12 +62,14 @@ def refresh(mapping):
     with ThreadPoolExecutor(max_workers=4) as pool:
         pages = dict(pool.map(read, paths))
     snapshot = {'baseUrl': mapping['baseUrl'], 'verifiedAt': date.today().isoformat(), 'pages': pages}
-    (CONTENT / 'reading-headings.json').write_text(json.dumps(snapshot, indent=2, ensure_ascii=False) + '\n')
+    snapshot_path.write_text(json.dumps(snapshot, indent=2, ensure_ascii=False) + '\n')
     print(f'Recorded heading labels and IDs for {len(pages)} official pages; no rule prose saved.')
 
 
-def check(mapping):
-    snapshot = json.loads((CONTENT / 'reading-headings.json').read_text())
+def check(mapping, snapshot_path):
+    snapshot = json.loads(snapshot_path.read_text())
+    if snapshot['baseUrl'] != mapping['baseUrl']:
+        raise ValueError('Heading snapshot belongs to another rules system.')
     for section in mapping['sections']:
         page, _, anchor = section['path'].partition('#')
         headings = snapshot['pages'][page]
@@ -77,11 +80,15 @@ def check(mapping):
 
 if __name__ == '__main__':
     args = argparse.ArgumentParser(description=__doc__)
+    args.add_argument('--edition', choices=['core', 'accelerated'], default='core',
+                      help='Rules library to audit (Core is the existing default)')
     args.add_argument('--refresh', action='store_true', help='Fetch official pages for heading metadata only')
     args.add_argument('--check', action='store_true', help='Verify curated destinations offline')
     options = args.parse_args()
-    mapping = json.loads((CONTENT / 'reading-links.json').read_text())
+    prefix = 'accelerated-' if options.edition == 'accelerated' else ''
+    mapping = json.loads((CONTENT / f'{prefix}reading-links.json').read_text())
+    snapshot_path = CONTENT / f'{prefix}reading-headings.json'
     if options.refresh:
-        refresh(mapping)
+        refresh(mapping, snapshot_path)
     if options.check or not options.refresh:
-        check(mapping)
+        check(mapping, snapshot_path)

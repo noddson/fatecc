@@ -1,4 +1,4 @@
-Fate Core Companion — Rules attribution
+Fate Campaign Companion — Rules attribution
 
 ©2013 Evil Hat Productions, LLC.
 
@@ -10,7 +10,12 @@ Source file: source/fate-core-SRD.html
 Permanent source link: https://github.com/fate-srd/fate-srd-content/blob/93ed848e723f31b4994b466b7241011ba24be885/source/fate-core-SRD.html
 Source SHA-256: d345efb80ca2221df88157d4e553d247662661781cac04e610d4c3147cba07ec
 
-Only the Fate Core SRD is bundled as rules content. It comes from the repository's explicitly CC-BY source file. The repository's abridged OGL Core Markdown edition is not used. Repository preparation is credited to Randy Oest and the fate-srd-content contributors; the upstream README is retained with the source.
+Fate Core and Fate Accelerated are bundled as separate rules libraries from the repository's explicitly CC-BY original HTML sources. The repository's abridged OGL Core Markdown edition is not used. Repository preparation is credited to Randy Oest and the fate-srd-content contributors; the upstream README is retained with the source.
+
+Accelerated source file: source/fate-accelerated-SRD.html
+Permanent source link: https://github.com/fate-srd/fate-srd-content/blob/93ed848e723f31b4994b466b7241011ba24be885/source/fate-accelerated-SRD.html
+Source SHA-256: 35e66d6cae993216dcaa6cff867d32d96b485c8e436d00f75f57649ee9e871f0
+Accelerated transformations: The original pinned CC-BY HTML is converted into heading-based offline entries and Markdown using the Core HTML reader. Visible link text and examples are retained; whitespace and tables are normalized; artwork, styling and empty placeholders are omitted. The upstream Markdown conversion, which omits some linked text, is not used.
 
 Changes: Repository HTML is converted to generated Markdown and heading-based plain-text reference entries. Markup and whitespace are normalized, empty graphic placeholders are omitted, and the original copyright and attribution are retained. App-written explanations and sample campaign material are adaptations or original companion content, identified separately from the imported reference text. No rules prose is extracted from the retail PDF or scraped from rendered website pages.
 

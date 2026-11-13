@@ -184,8 +184,10 @@ export function reverseRoll(campaign: Campaign, roll: RollRecord): void {
     roll.conflictId &&
     roll.conflictId === campaign.play.conflictId &&
     sameExchange &&
-    roll.action !== 'defend'
+    (roll.action !== 'defend' || !!roll.helperIds?.length)
   )
-    campaign.play.actedIds = campaign.play.actedIds.filter((id) => id !== roll.characterId);
+    campaign.play.actedIds = campaign.play.actedIds.filter(
+      (id) => (roll.action === 'defend' || id !== roll.characterId) && !roll.helperIds?.includes(id),
+    );
   for (const id of touched) character(id).revision++;
 }

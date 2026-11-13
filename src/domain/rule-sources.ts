@@ -1,3 +1,6 @@
+import type { RuleSetDefinition } from './types';
+import { isAccelerated } from './editions';
+import acceleratedEntries from '../content/accelerated-reference.json';
 import sourceMetadata from '../content/source-metadata.json';
 import { coreReadingUrl } from '../content/reading-links';
 
@@ -50,4 +53,51 @@ export function coreRuleSource(topic: CoreRuleTopic): { label: string; url: stri
     url: coreReadingUrl(line),
     sourceUrl: `${CORE_RULE_SOURCE_URL}#L${line}`,
   };
+}
+
+const acceleratedTopics: Record<CoreRuleTopic, string> = {
+  'game-creation': 'Telling Stories Together',
+  'character-creation': 'Who Do You Want to Be?',
+  'high-concept': 'High Concept',
+  trouble: 'Trouble',
+  name: 'Name and Appearance',
+  'phase-trio': 'Who Do You Want to Be?',
+  skills: 'Approaches',
+  stunts: 'Stunts and Refresh',
+  stress: 'What Is Stress?',
+  'quick-creation': 'How Do I Make the Character?',
+  'stunts-in-play': 'Stunts',
+  boosts: 'What Kinds of Aspects Are There?',
+  invocations: 'What Do You Do With Aspects?',
+  'free-invocations': 'What Do You Do With Aspects?',
+  compels: 'What Do You Do With Aspects?',
+  'fate-economy': 'Invoking Aspects',
+  'earning-fate': 'Compelling Aspects',
+  'gm-fate': 'Compelling Aspects',
+  'skill-list': 'Choose Your Approach',
+  outcomes: 'Outcomes',
+  actions: 'Actions',
+  conflicts: 'Conflicts',
+  initiative: 'Determine Turn Order',
+  exchanges: 'Exchanges',
+  harm: 'What Is Stress?',
+  recovery: 'Getting Better—Recovering from Stress and Consequences',
+  extreme: 'What Are Consequences?',
+  concessions: 'Giving In',
+  teamwork: 'Getting Help',
+  npcs: 'Bad Guys',
+  mobs: 'Bad Guys',
+  advancement: 'Milestones',
+  'skill-columns': 'Significant Milestones',
+};
+export function ruleSource(
+  rules: RuleSetDefinition,
+  topic: CoreRuleTopic,
+): { label: string; url: string; sourceUrl: string } {
+  if (!isAccelerated(rules)) return coreRuleSource(topic);
+  const normalize = (title: string) => title.toLowerCase().replace(/[^a-z]/g, '');
+  const title = acceleratedTopics[topic];
+  const entry = acceleratedEntries.find((e) => normalize(e.title) === normalize(title));
+  if (!entry) throw new Error(`Missing Accelerated rule reference for ${topic}: ${title}`);
+  return { label: `Accelerated SRD · ${entry.title}`, url: entry.readingUrl, sourceUrl: entry.sourceUrl };
 }

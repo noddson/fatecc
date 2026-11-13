@@ -65,7 +65,7 @@ export function SheetFooter() {
       Fate™ is a trademark of Evil Hat Productions, LLC. The Powered by Fate logo is © Evil Hat Productions,
       LLC and is used with permission.
       <p>
-        Fate Core supporting game tools by Nick Oddson ·{' '}
+        Fate supporting game tools by Nick Oddson ·{' '}
         <a href="https://noddson.github.io/fatecc/">noddson.github.io/fatecc</a>
       </p>
     </footer>

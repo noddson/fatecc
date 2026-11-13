@@ -3,11 +3,13 @@ import { expect, test, type Page } from '@playwright/test';
 const githubSource =
   /^https:\/\/github\.com\/fate-srd\/fate-srd-content\/blob\/[a-f0-9]{40}\/source\/fate-core-SRD\.html$/;
 
-async function createCampaign(page: Page, name: string) {
+async function createCampaign(page: Page, name: string, system = 'fate-core') {
   await page.goto('./');
   await page.getByRole('button', { name: 'Create a campaign', exact: true }).click();
   const dialog = page.getByRole('dialog', { name: 'Give your story a name', exact: true });
   await dialog.getByLabel('Campaign name', { exact: true }).fill(name);
+  if (system !== 'fate-core')
+    await dialog.getByRole('combobox', { name: 'Rules system', exact: true }).selectOption(system);
   await dialog.getByRole('button', { name: 'Create campaign', exact: true }).click();
   await expect(page.getByRole('heading', { level: 1, name, exact: true })).toBeVisible();
 }
@@ -43,6 +45,70 @@ async function readOrSetStoredEdition(page: Page, contentVersion?: string) {
     }
   }, contentVersion);
 }
+
+test('Accelerated uses the existing Rules library categories, offline reader, and specific section links', async ({
+  page,
+  context,
+}) => {
+  await createCampaign(page, 'Accelerated reference fixture', 'fate-accelerated');
+  await page
+    .getByRole('navigation', { name: 'Campaign' })
+    .getByRole('button', { name: 'Rules library', exact: true })
+    .click();
+  const filters = page.getByRole('complementary', { name: 'Reference categories' });
+  await expect(filters.locator('.reference-filter > span:first-child')).toHaveText([
+    'All references',
+    'About',
+    'Basics',
+    'Campaigns & advancement',
+    'Characters',
+    'Aspects & Fate points',
+    'Skills & stunts',
+    'Actions & outcomes',
+    'Challenges & conflicts',
+    'Running the game',
+  ]);
+  const externalRequests: string[] = [];
+  page.on('request', (request) => {
+    if (new URL(request.url()).origin !== new URL(page.url()).origin) externalRequests.push(request.url());
+  });
+  await context.setOffline(true);
+  const search = page.getByRole('searchbox', { name: 'Search rules and references' });
+  const article = page.getByRole('dialog');
+  await search.fill('Approaches');
+  await filters.getByRole('button', { name: /^Characters/ }).click();
+  await page
+    .locator('.reference-card')
+    .filter({ has: page.getByRole('heading', { name: 'Approaches', exact: true }) })
+    .click();
+  await expect(
+    article.getByRole('link', { name: 'Read this section on Fate-SRD.com', exact: true }),
+  ).toHaveAttribute('href', 'https://fate-srd.com/fate-accelerated/who-do-you-want-be#approaches');
+  await expect(article.locator('.reference-article')).toContainText('Careful');
+  await article.getByRole('button', { name: 'Close reference', exact: true }).click();
+  await filters.getByRole('button', { name: /^Aspects & Fate points/ }).click();
+  await search.fill('Boosts');
+  await page
+    .locator('.reference-card')
+    .filter({ has: page.getByRole('heading', { name: 'What Kinds of Aspects Are There?', exact: true }) })
+    .click();
+  await expect(article.locator('.reference-article')).toContainText('Boosts:');
+  await expect(
+    article.getByRole('link', { name: 'Read this section on Fate-SRD.com', exact: true }),
+  ).toHaveAttribute(
+    'href',
+    'https://fate-srd.com/fate-accelerated/aspects-fate-points#what-kinds-of-aspects-are-there',
+  );
+  await article.getByText('Source attribution', { exact: true }).click();
+  await expect(
+    article.getByRole('link', { name: 'View original GitHub source', exact: true }),
+  ).toHaveAttribute(
+    'href',
+    /^https:\/\/github\.com\/fate-srd\/fate-srd-content\/blob\/[a-f0-9]{40}\/source\/fate-accelerated-SRD\.html#L696$/,
+  );
+  expect(externalRequests).toEqual([]);
+  await context.setOffline(false);
+});
 
 test('the offline library links to readable Fate SRD pages with separate source attribution', async ({
   page,

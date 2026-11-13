@@ -7,7 +7,8 @@ import type {
   Stunt,
   ValidationIssue,
 } from './types';
-import { coreRuleSource, type CoreRuleTopic } from './rule-sources';
+import { isAccelerated, advancementCap, ratingName } from './editions';
+import { ruleSource, type CoreRuleTopic } from './rule-sources';
 
 export const LADDER: Record<number, string> = {
   '-2': 'Terrible',
@@ -30,6 +31,24 @@ export function deriveCharacter(character: Character, rules: RuleSetDefinition) 
     0,
   );
   const refresh = rules.refresh + character.refreshAdjustment - stuntCost;
+  if (isAccelerated(rules) && character.kind === 'nameless') {
+    const count = character.mook?.groupSize
+      ? Math.floor(character.mook.groupSize / 2)
+      : (character.mook?.stressBoxes ?? 0);
+    return {
+      refresh,
+      stuntCost,
+      tracks: [
+        {
+          id: 'stress',
+          name: 'Stress (physical or mental)',
+          boxes: Array.from({ length: count }, (_, i) => i + 1),
+          bonusMild: false,
+        },
+      ],
+      consequenceSlots: [] as { value: number; trackId?: string }[],
+    };
+  }
   if (character.kind === 'nameless') {
     const peak = Math.max(1, ...Object.values(character.skills));
     return {
@@ -47,7 +66,7 @@ export function deriveCharacter(character: Character, rules: RuleSetDefinition) 
     };
   }
   const tracks = rules.stressTracks.map((track) => {
-    const level = character.skills[track.skillId] ?? 0;
+    const level = !isAccelerated(rules) && track.skillId ? (character.skills[track.skillId] ?? 0) : 0;
     const extra = level >= 3 ? 2 : level >= 1 ? 1 : 0;
     const maximum = Math.max(0, ...track.boxes);
     return {
@@ -58,7 +77,11 @@ export function deriveCharacter(character: Character, rules: RuleSetDefinition) 
     };
   });
   const baseSlots =
-    character.kind === 'supporting' ? (character.npcTough ? [2, 4] : [2]) : rules.consequenceSlots;
+    character.kind === 'supporting' && !isAccelerated(rules)
+      ? character.npcTough
+        ? [2, 4]
+        : [2]
+      : rules.consequenceSlots;
   const consequenceSlots: { value: number; trackId?: string }[] = baseSlots.map((value) => ({ value }));
   tracks.filter((t) => t.bonusMild).forEach((t) => consequenceSlots.push({ value: 2, trackId: t.id }));
   return { refresh, stuntCost, tracks, consequenceSlots };
@@ -80,7 +103,12 @@ export function validateCharacter(character: Character, rules: RuleSetDefinition
     topic: CoreRuleTopic,
     severity: 'warning' | 'error' = 'error',
   ) => {
-    const reference = coreRuleSource(topic);
+    const reference = ruleSource(rules, topic);
+    if (isAccelerated(rules))
+      message = message
+        .replace(/Skills/g, ratingName(rules, true))
+        .replace(/skills/g, 'approaches')
+        .replace(/skill/g, 'approach');
     issues.push({ field, message, severity, source: reference.label, sourceUrl: reference.url });
   };
   if (!character.name.trim()) add('name', 'Give this character a name.', 'name');
@@ -88,17 +116,25 @@ export function validateCharacter(character: Character, rules: RuleSetDefinition
   const incomplete = character.status === 'draft' ? 'warning' : 'error';
   if (!character.aspects.some((a) => a.kind === 'highConcept' && a.name.trim()))
     add('aspects', 'Add a high concept.', 'high-concept', incomplete);
+  const accelerated = isAccelerated(rules);
+  const advanced = character.milestones.some((m) => m.type !== 'minor');
+  const cap = advanced ? advancementCap(rules) : rules.skillCap;
   if (character.creationMode === 'full') {
+    const aspectTotal = character.aspects.filter(
+      (a) =>
+        a.name.trim() &&
+        (a.kind !== 'consequence' || character.consequences.some((c) => c.id === a.id && c.value === 8)),
+    ).length;
     if (
-      character.aspects.filter(
-        (a) =>
-          a.name.trim() &&
-          (a.kind !== 'consequence' || character.consequences.some((c) => c.id === a.id && c.value === 8)),
-      ).length !== rules.aspectCount
+      accelerated
+        ? aspectTotal < Math.min(3, rules.aspectCount) || aspectTotal > rules.aspectCount
+        : aspectTotal !== rules.aspectCount
     )
       add(
         'aspects',
-        `Complete ${rules.aspectCount} character aspects, including high concept and trouble.`,
+        accelerated
+          ? 'Add a high concept, trouble, and another aspect; the remaining aspects are optional.'
+          : `Complete ${rules.aspectCount} character aspects, including high concept and trouble.`,
         'character-creation',
         incomplete,
       );
@@ -115,11 +151,10 @@ export function validateCharacter(character: Character, rules: RuleSetDefinition
   for (const [skillId, rating] of Object.entries(character.skills)) {
     if (!skillIds.has(skillId))
       add('skills', `Unknown skill: ${skillId}. Preserve or map it when changing the game rules.`, 'skills');
-    if (!Number.isInteger(rating) || rating < 0 || rating > rules.skillCap)
-      add('skills', `${skillId} must be a whole rating between 0 and ${rules.skillCap}.`, 'skills');
+    if (!Number.isInteger(rating) || rating < 0 || rating > cap)
+      add('skills', `${skillId} must be a whole rating between 0 and ${cap}.`, 'skills');
   }
-  const advanced = character.milestones.some((m) => m.type !== 'minor');
-  if (advanced || rules.allocation === 'columns') {
+  if (!accelerated && (advanced || rules.allocation === 'columns')) {
     if (!supportedColumns(character.skills))
       add(
         'skills',
@@ -129,8 +164,11 @@ export function validateCharacter(character: Character, rules: RuleSetDefinition
   }
   if (!advanced) {
     for (const [rank, slots] of Object.entries(rules.skillSlots)) {
-      const count = Object.values(character.skills).filter((v) => v === Number(rank)).length;
-      if (count > slots)
+      const count = rules.skills.filter((s) => (character.skills[s.id] ?? 0) === Number(rank)).length;
+      if (
+        count > slots &&
+        (Number(rank) !== 0 || character.creationMode === 'full' || character.status === 'ready')
+      )
         add('skills', `Only ${slots} skill${slots === 1 ? '' : 's'} may start at +${rank}.`, 'skills');
       else if (count < slots && character.creationMode === 'full')
         add(
@@ -182,6 +220,7 @@ export function resolveAction(
   total: number,
   opposition: number,
   advantageExisting = false,
+  rules?: RuleSetDefinition,
 ): ActionResult {
   if (!Number.isFinite(total) || !Number.isFinite(opposition))
     throw new Error('Roll totals and opposition must be finite numbers.');
@@ -196,7 +235,10 @@ export function resolveAction(
     },
     advantage: advantageExisting
       ? {
-          failure: 'No advantage; an opponent may receive a free invocation instead.',
+          failure:
+            rules && isAccelerated(rules)
+              ? 'No additional benefit. The aspect remains available for a paid invocation.'
+              : 'No advantage; an opponent may receive a free invocation instead.',
           tie: 'Gain one free invocation on the existing aspect.',
           success: 'Gain one free invocation on the existing aspect.',
           style: 'Gain two free invocations on the existing aspect.',
@@ -256,8 +298,17 @@ export function rollDice(
   return dice;
 }
 
-export function initiative(characters: Character[], type: 'physical' | 'mental'): Character[] {
-  const skills = type === 'physical' ? ['notice', 'athletics', 'physique'] : ['empathy', 'rapport', 'will'];
+export function initiative(
+  characters: Character[],
+  type: 'physical' | 'mental',
+  rules?: RuleSetDefinition,
+): Character[] {
+  const skills =
+    rules && isAccelerated(rules)
+      ? [type === 'physical' ? 'quick' : 'careful']
+      : type === 'physical'
+        ? ['notice', 'athletics', 'physique']
+        : ['empathy', 'rapport', 'will'];
   return [...characters].sort((a, b) => {
     for (const s of skills) {
       const difference = (b.skills[s] ?? 0) - (a.skills[s] ?? 0);
@@ -267,10 +318,15 @@ export function initiative(characters: Character[], type: 'physical' | 'mental')
   });
 }
 
-export function teamworkBonus(leader: Character, helpers: Character[], skillId: string): number {
+export function teamworkBonus(
+  leader: Character,
+  helpers: Character[],
+  skillId: string,
+  rules?: RuleSetDefinition,
+): number {
   if (new Set(helpers.map((h) => h.id)).size !== helpers.length || helpers.some((h) => h.id === leader.id))
     throw new Error('Each helper may contribute only once, and the leader cannot also help.');
-  if (helpers.some((h) => (h.skills[skillId] ?? 0) < 1))
+  if ((!rules || !isAccelerated(rules)) && helpers.some((h) => (h.skills[skillId] ?? 0) < 1))
     throw new Error('A helper must have at least Average (+1) in the same skill.');
   return helpers.length;
 }
@@ -303,6 +359,7 @@ export function validateHarm(
   }
   if (consequences.some((c) => c.trackId && c.trackId !== trackId))
     throw new Error('Restricted consequence slots must match the kind of harm.');
+  if (extreme && isAccelerated(rules)) throw new Error('Extreme consequences are a Core rule.');
   if (extreme && (character.kind === 'nameless' || character.kind === 'supporting'))
     throw new Error('This NPC profile does not have an extreme consequence.');
   if (extreme && character.extremeUsed)
@@ -329,7 +386,7 @@ export function applyMilestoneChoice(
       throw new Error('Choose skills in this game.');
     const first = result.skills[choice.first] ?? 0,
       second = result.skills[choice.second] ?? 0;
-    if ((first === 0 || second === 0) && Math.max(first, second) !== 1)
+    if (!isAccelerated(rules) && (first === 0 || second === 0) && Math.max(first, second) !== 1)
       throw new Error('Only an Average (+1) skill may be replaced with an untrained skill.');
     result.skills[choice.first] = second;
     result.skills[choice.second] = first;

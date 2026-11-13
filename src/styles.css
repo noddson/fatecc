@@ -3338,3 +3338,72 @@ h2,
   margin: 6px 0 0;
   white-space: pre-wrap;
 }
+
+/* Text identifies the rules system; color adds a quiet second cue. */
+.system-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: fit-content;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  padding: 3px 9px;
+  font-family: var(--font-ui, sans-serif);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.5;
+  white-space: nowrap;
+  letter-spacing: 0.015em;
+}
+.system-core {
+  color: #285b79;
+  background: #edf5fa;
+}
+.system-accelerated {
+  color: #805011;
+  background: #fff5e3;
+}
+.system-mark {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  flex: none;
+}
+.sidebar-campaign .system-badge {
+  margin-top: 10px;
+  font-size: 10px;
+}
+.sidebar-campaign .system-core {
+  color: #c4e1f2;
+  background: #ffffff08;
+  border-color: #c4e1f240;
+}
+.sidebar-campaign .system-accelerated {
+  color: #f1d098;
+  background: #ffffff08;
+  border-color: #f1d09850;
+}
+.campaign-card-body .system-badge {
+  margin: 5px 0 3px;
+}
+.breadcrumb .system-badge {
+  margin-left: 8px;
+}
+.rules-choice-summary {
+  background: #f3f6f8;
+  padding: 12px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+}
+@media (max-width: 620px) {
+  .breadcrumb {
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+  .breadcrumb .system-badge {
+    margin-left: 2px;
+    font-size: 9px;
+    padding: 2px 6px;
+  }
+}

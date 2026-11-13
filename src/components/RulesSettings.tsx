@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { Check, Plus, Settings2 } from 'lucide-react';
-import { CORE_RULES, id } from '../domain/defaults';
+import { rulesPreset, id } from '../domain/defaults';
+import { isAccelerated, systemId, systemName, ratingName } from '../domain/editions';
 import { validateCharacter } from '../domain/rules';
 import type { RuleSetDefinition } from '../domain/types';
 import { Badge, ConfirmButton, Field, Modal, PageTitle, downloadFile, slug, type EditorProps } from '../ui';
 import { exportRules, parseRulesExport } from '../storage/backup';
 export function RulesSettings({ campaign: c, update, notify, readOnly }: EditorProps) {
+  const accelerated = isAccelerated(c.rules);
   const [r, setR] = useState<RuleSetDefinition>(structuredClone(c.rules));
   const [preview, setPreview] = useState(false);
   const change = <K extends keyof RuleSetDefinition>(key: K, value: RuleSetDefinition[K]) =>
@@ -23,7 +25,7 @@ export function RulesSettings({ campaign: c, update, notify, readOnly }: EditorP
   const numbers: [keyof RuleSetDefinition, string, number, number][] = [
     ['aspectCount', 'Character aspects', 2, 12],
     ['phaseCount', 'Backstory phases', 0, 10],
-    ['skillCap', 'Starting skill cap', 1, 10],
+    ['skillCap', `Starting ${ratingName(c.rules).toLowerCase()} cap`, 1, 10],
     ['refresh', 'Starting refresh', 1, 20],
     ['freeStunts', 'Free stunts', 0, 20],
   ];
@@ -33,7 +35,7 @@ export function RulesSettings({ campaign: c, update, notify, readOnly }: EditorP
       <PageTitle
         eyebrow="Game definition"
         title="Make Fate your own"
-        text="A verified Core foundation, with room for your world’s rules."
+        text={`A ${systemName(c.rules)} foundation, with room for your world’s rules.`}
         actions={
           <>
             <button
@@ -58,7 +60,15 @@ export function RulesSettings({ campaign: c, update, notify, readOnly }: EditorP
                       void f
                         .text()
                         .then(parseRulesExport)
-                        .then(setR)
+                        .then((rules) => {
+                          if (systemId(rules) !== systemId(c.rules))
+                            throw new Error(
+                              'This campaign uses ' +
+                                systemName(c.rules) +
+                                '. Create a new campaign to use another system.',
+                            );
+                          setR(rules);
+                        })
                         .catch((e) => notify(e.message, true));
                   }}
                 />
@@ -73,7 +83,8 @@ export function RulesSettings({ campaign: c, update, notify, readOnly }: EditorP
           <strong>Changes belong to this campaign.</strong>
           <p>
             Review their effect before applying. Existing character choices and historical rolls are
-            preserved. Core uses rated stress boxes and the four actions throughout.
+            preserved. This campaign uses {systemName(c.rules)}. Select another system when creating a new
+            campaign.
           </p>
         </div>
         <Badge>Revision {c.rules.version}</Badge>
@@ -91,27 +102,42 @@ export function RulesSettings({ campaign: c, update, notify, readOnly }: EditorP
                   <input
                     type="number"
                     min={min}
-                    max={max}
+                    max={accelerated && key === 'skillCap' ? 5 : max}
                     value={Number(r[key])}
                     onChange={(e) =>
-                      change(key, Math.max(min, Math.min(max, Number(e.target.value))) as never)
+                      change(
+                        key,
+                        Math.max(
+                          min,
+                          Math.min(accelerated && key === 'skillCap' ? 5 : max, Number(e.target.value)),
+                        ) as never,
+                      )
                     }
                   />
                 </Field>
               ))}
             </div>
-            <Field label="Skill allocation">
+            <Field label={`${ratingName(c.rules)} allocation`}>
               <select
                 value={r.allocation}
-                onChange={(e) => change('allocation', e.target.value as 'pyramid' | 'columns')}
+                onChange={(e) => change('allocation', e.target.value as RuleSetDefinition['allocation'])}
               >
-                <option value="pyramid">Pyramid</option>
-                <option value="columns">Columns</option>
+                {accelerated ? (
+                  <option value="approaches">Approaches</option>
+                ) : (
+                  <>
+                    <option value="pyramid">Pyramid</option>
+                    <option value="columns">Columns</option>
+                  </>
+                )}
               </select>
             </Field>
             <p className="muted">Starting slots at each rating</p>
             <div className="slot-grid">
-              {Array.from({ length: r.skillCap }, (_, i) => i + 1).map((rank) => (
+              {Array.from(
+                { length: r.skillCap + (accelerated ? 1 : 0) },
+                (_, i) => i + (accelerated ? 0 : 1),
+              ).map((rank) => (
                 <Field key={rank} label={`+${rank}`}>
                   <input
                     type="number"
@@ -153,23 +179,28 @@ export function RulesSettings({ campaign: c, update, notify, readOnly }: EditorP
                   />
                 </div>
                 <div className="form-grid">
-                  <Field label="Governing skill">
-                    <select
-                      value={track.skillId}
-                      onChange={(e) =>
-                        change(
-                          'stressTracks',
-                          r.stressTracks.map((t, k) => (k === i ? { ...t, skillId: e.target.value } : t)),
-                        )
-                      }
-                    >
-                      {r.skills.map((s) => (
-                        <option key={s.id} value={s.id}>
-                          {s.name}
-                        </option>
-                      ))}
-                    </select>
-                  </Field>
+                  {!accelerated && (
+                    <Field label="Governing skill">
+                      <select
+                        value={track.skillId ?? ''}
+                        onChange={(e) =>
+                          change(
+                            'stressTracks',
+                            r.stressTracks.map((t, k) =>
+                              k === i ? { ...t, skillId: e.target.value || undefined } : t,
+                            ),
+                          )
+                        }
+                      >
+                        <option value="">None · fixed capacity</option>
+                        {r.skills.map((s) => (
+                          <option key={s.id} value={s.id}>
+                            {s.name}
+                          </option>
+                        ))}
+                      </select>
+                    </Field>
+                  )}
                   <Field label="Base rated boxes" hint="A comma-separated list, such as 1, 2.">
                     <input
                       defaultValue={track.boxes.join(', ')}
@@ -194,7 +225,12 @@ export function RulesSettings({ campaign: c, update, notify, readOnly }: EditorP
               onClick={() =>
                 change('stressTracks', [
                   ...r.stressTracks,
-                  { id: id(), name: 'New track', skillId: r.skills[0]?.id || 'will', boxes: [1, 2] },
+                  {
+                    id: id(),
+                    name: 'New track',
+                    skillId: accelerated ? undefined : r.skills[0]?.id || 'will',
+                    boxes: [1, 2],
+                  },
                 ])
               }
             >
@@ -218,7 +254,7 @@ export function RulesSettings({ campaign: c, update, notify, readOnly }: EditorP
         </div>
         <section className="panel">
           <div className="section-heading">
-            <h2>Skills in your setting</h2>
+            <h2>{ratingName(c.rules, true)} in your setting</h2>
             <button
               onClick={() =>
                 change('skills', [
@@ -228,14 +264,14 @@ export function RulesSettings({ campaign: c, update, notify, readOnly }: EditorP
               }
             >
               <Plus size={15} />
-              Add skill
+              Add {ratingName(c.rules).toLowerCase()}
             </button>
           </div>
           <div className="skills-config">
             {r.skills.map((s, i) => (
               <div className="skill-config" key={s.id}>
                 <input
-                  aria-label={`Skill ${i + 1} name`}
+                  aria-label={`${ratingName(c.rules)} ${i + 1} name`}
                   value={s.name}
                   onChange={(e) =>
                     change(
@@ -246,7 +282,7 @@ export function RulesSettings({ campaign: c, update, notify, readOnly }: EditorP
                 />
                 <input
                   aria-label={`${s.name} description`}
-                  placeholder="What does this skill do?"
+                  placeholder={`What does this ${ratingName(c.rules).toLowerCase()} do?`}
                   value={s.description}
                   onChange={(e) =>
                     change(
@@ -285,8 +321,8 @@ export function RulesSettings({ campaign: c, update, notify, readOnly }: EditorP
           </Field>
         </section>
         <div className="sticky-actions">
-          <button onClick={() => setR({ ...structuredClone(CORE_RULES), version: c.rules.version })}>
-            Use Core defaults
+          <button onClick={() => setR({ ...rulesPreset(systemId(c.rules)), version: c.rules.version })}>
+            Use {systemName(c.rules)} defaults
           </button>
           <span className="muted">{changed ? 'Unapplied changes' : 'Up to date'}</span>
           <button className="button-primary" disabled={!changed} onClick={() => setPreview(true)}>
@@ -321,7 +357,12 @@ export function RulesSettings({ campaign: c, update, notify, readOnly }: EditorP
             <button
               className="button-primary"
               onClick={() => {
-                const next = { ...r, id: r.id === CORE_RULES.id ? id() : r.id, version: c.rules.version + 1 };
+                const next = {
+                  ...r,
+                  system: systemId(c.rules),
+                  id: r.id === systemId(c.rules) ? id() : r.id,
+                  version: c.rules.version + 1,
+                };
                 void update((d) => {
                   d.rules = next;
                 }).then((ok) => {

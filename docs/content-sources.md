@@ -10,6 +10,10 @@ Rules badges, character validation, printed rules references, and each library a
 
 Run `python3 scripts/audit-reading-links.py --check` to check curated fragment targets against the saved heading metadata offline. Use `--refresh` to fetch updated heading metadata from the official pages before reviewing destination changes. The normal rules importer stays offline and reads only the pinned GitHub source.
 
+Accelerated uses the same **Rules library** screen, search, reading dialog, custom campaign references, and offline cache. Its 68 entries use the same topic categories and category order as Core. `accelerated-reading-links.json` maps pinned Accelerated source lines to verified official destinations; `accelerated-reading-headings.json` retains heading metadata from its 12 linked pages. The importer assigns the exact matching section anchor where one exists. The four action headings have no official IDs, so they open the enclosing Actions section. The Boosts help topic opens “What Kinds of Aspects Are There?”, which contains its explanation. Changes to reading destinations and categories preserve rule prose, entry IDs, pinned source links, and the campaign content version.
+
+Run `python3 scripts/audit-reading-links.py --edition accelerated --check` to verify these destinations offline. Use the same command with `--refresh` to update heading metadata for review, then regenerate with `python3 scripts/import-accelerated.py`. Core remains the audit script's default edition.
+
 ## Why Core uses the repository's HTML source
 
 The preferred upstream Markdown file, [`docs/markdown/fate-core.md`](https://github.com/fate-srd/fate-srd-content/blob/93ed848e723f31b4994b466b7241011ba24be885/docs/markdown/fate-core.md), explicitly identifies itself as an **OGL** edition. Its formatter, John Alan Large, also states that examples were removed. It is not used as the app's complete CC-BY Core reference.

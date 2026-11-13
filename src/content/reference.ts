@@ -2,10 +2,26 @@ import MiniSearch from 'minisearch';
 import type { ReferenceEntry, WorldEntry } from '../domain/types';
 import sourceEntries from './reference.json';
 import sourceMetadata from './source-metadata.json';
+import acceleratedEntries from './accelerated-reference.json';
+import acceleratedMetadata from './accelerated-metadata.json';
+import { isAccelerated } from '../domain/editions';
+import type { RuleSetDefinition } from '../domain/types';
+
+export const referencesForRules = (rules: RuleSetDefinition): ReferenceEntry[] =>
+  isAccelerated(rules) ? acceleratedEntries : REFERENCE_ENTRIES;
+export const metadataForRules = (rules: RuleSetDefinition) =>
+  isAccelerated(rules) ? acceleratedMetadata : REFERENCE_METADATA;
 
 export const REFERENCE_ENTRIES: ReferenceEntry[] = sourceEntries;
 export const REFERENCE_METADATA = sourceMetadata;
 export const REFERENCE_CATEGORIES = [...new Set(REFERENCE_ENTRIES.map((entry) => entry.category))];
+export function referenceCategories(entries: ReferenceEntry[]): string[] {
+  const present = new Set(entries.map((entry) => entry.category));
+  return [
+    ...REFERENCE_CATEGORIES.filter((category) => present.has(category)),
+    ...[...present].filter((category) => !REFERENCE_CATEGORIES.includes(category)),
+  ];
+}
 export function createReferenceSearch(
   entries: ReferenceEntry[] = REFERENCE_ENTRIES,
 ): MiniSearch<ReferenceEntry> {

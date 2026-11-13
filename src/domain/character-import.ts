@@ -1,3 +1,4 @@
+import { systemId } from './editions';
 import type { Asset, Campaign, Character, RuleSetDefinition } from './types';
 import { id } from './defaults';
 
@@ -15,16 +16,21 @@ export function ruleDifferences(source: RuleSetDefinition, target: RuleSetDefini
     ['consequenceSlots', 'Consequence slots'],
     ['houseRules', 'House rules'],
   ];
-  return fields
-    .filter(([field]) => JSON.stringify(source[field]) !== JSON.stringify(target[field]))
-    .map(([, name]) => name);
+  return [
+    ...(systemId(source) !== systemId(target) ? ['Rules system'] : []),
+    ...fields
+      .filter(([field]) => JSON.stringify(source[field]) !== JSON.stringify(target[field]))
+      .map(([, name]) => name),
+  ];
 }
 
 /** A reviewed character import is an independent draft; asset and internal IDs are remapped. */
 export function prepareCharacterImport(
-  source: { character: Character; assets: Asset[] },
+  source: { character: Character; assets: Asset[]; rules?: RuleSetDefinition },
   campaign: Campaign,
 ): { character: Character; assets: Asset[] } {
+  if (source.rules && systemId(source.rules) !== systemId(campaign.rules))
+    throw new Error('Character and campaign must use the same rules system.');
   const character = structuredClone(source.character),
     oldId = character.id,
     newId = id();

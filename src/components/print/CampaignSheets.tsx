@@ -1,3 +1,4 @@
+import { isAccelerated, ratingName } from '../../domain/editions';
 import { playerName } from '../../domain/player-view';
 import type { Campaign } from '../../domain/types';
 import { deriveCharacter, LADDER } from '../../domain/rules';
@@ -84,15 +85,15 @@ export function GameWorksheet({ campaign: c }: { campaign: Campaign }) {
           <dl className="fs-dials">
             <dt>Aspects / phases</dt>
             <dd>
-              {r.aspectCount} / {r.phaseCount}
+              {isAccelerated(r) ? `3–${r.aspectCount}` : r.aspectCount} / {r.phaseCount}
             </dd>
-            <dt>Skill cap</dt>
+            <dt>Starting {ratingName(r).toLowerCase()} cap</dt>
             <dd>
               {LADDER[r.skillCap]} ({signed(r.skillCap)})
             </dd>
-            <dt>Skill allocation</dt>
+            <dt>{ratingName(r)} allocation</dt>
             <dd>{r.allocation}</dd>
-            <dt>Starting skill slots</dt>
+            <dt>Starting {ratingName(r).toLowerCase()} slots</dt>
             <dd>
               {Object.entries(r.skillSlots)
                 .sort(([a], [b]) => Number(b) - Number(a))
@@ -109,7 +110,9 @@ export function GameWorksheet({ campaign: c }: { campaign: Campaign }) {
                 <div key={track.id}>
                   {track.name}: {track.boxes.join(', ') || 'none'}
                   <small>
-                    Governing skill: {r.skills.find((s) => s.id === track.skillId)?.name || track.skillId}
+                    {track.skillId
+                      ? `Governing skill: ${r.skills.find((s) => s.id === track.skillId)?.name || track.skillId}`
+                      : 'Fixed capacity'}
                   </small>
                 </div>
               ))}
@@ -118,7 +121,7 @@ export function GameWorksheet({ campaign: c }: { campaign: Campaign }) {
             <dd>{r.consequenceSlots.join(' / ') || 'None'}</dd>
           </dl>
         </SheetSection>
-        <SheetSection title="Skills">
+        <SheetSection title={ratingName(r, true)}>
           <div className="fs-skill-list">
             {r.skills.map((skill) => (
               <div key={skill.id}>{skill.name}</div>

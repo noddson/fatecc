@@ -3,9 +3,11 @@ import { BookOpen, ChevronRight, Search, ShieldCheck, Plus } from 'lucide-react'
 import {
   campaignReferences,
   createReferenceSearch,
-  REFERENCE_ENTRIES,
-  REFERENCE_METADATA,
+  referencesForRules,
+  metadataForRules,
+  referenceCategories,
 } from '../content/reference';
+import { systemName, ratingName } from '../domain/editions';
 import { id } from '../domain/defaults';
 import type { ReferenceEntry, Visibility } from '../domain/types';
 import { Badge, Empty, Field, Modal, PageTitle, type EditorProps } from '../ui';
@@ -20,6 +22,7 @@ function excerpt(entry: ReferenceEntry, query: string): string {
 }
 
 export function ReferenceLibrary({ campaign, update, notify, readOnly }: EditorProps) {
+  const metadata = metadataForRules(campaign.rules);
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState('All references');
   const [selected, setSelected] = useState<ReferenceEntry>();
@@ -30,15 +33,12 @@ export function ReferenceLibrary({ campaign, update, notify, readOnly }: EditorP
   const [visibility, setVisibility] = useState<Visibility>('gm');
   const [saving, setSaving] = useState(false);
   const entries = useMemo(
-    () => [...REFERENCE_ENTRIES, ...campaignReferences(campaign.world)],
-    [campaign.world],
+    () => [...referencesForRules(campaign.rules), ...campaignReferences(campaign.world)],
+    [campaign.world, campaign.rules],
   );
   const search = useMemo(() => createReferenceSearch(entries), [entries]);
   const byId = useMemo(() => new Map(entries.map((entry) => [entry.id, entry])), [entries]);
-  const categories = useMemo(
-    () => ['All references', ...new Set(entries.map((entry) => entry.category))],
-    [entries],
-  );
+  const categories = useMemo(() => ['All references', ...referenceCategories(entries)], [entries]);
   const matching = useMemo(
     () =>
       (query.trim()
@@ -92,7 +92,7 @@ export function ReferenceLibrary({ campaign, update, notify, readOnly }: EditorP
       <PageTitle
         eyebrow="The reference library"
         title="A little clarity, a lot of possibility."
-        text="Fate Core rules from the official SRD repository, available offline."
+        text={`${systemName(campaign.rules)} rules from the official SRD repository, available offline.`}
         actions={
           !readOnly && (
             <button className="button-primary" onClick={() => setCreating(true)}>
@@ -102,7 +102,7 @@ export function ReferenceLibrary({ campaign, update, notify, readOnly }: EditorP
           )
         }
       />
-      {campaign.rules.contentVersion !== REFERENCE_METADATA.version && (
+      {campaign.rules.contentVersion !== metadata.version && (
         <aside className="reference-version-notice" aria-label="Reference edition notice">
           <strong>This campaign was saved with a different reference edition.</strong>
           <p>
@@ -116,7 +116,7 @@ export function ReferenceLibrary({ campaign, update, notify, readOnly }: EditorP
             </div>
             <div>
               <dt>Library reference edition</dt>
-              <dd>{REFERENCE_METADATA.version}</dd>
+              <dd>{metadata.version}</dd>
             </div>
           </dl>
         </aside>
@@ -127,7 +127,7 @@ export function ReferenceLibrary({ campaign, update, notify, readOnly }: EditorP
           aria-label="Search rules and references"
           type="search"
           value={query}
-          placeholder="Search skills, stunts, aspects, or a rule…"
+          placeholder={`Search ${ratingName(campaign.rules, true).toLowerCase()}, stunts, aspects, or a rule…`}
           onChange={(event) => {
             setQuery(event.target.value);
             setLimit(24);
@@ -162,13 +162,20 @@ export function ReferenceLibrary({ campaign, update, notify, readOnly }: EditorP
           <div className="reference-source-note">
             <BookOpen size={21} />
             <strong>A shared foundation</strong>
-            <p>Core rules stay distinct from the stories and house rules you add to this campaign.</p>
+            <p>
+              The selected system’s rules stay distinct from the stories and house rules you add to this
+              campaign.
+            </p>
           </div>
         </aside>
         <section className="reference-results" aria-label="Reference results">
           <div className="section-heading">
             <h2>
-              {category === 'All references' ? (query ? 'Search results' : 'Fate Core System') : category}
+              {category === 'All references'
+                ? query
+                  ? 'Search results'
+                  : systemName(campaign.rules)
+                : category}
             </h2>
             <span className="muted" role="status">
               {matching.length} {matching.length === 1 ? 'reference' : 'references'}
@@ -214,18 +221,18 @@ export function ReferenceLibrary({ campaign, update, notify, readOnly }: EditorP
           )}
           <details className="reference-attribution">
             <summary>Source, license & attribution</summary>
-            <p>{REFERENCE_METADATA.copyright}</p>
-            <p>{REFERENCE_METADATA.attribution}</p>
-            <p>{REFERENCE_METADATA.transformation}</p>
+            <p>{metadata.copyright}</p>
+            <p>{metadata.attribution}</p>
+            <p>{metadata.transformation}</p>
             <p>
-              Repository revision: <code>{REFERENCE_METADATA.revision}</code>
+              Repository revision: <code>{metadata.revision}</code>
             </p>
             <p>
-              <a href={REFERENCE_METADATA.sourceUrl} target="_blank" rel="noreferrer">
+              <a href={metadata.sourceUrl} target="_blank" rel="noreferrer">
                 Pinned GitHub source
               </a>{' '}
               ·{' '}
-              <a href={REFERENCE_METADATA.licenseUrl} target="_blank" rel="noreferrer">
+              <a href={metadata.licenseUrl} target="_blank" rel="noreferrer">
                 CC BY 3.0 license
               </a>{' '}
               ·{' '}
@@ -270,7 +277,7 @@ export function ReferenceLibrary({ campaign, update, notify, readOnly }: EditorP
             <span className="muted">
               {selected.source === 'Your campaign'
                 ? 'Your campaign’s reference material.'
-                : 'Fate Core System · ©2013 Evil Hat Productions, LLC · CC BY 3.0'}
+                : `${systemName(campaign.rules)} · ©2013 Evil Hat Productions, LLC · CC BY 3.0`}
             </span>
             <button onClick={() => setSelected(undefined)}>Close reference</button>
           </div>

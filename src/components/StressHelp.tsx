@@ -1,17 +1,20 @@
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { CircleHelp } from 'lucide-react';
-import type { Character } from '../domain/types';
-import { coreRuleSource } from '../domain/rule-sources';
+import type { Character, RuleSetDefinition } from '../domain/types';
+import { isAccelerated, systemName } from '../domain/editions';
+import { ruleSource } from '../domain/rule-sources';
 import { Modal } from '../ui';
 import './StressHelp.css';
 
 export function StressHelp({
   character,
+  rules,
   track,
   compact = false,
 }: {
   character: Character;
+  rules: RuleSetDefinition;
   track: { id: string; name: string; boxes: number[] };
   compact?: boolean;
 }) {
@@ -20,14 +23,17 @@ export function StressHelp({
   const marked = track.boxes.filter((box) => character.stress[track.id]?.includes(box));
   const available = track.boxes.filter((box) => !marked.includes(box));
   const shared = character.kind === 'nameless';
+  const accelerated = isAccelerated(rules);
   const explanation = shared
     ? 'This nameless NPC shares one stress track for physical and mental hits, and has no consequence slots.'
-    : track.id === 'physical'
-      ? 'Physical stress represents temporary strain: getting winded, a glancing blow, or a desperate dodge.'
-      : track.id === 'mental'
-        ? 'Mental stress represents temporary pressure on your composure: fear, intimidation, humiliation, or keeping your nerve.'
-        : `${track.name} stress represents temporary strain from the kind of pressure this track covers.`;
-  const source = coreRuleSource('harm');
+    : accelerated
+      ? 'This shared track absorbs both physical and mental strain. Approach ratings do not add boxes.'
+      : track.id === 'physical'
+        ? 'Physical stress represents temporary strain: getting winded, a glancing blow, or a desperate dodge.'
+        : track.id === 'mental'
+          ? 'Mental stress represents temporary pressure on your composure: fear, intimidation, humiliation, or keeping your nerve.'
+          : `${track.name} stress represents temporary strain from the kind of pressure this track covers.`;
+  const source = ruleSource(rules, 'harm');
   return (
     <>
       <button
@@ -82,11 +88,12 @@ export function StressHelp({
               </p>
               <h3>Getting a breather</h3>
               <p>
-                Stress clears after the conflict when the character has a chance to catch their breath.
-                Consequences are lasting setbacks with their own recovery requirements.
+                {accelerated
+                  ? 'Stress clears at the end of each scene. Mild consequences can clear after rest; moderate and severe consequences need more time and narrative care.'
+                  : 'Stress clears after the conflict when the character has a chance to catch their breath. Consequences are lasting setbacks with their own recovery requirements.'}
               </p>
               <a href={source.url} target="_blank" rel="noreferrer">
-                Read the Fate Core stress and consequences rules
+                Read the {systemName(rules)} stress and consequences rules
               </a>
             </div>
             <div className="modal-actions">
